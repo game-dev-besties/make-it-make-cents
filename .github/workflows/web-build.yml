@@ -1,0 +1,39 @@
+name: Build Web
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-build-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-web:
+    name: Build the Godot Web Export
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    container:
+      image: barichello/godot-ci@sha256:622e5ca81b54cd8038ecf7de5d157b47efc800d7cf635af2eec18a6aee4bab7e
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Build Web Export
+        run: ./scripts/build-web.sh
+
+      # note: we probably don't need to upload builds (?)
+      # - name: Upload Web build
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.2.2
+      #   with:
+      #     name: web-build
+      #     path: build/web
+      #     if-no-files-found: error
+      #     retention-days: 7
