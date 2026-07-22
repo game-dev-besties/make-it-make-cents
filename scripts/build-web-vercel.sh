@@ -15,8 +15,8 @@ esac
 
 cache_root="${cache_base}/godot/${godot_version}"
 godot_binary="${cache_root}/godot"
-godot_data_dir="${cache_root}/user-data"
-template_dir="${godot_data_dir}/godot/export_templates/${godot_version_tag}"
+cached_template_dir="${cache_root}/templates"
+godot_template_dir="${HOME}/.local/share/godot/export_templates/${godot_version_tag}"
 binary_url="https://github.com/godotengine/godot-builds/releases/download/${godot_version_tag}/Godot_v${godot_version}-stable_linux.x86_64.zip"
 template_url="https://github.com/godotengine/godot-builds/releases/download/${godot_version_tag}/Godot_v${godot_version}-stable_export_templates.tpz"
 binary_sha512="4ccdab7a48eeccbe8819a2fc1f6262f8d72065d98601bcb3743fcbd7ebd39f373758a788ee3293a05ec5b2c48538266c437404312e372225cd2df273945a2de9"
@@ -60,44 +60,48 @@ install_godot() {
 }
 
 install_web_templates() {
-    [[ -f "${template_dir}/web_nothreads_debug.zip" && -f "${template_dir}/web_nothreads_release.zip" ]] && return
+    if [[ ! -f "${cached_template_dir}/web_nothreads_debug.zip" || ! -f "${cached_template_dir}/web_nothreads_release.zip" ]]; then
+        local temporary_dir template_archive template_extract_dir
+        local debug_template_entry release_template_entry
+        local debug_template_file release_template_file
+        temporary_dir="$(mktemp -d)"
+        template_archive="${temporary_dir}/export_templates.tpz"
+        template_extract_dir="${temporary_dir}/templates"
 
-    local temporary_dir template_archive template_extract_dir
-    local debug_template_entry release_template_entry
-    local debug_template_file release_template_file
-    temporary_dir="$(mktemp -d)"
-    template_archive="${temporary_dir}/export_templates.tpz"
-    template_extract_dir="${temporary_dir}/templates"
+        echo "Downloading Godot ${godot_version} Web export templates..."
+        download "${template_url}" "${template_archive}"
+        verify_sha512 "${template_archive}" "${template_sha512}"
+        debug_template_entry="$(unzip -Z1 "${template_archive}" | awk '$0 ~ /(^|\/)web_nothreads_debug\.zip$/ { print; exit }')"
+        release_template_entry="$(unzip -Z1 "${template_archive}" | awk '$0 ~ /(^|\/)web_nothreads_release\.zip$/ { print; exit }')"
 
-    echo "Downloading Godot ${godot_version} Web export templates..."
-    download "${template_url}" "${template_archive}"
-    verify_sha512 "${template_archive}" "${template_sha512}"
-    debug_template_entry="$(unzip -Z1 "${template_archive}" | awk '$0 ~ /(^|\/)web_nothreads_debug\.zip$/ { print; exit }')"
-    release_template_entry="$(unzip -Z1 "${template_archive}" | awk '$0 ~ /(^|\/)web_nothreads_release\.zip$/ { print; exit }')"
+        [[ -n "${debug_template_entry}" && -n "${release_template_entry}" ]] || {
+            echo "Could not find the Web export templates in ${template_archive}" >&2
+            exit 1
+        }
 
-    [[ -n "${debug_template_entry}" && -n "${release_template_entry}" ]] || {
-        echo "Could not find the Web export templates in ${template_archive}" >&2
-        exit 1
-    }
+        mkdir -p "${template_extract_dir}"
+        unzip -q "${template_archive}" "${debug_template_entry}" "${release_template_entry}" -d "${template_extract_dir}"
 
-    mkdir -p "${template_extract_dir}"
-    unzip -q "${template_archive}" "${debug_template_entry}" "${release_template_entry}" -d "${template_extract_dir}"
+        debug_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_debug.zip' -print -quit)"
+        release_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_release.zip' -print -quit)"
 
-    debug_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_debug.zip' -print -quit)"
-    release_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_release.zip' -print -quit)"
+        [[ -n "${debug_template_file}" && -n "${release_template_file}" ]] || {
+            echo "Web export templates were not extracted from ${template_archive}" >&2
+            exit 1
+        }
 
-    [[ -n "${debug_template_file}" && -n "${release_template_file}" ]] || {
-        echo "Web export templates were not extracted from ${template_archive}" >&2
-        exit 1
-    }
+        mkdir -p "${cached_template_dir}"
+        cp "${debug_template_file}" "${cached_template_dir}/web_nothreads_debug.zip"
+        cp "${release_template_file}" "${cached_template_dir}/web_nothreads_release.zip"
+        rm -rf "${temporary_dir}"
+    fi
 
-    cp "${debug_template_file}" "${template_dir}/web_nothreads_debug.zip"
-    cp "${release_template_file}" "${template_dir}/web_nothreads_release.zip"
-    rm -rf "${temporary_dir}"
+    mkdir -p "${godot_template_dir}"
+    cp "${cached_template_dir}"/*.zip "${godot_template_dir}/"
 }
 
 export_web_game() {
-    XDG_DATA_HOME="${godot_data_dir}" GODOT_BIN="${godot_binary}" ./scripts/build-web.sh
+    GODOT_BIN="${godot_binary}" ./scripts/build-web.sh
 }
 
 stage_vercel_output() {
@@ -106,7 +110,7 @@ stage_vercel_output() {
     cp vercel-output-config.json .vercel/output/config.json
 }
 
-mkdir -p "${cache_root}" "${template_dir}"
+mkdir -p "${cache_root}" "${cached_template_dir}"
 install_godot
 install_web_templates
 export_web_game
