@@ -3,4 +3,5 @@
 /android/
 
 # web build artifacts
-build/
+build/*
+!build/.gdignore
