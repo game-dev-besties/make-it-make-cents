@@ -3,9 +3,17 @@ set -euo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 
+repo_root="$(pwd -P)"
 godot_version="4.7.1"
 godot_version_tag="${godot_version}-stable"
-cache_root="${VERCEL_CACHE_DIR:-.vercel/cache}/godot/${godot_version}"
+cache_base="${VERCEL_CACHE_DIR:-${repo_root}/.vercel/cache}"
+
+case "${cache_base}" in
+    /*) ;;
+    *) cache_base="${repo_root}/${cache_base#./}" ;;
+esac
+
+cache_root="${cache_base}/godot/${godot_version}"
 godot_binary="${cache_root}/godot"
 godot_data_dir="${cache_root}/user-data"
 template_dir="${godot_data_dir}/godot/export_templates/${godot_version_tag}"
