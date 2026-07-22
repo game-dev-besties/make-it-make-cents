@@ -5,7 +5,8 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 
 repo_root="$(pwd -P)"
 godot_version="4.7.1"
-godot_version_tag="${godot_version}-stable"
+godot_release_tag="${godot_version}-stable"
+godot_template_version="${godot_version}.stable"
 cache_base="${VERCEL_CACHE_DIR:-${repo_root}/.vercel/cache}"
 
 case "${cache_base}" in
@@ -16,9 +17,9 @@ esac
 cache_root="${cache_base}/godot/${godot_version}"
 godot_binary="${cache_root}/godot"
 cached_template_dir="${cache_root}/templates"
-godot_template_dir="${HOME}/.local/share/godot/export_templates/${godot_version_tag}"
-binary_url="https://github.com/godotengine/godot-builds/releases/download/${godot_version_tag}/Godot_v${godot_version}-stable_linux.x86_64.zip"
-template_url="https://github.com/godotengine/godot-builds/releases/download/${godot_version_tag}/Godot_v${godot_version}-stable_export_templates.tpz"
+godot_template_dir="${HOME}/.local/share/godot/export_templates/${godot_template_version}"
+binary_url="https://github.com/godotengine/godot-builds/releases/download/${godot_release_tag}/Godot_v${godot_version}-stable_linux.x86_64.zip"
+template_url="https://github.com/godotengine/godot-builds/releases/download/${godot_release_tag}/Godot_v${godot_version}-stable_export_templates.tpz"
 binary_sha512="4ccdab7a48eeccbe8819a2fc1f6262f8d72065d98601bcb3743fcbd7ebd39f373758a788ee3293a05ec5b2c48538266c437404312e372225cd2df273945a2de9"
 template_sha512="afcc83d8d3d298038f19c58744a0d660fa75dd4baa33cb55d1011bb2565a2a8c2381728924564cb909e37c205a23f21b521b23bd057993afd43ae4da0b2f9d47"
 
