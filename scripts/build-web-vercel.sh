@@ -22,8 +22,6 @@ template_url="https://github.com/godotengine/godot-builds/releases/download/${go
 binary_sha512="4ccdab7a48eeccbe8819a2fc1f6262f8d72065d98601bcb3743fcbd7ebd39f373758a788ee3293a05ec5b2c48538266c437404312e372225cd2df273945a2de9"
 template_sha512="afcc83d8d3d298038f19c58744a0d660fa75dd4baa33cb55d1011bb2565a2a8c2381728924564cb909e37c205a23f21b521b23bd057993afd43ae4da0b2f9d47"
 
-mkdir -p "${cache_root}" "${template_dir}"
-
 verify_sha512() {
     local file="$1"
     local expected="$2"
@@ -45,9 +43,11 @@ download() {
     curl --fail --location --retry 3 --retry-all-errors --output "$2" "$1"
 }
 
-if [[ ! -x "${godot_binary}" ]]; then
+install_godot() {
+    [[ -x "${godot_binary}" ]] && return
+
+    local temporary_dir binary_archive
     temporary_dir="$(mktemp -d)"
-    trap 'rm -rf "${temporary_dir}"' EXIT
     binary_archive="${temporary_dir}/godot.zip"
 
     echo "Downloading Godot ${godot_version}..."
@@ -56,12 +56,18 @@ if [[ ! -x "${godot_binary}" ]]; then
     unzip -q -j "${binary_archive}" 'Godot_v*-stable_linux.x86_64' -d "${cache_root}"
     mv "${cache_root}/Godot_v${godot_version}-stable_linux.x86_64" "${godot_binary}"
     chmod +x "${godot_binary}"
-fi
+    rm -rf "${temporary_dir}"
+}
 
-if [[ ! -f "${template_dir}/web_nothreads_debug.zip" || ! -f "${template_dir}/web_nothreads_release.zip" ]]; then
+install_web_templates() {
+    [[ -f "${template_dir}/web_nothreads_debug.zip" && -f "${template_dir}/web_nothreads_release.zip" ]] && return
+
+    local temporary_dir template_archive template_extract_dir
+    local debug_template_entry release_template_entry
+    local debug_template_file release_template_file
     temporary_dir="$(mktemp -d)"
-    trap 'rm -rf "${temporary_dir}"' EXIT
     template_archive="${temporary_dir}/export_templates.tpz"
+    template_extract_dir="${temporary_dir}/templates"
 
     echo "Downloading Godot ${godot_version} Web export templates..."
     download "${template_url}" "${template_archive}"
@@ -74,12 +80,34 @@ if [[ ! -f "${template_dir}/web_nothreads_debug.zip" || ! -f "${template_dir}/we
         exit 1
     }
 
-    unzip -q -j "${template_archive}" "${debug_template_entry}" "${release_template_entry}" -d "${template_dir}"
-fi
+    mkdir -p "${template_extract_dir}"
+    unzip -q "${template_archive}" "${debug_template_entry}" "${release_template_entry}" -d "${template_extract_dir}"
 
-XDG_DATA_HOME="${godot_data_dir}" GODOT_BIN="${godot_binary}" ./scripts/build-web.sh
+    debug_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_debug.zip' -print -quit)"
+    release_template_file="$(find "${template_extract_dir}" -type f -name 'web_nothreads_release.zip' -print -quit)"
 
-rm -rf .vercel/output
-mkdir -p .vercel/output/static
-cp -a build/web/. .vercel/output/static/
-cp vercel-output-config.json .vercel/output/config.json
+    [[ -n "${debug_template_file}" && -n "${release_template_file}" ]] || {
+        echo "Web export templates were not extracted from ${template_archive}" >&2
+        exit 1
+    }
+
+    cp "${debug_template_file}" "${template_dir}/web_nothreads_debug.zip"
+    cp "${release_template_file}" "${template_dir}/web_nothreads_release.zip"
+    rm -rf "${temporary_dir}"
+}
+
+export_web_game() {
+    XDG_DATA_HOME="${godot_data_dir}" GODOT_BIN="${godot_binary}" ./scripts/build-web.sh
+}
+
+stage_vercel_output() {
+    mkdir -p .vercel/output/static
+    cp -a build/web/. .vercel/output/static/
+    cp vercel-output-config.json .vercel/output/config.json
+}
+
+mkdir -p "${cache_root}" "${template_dir}"
+install_godot
+install_web_templates
+export_web_game
+stage_vercel_output
