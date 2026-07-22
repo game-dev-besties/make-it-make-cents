@@ -6,4 +6,4 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 
 mkdir -p build/web
 
-godot --headless --path . --export-release "Web" build/web/index.html
+"${GODOT_BIN:-godot}" --headless --path . --export-release "Web" build/web/index.html

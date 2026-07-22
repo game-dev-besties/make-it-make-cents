@@ -1,0 +1,4 @@
+{
+  "version": 3,
+  "cache": [".vercel/cache/godot/**"]
+}
