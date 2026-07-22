@@ -1,5 +1,7 @@
 # GMTK 2026 Project
 
+The latest version of the game should be available to test at https://legendary-disco-lemon.vercel.app/
+
 ## Setup Notes:
 
 Clone this repository:
