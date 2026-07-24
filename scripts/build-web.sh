@@ -20,6 +20,19 @@ fi
 
 python3 tools/compile_dialogue.py
 godot_bin="${GODOT_BIN:-godot}"
+editor_output=""
+if ! editor_output="$(
+  "${godot_bin}" --headless --editor --path . --quit 2>&1
+)"; then
+  printf '%s\n' "${editor_output}"
+  exit 1
+fi
+printf '%s\n' "${editor_output}"
+if grep -Eq 'SCRIPT ERROR:|Failed to load script|Parse Error:|GDScript::reload:|<GDScript Error>' <<<"${editor_output}"; then
+  echo "Godot reported a script compilation failure while preparing the export." >&2
+  exit 1
+fi
+
 export_output=""
 if ! export_output="$(
   "${godot_bin}" --headless --path . --export-release "Web" build/web/index.html 2>&1
@@ -30,5 +43,23 @@ fi
 printf '%s\n' "${export_output}"
 if grep -Eq 'SCRIPT ERROR:|Failed to load script|Parse Error:|GDScript::reload:|<GDScript Error>' <<<"${export_output}"; then
   echo "Godot reported a script compilation failure despite exiting successfully." >&2
+  exit 1
+fi
+
+pack_path="$(pwd -P)/build/web/index.pck"
+pack_smoke_dir="$(mktemp -d)"
+trap 'rm -rf -- "${pack_smoke_dir}"' EXIT
+pack_smoke_output=""
+if ! pack_smoke_output="$(
+  cd "${pack_smoke_dir}"
+  "${godot_bin}" --headless --main-pack "${pack_path}" \
+    --script res://tests/app_smoke_test.gd 2>&1
+)"; then
+  printf '%s\n' "${pack_smoke_output}"
+  exit 1
+fi
+printf '%s\n' "${pack_smoke_output}"
+if grep -Eq 'SCRIPT ERROR:|Failed to load script|Parse Error:|GDScript::reload:|<GDScript Error>' <<<"${pack_smoke_output}"; then
+  echo "The exported package reported a runtime script failure." >&2
   exit 1
 fi
