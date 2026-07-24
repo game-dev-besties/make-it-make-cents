@@ -23,7 +23,7 @@ func validate() -> PackedStringArray:
 		errors.append("Episode '%s' has no presentation scene." % id)
 	if dialogue_timeline_path.is_empty():
 		errors.append("Episode '%s' has no Dialogic timeline path." % id)
-	elif not ResourceLoader.exists(dialogue_timeline_path):
+	elif not FileAccess.file_exists(dialogue_timeline_path):
 		errors.append("Episode '%s' references a missing timeline: %s" % [id, dialogue_timeline_path])
 	if not phrase_data_path.is_empty() and not FileAccess.file_exists(phrase_data_path):
 		errors.append("Episode '%s' references missing phrase data: %s" % [id, phrase_data_path])
