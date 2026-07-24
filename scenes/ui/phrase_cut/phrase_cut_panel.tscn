@@ -1,0 +1,205 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/phrase_cut/phrase_cut_panel.gd" id="1_panel"]
+[ext_resource type="PackedScene" path="res://scenes/ui/phrase_cut/phrase_chip.tscn" id="2_chip"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_dialog_panel"]
+bg_color = Color(0.075, 0.08, 0.1, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.36, 0.38, 0.44, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_preview"]
+bg_color = Color(0.035, 0.04, 0.055, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.27, 0.32, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[node name="PhraseCutPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_panel")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Center" type="CenterContainer" parent="SafeMargin"]
+layout_mode = 2
+
+[node name="DialogPanel" type="PanelContainer" parent="SafeMargin/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_dialog_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="SafeMargin/Center/DialogPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 22
+
+[node name="Content" type="VBoxContainer" parent="SafeMargin/Center/DialogPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 13
+
+[node name="TitleLabel" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 0.68, 1)
+theme_override_font_sizes/font_size = 24
+text = "Choose what Penny says"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="InstructionLabel" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 15
+text = "Selected phrases are spoken and charged. Click a phrase to cut it."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PreviewPanel" type="PanelContainer" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 66)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_preview")
+
+[node name="PreviewMargin" type="MarginContainer" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="PreviewLabel" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/PreviewPanel/PreviewMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
+theme_override_font_sizes/font_size = 19
+text = "“Your assembled sentence appears here.”"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ChipsFlow" type="HFlowContainer" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 9
+theme_override_constants/v_separation = 9
+alignment = 1
+
+[node name="EditorPreviewChip" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/ChipsFlow" instance=ExtResource("2_chip")]
+
+[node name="StatusLabel" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.84, 1)
+theme_override_font_sizes/font_size = 14
+text = "3 of 5 phrases kept."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BudgetLabel" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.9, 0.72, 1)
+theme_override_font_sizes/font_size = 17
+text = "This line: $7    Budget after: $18"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 18
+text = "Say selected phrases"
+
+[node name="BrokePrompt" type="Label" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.9, 0.72, 1)
+theme_override_font_sizes/font_size = 18
+text = "Your word budget is empty. Penny can still:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BrokeActions" type="HFlowContainer" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+alignment = 1
+
+[node name="PityButton" type="Button" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Use pity word: “hnf”"
+
+[node name="SilenceButton" type="Button" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Say nothing"
+
+[node name="SponsorButton" type="Button" parent="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Shill sponsor (+$3)"
+
+[connection signal="pressed" from="SafeMargin/Center/DialogPanel/ContentMargin/Content/ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions/PityButton" to="." method="_on_pity_button_pressed"]
+[connection signal="pressed" from="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions/SilenceButton" to="." method="_on_silence_button_pressed"]
+[connection signal="pressed" from="SafeMargin/Center/DialogPanel/ContentMargin/Content/BrokeActions/SponsorButton" to="." method="_on_sponsor_button_pressed"]

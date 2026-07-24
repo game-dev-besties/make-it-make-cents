@@ -31,14 +31,10 @@ jobs:
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.1.stable"
           cp -a /root/.local/share/godot/export_templates/4.7.1.stable/. "$HOME/.local/share/godot/export_templates/4.7.1.stable/"
 
+      - name: Test dialogue
+        run: |
+          godot --headless --path . --script res://tests/dialogue_runner_test.gd
+          godot --headless --path . --script res://tests/dialogue_screen_test.gd
+
       - name: Build Web Export
         run: ./scripts/build-web.sh
-
-      # note: we probably don't need to upload builds (?)
-      # - name: Upload Web build
-      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      #   with:
-      #     name: web-build
-      #     path: build/web
-      #     if-no-files-found: error
-      #     retention-days: 7

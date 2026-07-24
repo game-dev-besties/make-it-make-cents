@@ -1,0 +1,229 @@
+{
+  "format_version": 1,
+  "id": "dad_job_interview",
+  "start": "interview_greeting",
+  "initial_state": {
+    "budget": 30,
+    "success": 5,
+    "silly": 0
+  },
+  "nodes": {
+    "interview_greeting": {
+      "type": "line",
+      "speaker": "interviewer",
+      "text": "Good morning. Have a seat. Let's begin.",
+      "next": "dad_okay"
+    },
+    "dad_okay": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "okay...",
+      "expression": "nervous",
+      "next": "dad_greeting"
+    },
+    "dad_greeting": {
+      "type": "phrase",
+      "speaker": "dad",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "good_morning",
+          "text": "Good morning"
+        },
+        {
+          "id": "thank_you",
+          "text": "thank you"
+        },
+        {
+          "id": "for_seeing_me",
+          "text": "for seeing me"
+        },
+        {
+          "id": "marco",
+          "text": "I'm Marco"
+        }
+      ],
+      "fallback": {
+        "next": "why_job",
+        "speaker": "interviewer",
+        "text": "So, Marco, why do you want this job?",
+        "expression": "curious"
+      }
+    },
+    "why_job": {
+      "type": "phrase",
+      "speaker": "dad",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "need",
+          "text": "I need"
+        },
+        {
+          "id": "support",
+          "text": "to support"
+        },
+        {
+          "id": "family",
+          "text": "my family"
+        },
+        {
+          "id": "moved",
+          "text": "we just moved here"
+        },
+        {
+          "id": "money_tight",
+          "text": "and money is tight"
+        },
+        {
+          "id": "i_am",
+          "text": "I am"
+        },
+        {
+          "id": "best",
+          "text": "the best"
+        },
+        {
+          "id": "candidate",
+          "text": "candidate"
+        },
+        {
+          "id": "ever_meet",
+          "text": "you will ever meet"
+        },
+        {
+          "id": "guaranteed",
+          "text": "guaranteed"
+        }
+      ],
+      "responses": [
+        {
+          "match": {
+            "all": [
+              "need",
+              "support",
+              "family"
+            ],
+            "none": [
+              "i_am",
+              "best",
+              "candidate",
+              "ever_meet",
+              "guaranteed"
+            ]
+          },
+          "next": "skills_prompt_positive",
+          "speaker": "interviewer",
+          "text": "I appreciate the honesty. That takes courage.",
+          "expression": "happy",
+          "success": 3
+        }
+      ],
+      "fallback": {
+        "next": "skills_prompt_weird",
+        "speaker": "interviewer",
+        "text": "...Right.",
+        "expression": "confused",
+        "success": -2,
+        "silly": 2
+      }
+    },
+    "skills_prompt_positive": {
+      "type": "line",
+      "speaker": "interviewer",
+      "text": "What experience do you have?",
+      "next": "skills_positive"
+    },
+    "skills_prompt_weird": {
+      "type": "line",
+      "speaker": "interviewer",
+      "text": "What experience do you have?",
+      "next": "skills_weird"
+    },
+    "skills_positive": {
+      "type": "phrase",
+      "speaker": "dad",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "worked",
+          "text": "I worked"
+        },
+        {
+          "id": "ten_years",
+          "text": "for ten years"
+        },
+        {
+          "id": "back_home",
+          "text": "back home"
+        },
+        {
+          "id": "logistics",
+          "text": "in logistics"
+        },
+        {
+          "id": "management",
+          "text": "and management"
+        }
+      ],
+      "fallback": {
+        "next": "welcome_outro",
+        "speaker": "interviewer",
+        "text": "That's exactly what we need. You're a strong candidate.",
+        "expression": "happy",
+        "success": 2
+      }
+    },
+    "skills_weird": {
+      "type": "phrase",
+      "speaker": "dad",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "worked",
+          "text": "I worked"
+        },
+        {
+          "id": "ten_years",
+          "text": "for ten years"
+        },
+        {
+          "id": "back_home",
+          "text": "back home"
+        },
+        {
+          "id": "logistics",
+          "text": "in logistics"
+        },
+        {
+          "id": "management",
+          "text": "and management"
+        }
+      ],
+      "fallback": {
+        "next": "touch_outro",
+        "speaker": "interviewer",
+        "text": "That's exactly what we need. You're a strong candidate.",
+        "expression": "happy",
+        "success": 2
+      }
+    },
+    "welcome_outro": {
+      "type": "line",
+      "speaker": "interviewer",
+      "text": "Welcome to the team, Marco. You start Monday.",
+      "expression": "happy",
+      "next": "end"
+    },
+    "touch_outro": {
+      "type": "line",
+      "speaker": "interviewer",
+      "text": "We'll be in touch. ...Eventually.",
+      "expression": "nervous",
+      "next": "end"
+    },
+    "end": {
+      "type": "end"
+    }
+  }
+}

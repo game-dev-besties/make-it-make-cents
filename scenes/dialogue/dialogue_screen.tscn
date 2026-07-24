@@ -1,0 +1,263 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scenes/dialogue/dialogue_screen.gd" id="1_screen"]
+[ext_resource type="PackedScene" path="res://scenes/ui/phrase_cut/phrase_cut_panel.tscn" id="2_phrase"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_stage"]
+bg_color = Color(0.08, 0.085, 0.105, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.25, 0.3, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_character"]
+bg_color = Color(0.12, 0.125, 0.15, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.44, 0.41, 0.3, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_dialogue"]
+bg_color = Color(0.045, 0.05, 0.065, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.39, 0.44, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_header"]
+bg_color = Color(0.055, 0.06, 0.075, 0.94)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_button"]
+bg_color = Color(0.32, 0.28, 0.16, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="DialogueScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_screen")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.025, 0.027, 0.035, 1)
+
+[node name="BackgroundTexture" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(1, 1, 1, 0.48)
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Layout" type="VBoxContainer" parent="SafeMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderPanel" type="PanelContainer" parent="SafeMargin/Layout"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_header")
+
+[node name="HeaderMargin" type="MarginContainer" parent="SafeMargin/Layout/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="Header" type="HBoxContainer" parent="SafeMargin/Layout/HeaderPanel/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SceneLabel" type="Label" parent="SafeMargin/Layout/HeaderPanel/HeaderMargin/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.85, 0.56, 1)
+text = "Border Tutorial"
+
+[node name="ScoreLabel" type="Label" parent="SafeMargin/Layout/HeaderPanel/HeaderMargin/Header"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.7, 0.76, 1)
+text = "Success: 5    Silly: 0"
+
+[node name="BudgetLabel" type="Label" parent="SafeMargin/Layout/HeaderPanel/HeaderMargin/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "Budget: $15"
+
+[node name="Stage" type="PanelContainer" parent="SafeMargin/Layout"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBox_stage")
+
+[node name="StageMargin" type="MarginContainer" parent="SafeMargin/Layout/Stage"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="StageLayout" type="VBoxContainer" parent="SafeMargin/Layout/Stage/StageMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackgroundLabel" type="Label" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.54, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Background artwork goes here"
+horizontal_alignment = 1
+
+[node name="CharacterCenter" type="CenterContainer" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharacterCard" type="PanelContainer" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter"]
+custom_minimum_size = Vector2(280, 190)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_character")
+
+[node name="CharacterMargin" type="MarginContainer" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter/CharacterCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="CharacterInfo" type="VBoxContainer" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter/CharacterCard/CharacterMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortraitPlaceholder" type="Label" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter/CharacterCard/CharacterMargin/CharacterInfo"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.4, 0.4, 0.44, 1)
+theme_override_font_sizes/font_size = 28
+text = "PORTRAIT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharacterLabel" type="Label" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter/CharacterCard/CharacterMargin/CharacterInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Dad"
+horizontal_alignment = 1
+
+[node name="ExpressionLabel" type="Label" parent="SafeMargin/Layout/Stage/StageMargin/StageLayout/CharacterCenter/CharacterCard/CharacterMargin/CharacterInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.74, 1)
+text = "Expression: Cheerful"
+horizontal_alignment = 1
+
+[node name="DialoguePanel" type="PanelContainer" parent="SafeMargin/Layout"]
+custom_minimum_size = Vector2(0, 210)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_dialogue")
+
+[node name="DialogueMargin" type="MarginContainer" parent="SafeMargin/Layout/DialoguePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 16
+
+[node name="DialogueLayout" type="VBoxContainer" parent="SafeMargin/Layout/DialoguePanel/DialogueMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SpeakerLabel" type="Label" parent="SafeMargin/Layout/DialoguePanel/DialogueMargin/DialogueLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.84, 0.47, 1)
+theme_override_font_sizes/font_size = 22
+text = "Narrator"
+
+[node name="DialogueText" type="Label" parent="SafeMargin/Layout/DialoguePanel/DialogueMargin/DialogueLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
+theme_override_font_sizes/font_size = 19
+text = "The dialogue for the current story node appears here."
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ContinueButton" type="Button" parent="SafeMargin/Layout/DialoguePanel/DialogueMargin/DialogueLayout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 44)
+layout_mode = 2
+size_flags_horizontal = 8
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBox_button")
+text = "Continue"
+
+[node name="PhraseCutPanel" parent="." instance=ExtResource("2_phrase")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+
+[connection signal="pressed" from="SafeMargin/Layout/DialoguePanel/DialogueMargin/DialogueLayout/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="resolved" from="PhraseCutPanel" to="." method="_on_phrase_cut_panel_resolved"]

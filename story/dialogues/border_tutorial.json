@@ -1,0 +1,415 @@
+{
+  "format_version": 1,
+  "id": "border_tutorial",
+  "start": "border_wait",
+  "initial_state": {
+    "budget": 20,
+    "success": 5,
+    "silly": 0
+  },
+  "nodes": {
+    "border_wait": {
+      "type": "line",
+      "speaker": "narrator",
+      "text": "The border line has not moved in forty minutes. Nobody in it has said a word.",
+      "next": "border_warning"
+    },
+    "border_warning": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Son, the second we cross that line, do not say one word.",
+      "next": "son_why"
+    },
+    "son_why": {
+      "type": "line",
+      "speaker": "son",
+      "text": "Why?",
+      "expression": "confused",
+      "next": "tariff_explanation"
+    },
+    "tariff_explanation": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "The Verbal Tariff Act. Non-citizens get billed by the word.",
+      "next": "soda_debt"
+    },
+    "soda_debt": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Sam's Soda Pop bought the country's war debt. Now every dollar we say goes to them.",
+      "next": "buy_country"
+    },
+    "buy_country": {
+      "type": "line",
+      "speaker": "son",
+      "text": "You can buy a country?",
+      "expression": "surprised",
+      "next": "before_love_costs"
+    },
+    "before_love_costs": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Apparently. So say anything you need to say before \"I love you\" costs nine dollars plus surcharge.",
+      "next": "son_vent"
+    },
+    "son_vent": {
+      "type": "line",
+      "speaker": "son",
+      "text": "I didn't want to move! Ohio was fine! Kayla kept her car and I got nothing!",
+      "expression": "angry",
+      "next": "grandma_reaction"
+    },
+    "grandma_reaction": {
+      "type": "line",
+      "speaker": "grandma",
+      "text": "...",
+      "expression": "sad",
+      "next": "son_grandma"
+    },
+    "son_grandma": {
+      "type": "line",
+      "speaker": "son",
+      "text": "See? Even Grandma agrees.",
+      "expression": "angry",
+      "next": "phone_total_narration"
+    },
+    "phone_total_narration": {
+      "type": "line",
+      "speaker": "narrator",
+      "text": "Dad cheerfully holds up a running total on his phone.",
+      "next": "eleven_loves"
+    },
+    "eleven_loves": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "That would have cost eleven \"I love yous.\" Cheapest therapy in the hemisphere.",
+      "expression": "happy",
+      "next": "introduce_penny"
+    },
+    "introduce_penny": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "We cannot do things the Ohio way anymore. This is Penny. She speaks for us.",
+      "expression": "happy",
+      "next": "robot_dread"
+    },
+    "robot_dread": {
+      "type": "line",
+      "speaker": "son",
+      "text": "This robot is going to ruin my life. I can feel it in my body.",
+      "expression": "nervous",
+      "next": "recovery_explanation"
+    },
+    "recovery_explanation": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "If our budget hits zero, Penny can stay silent, offer one pity \"hnf,\" or shill a sponsor for a few more words. The sponsor refill ruins your impression.",
+      "next": "penny_morning"
+    },
+    "penny_morning": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Good morning, Penny.",
+      "expression": "happy",
+      "next": "penny_reply"
+    },
+    "penny_reply": {
+      "type": "line",
+      "speaker": "penny",
+      "text": "Good morning, Dad.",
+      "next": "dad_say_hi"
+    },
+    "dad_say_hi": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Penny, say hi to my son.",
+      "expression": "happy",
+      "next": "penny_hi"
+    },
+    "penny_hi": {
+      "type": "line",
+      "speaker": "penny",
+      "text": "Hi, son of Dad.",
+      "next": "greeting_instruction"
+    },
+    "greeting_instruction": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Your draft costs fifteen words. Cut chunks until it is cheap and still means what you meant.",
+      "next": "greeting_cut"
+    },
+    "greeting_cut": {
+      "type": "phrase",
+      "speaker": "son",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "hello",
+          "text": "Hello,"
+        },
+        {
+          "id": "name",
+          "text": "my name is Leo."
+        },
+        {
+          "id": "i_am",
+          "text": "I am"
+        },
+        {
+          "id": "pleased",
+          "text": "pleased to be"
+        },
+        {
+          "id": "here",
+          "text": "here"
+        },
+        {
+          "id": "country",
+          "text": "in your beautiful country."
+        }
+      ],
+      "responses": [
+        {
+          "match": {
+            "delivery": "silence"
+          },
+          "next": "declaration_instruction",
+          "speaker": "dad",
+          "text": "Frugal. I will not fault you for saving your voice.",
+          "expression": "happy"
+        },
+        {
+          "match": {
+            "exact": [
+              "hello",
+              "name"
+            ]
+          },
+          "next": "declaration_instruction",
+          "speaker": "dad",
+          "text": "You are getting the hang of it. Polite, clear, and cheap.",
+          "expression": "happy"
+        },
+        {
+          "match": {
+            "any": [
+              "country"
+            ]
+          },
+          "next": "declaration_instruction",
+          "speaker": "dad",
+          "text": "Did you really spend money to call this parking lot beautiful?",
+          "expression": "confused"
+        }
+      ],
+      "fallback": {
+        "next": "declaration_instruction",
+        "speaker": "dad",
+        "text": "A little scrambled, but you will get the hang of it."
+      }
+    },
+    "declaration_instruction": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "One more. The customs officer asks whether you have anything to declare.",
+      "next": "officer_declaration"
+    },
+    "officer_declaration": {
+      "type": "line",
+      "speaker": "officer",
+      "text": "Anything to declare?",
+      "next": "declaration_cut"
+    },
+    "declaration_cut": {
+      "type": "phrase",
+      "speaker": "son",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "no",
+          "text": "No,"
+        },
+        {
+          "id": "dont",
+          "text": "I don't"
+        },
+        {
+          "id": "think",
+          "text": "think"
+        },
+        {
+          "id": "so",
+          "text": "so."
+        },
+        {
+          "id": "what_counts",
+          "text": "What counts"
+        },
+        {
+          "id": "declaration",
+          "text": "as a declaration?"
+        }
+      ],
+      "responses": [
+        {
+          "match": {
+            "delivery": "silence"
+          },
+          "next": "silence_question",
+          "speaker": "dad",
+          "text": "Perfect. Zero words, zero bill.",
+          "expression": "happy",
+          "budget": -20
+        },
+        {
+          "match": {
+            "exact": [
+              "no"
+            ]
+          },
+          "next": "silence_question",
+          "speaker": "dad",
+          "text": "One word. Cheap and clear.",
+          "expression": "happy",
+          "budget": -20
+        },
+        {
+          "match": {
+            "any": [
+              "what_counts",
+              "declaration"
+            ]
+          },
+          "next": "silence_question",
+          "speaker": "dad",
+          "text": "A costly question. Customs is not a seminar.",
+          "expression": "confused",
+          "budget": -20
+        }
+      ],
+      "fallback": {
+        "next": "silence_question",
+        "speaker": "dad",
+        "text": "Understandable enough, but you could have spent less.",
+        "budget": -20
+      }
+    },
+    "silence_question": {
+      "type": "line",
+      "speaker": "son",
+      "text": "How do they know what I meant if I say nothing?",
+      "expression": "confused",
+      "next": "silence_answer"
+    },
+    "silence_answer": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "They do not. Silence can mean no, yes, or \"my father is dead.\" It is free and makes them do the work.",
+      "expression": "confident",
+      "next": "listener_guess"
+    },
+    "listener_guess": {
+      "type": "line",
+      "speaker": "son",
+      "text": "So I use it when I want the listener to guess?",
+      "next": "dad_confirms"
+    },
+    "dad_confirms": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "You got it.",
+      "expression": "happy",
+      "next": "zero_balance_lesson"
+    },
+    "zero_balance_lesson": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Last lesson. I am setting the practice balance to zero so you know what happens when we are broke.",
+      "next": "entry_purpose"
+    },
+    "entry_purpose": {
+      "type": "line",
+      "speaker": "officer",
+      "text": "State your purpose of entry.",
+      "next": "empty_budget_cut"
+    },
+    "empty_budget_cut": {
+      "type": "phrase",
+      "speaker": "son",
+      "expression": "nervous",
+      "segments": [
+        {
+          "id": "we_are",
+          "text": "We are"
+        },
+        {
+          "id": "moving",
+          "text": "moving here"
+        },
+        {
+          "id": "start_over",
+          "text": "to start over."
+        }
+      ],
+      "responses": [
+        {
+          "match": {
+            "delivery": "pity"
+          },
+          "next": "line_moves",
+          "speaker": "dad",
+          "text": "\"Hnf\" is not much of a purpose, but it was free.",
+          "expression": "confused"
+        },
+        {
+          "match": {
+            "delivery": "sponsor"
+          },
+          "next": "line_moves",
+          "speaker": "dad",
+          "text": "We can afford a few more words now. Customs likes us much less.",
+          "expression": "nervous",
+          "success": -2,
+          "silly": 1,
+          "budget": 3
+        },
+        {
+          "match": {
+            "delivery": "silence"
+          },
+          "next": "line_moves",
+          "speaker": "dad",
+          "text": "Sweet, sweet nothing. Free, mysterious, and legally ambiguous.",
+          "expression": "happy"
+        }
+      ],
+      "fallback": {
+        "next": "line_moves",
+        "speaker": "dad",
+        "text": "Penny found another way through."
+      }
+    },
+    "line_moves": {
+      "type": "line",
+      "speaker": "narrator",
+      "text": "The line finally moves.",
+      "next": "officer_next"
+    },
+    "officer_next": {
+      "type": "line",
+      "speaker": "officer",
+      "text": "Next.",
+      "next": "dad_here_go"
+    },
+    "dad_here_go": {
+      "type": "line",
+      "speaker": "dad",
+      "text": "Here we go.",
+      "expression": "nervous",
+      "next": "end"
+    },
+    "end": {
+      "type": "end"
+    }
+  }
+}

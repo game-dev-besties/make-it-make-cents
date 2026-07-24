@@ -1,41 +1,25 @@
 extends Control
-## Title screen. Builds itself in code so main.tscn stays minimal.
-## Pressing Start hands off to CutsceneRunner, which plays the cutscenes.
+## Main scene navigation. All visible layout remains editable in main.tscn.
 
-func _ready() -> void:
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+@export_file("*.json") var opening_dialogue := "res://story/dialogues/border_tutorial.json"
+@export_file("*.json") var dad_interview := "res://story/dialogues/dad_job_interview.json"
 
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
-	center.add_child(vbox)
-
-	var title := Label.new()
-	title.text = "Money Where Your Mouth Is"
-	title.add_theme_font_size_override("font_size", 56)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
-
-	var sub := Label.new()
-	sub.text = "A family. A new country. A chatbot that charges per word."
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(sub)
-
-	var hint := Label.new()
-	hint.text = "(You are the chatbot. Cut phrases to save money — but stay understandable.)"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 14)
-	vbox.add_child(hint)
-
-	var btn := Button.new()
-	btn.text = "Start"
-	btn.add_theme_font_size_override("font_size", 24)
-	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	btn.pressed.connect(_on_start)
-	vbox.add_child(btn)
+@onready var _title_screen: Control = %TitleScreen
+@onready var _dialogue_screen := %DialogueScreen
 
 
-func _on_start() -> void:
-	hide()
-	CutsceneRunner.start_game()
+func _on_start_button_pressed() -> void:
+	_start_dialogue(opening_dialogue)
+
+
+func _on_dad_interview_button_pressed() -> void:
+	_start_dialogue(dad_interview)
+
+
+func _start_dialogue(path: String) -> void:
+	_title_screen.hide()
+	_dialogue_screen.start_dialogue(path)
+
+
+func _on_dialogue_screen_finished(_dialogue_id: String) -> void:
+	_title_screen.show()
