@@ -1,8 +1,7 @@
 @tool
 class_name DialogicPresentationCueEvent
 extends DialogicEvent
-## Compatibility event for legacy dialogue timelines. Visual scenes can add
-## matching animations later without making old dialogue fail to parse now.
+## Requests a matching animation from the currently mounted story stage.
 
 @export var cue_id: String = ""
 
@@ -31,4 +30,7 @@ func is_valid_event(text: String) -> bool:
 
 
 func _execute() -> void:
+	var presentation := dialogic.get_tree().get_first_node_in_group(&"active_story_presentation")
+	if presentation != null and presentation.has_method("play_cue"):
+		presentation.call("play_cue", StringName(cue_id))
 	finish()

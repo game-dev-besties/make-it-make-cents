@@ -1,6 +1,6 @@
 {
   "neighbors_L001": {
-    "speaker": "son",
+    "speaker": "leo",
     "expr": "surprised",
     "segments": [
       {"type": "phrase", "text": "Mira", "cost": 1},
@@ -9,7 +9,7 @@
     "min_keep": 1
   },
   "neighbors_L002": {
-    "speaker": "son",
+    "speaker": "leo",
     "expr": "sad",
     "segments": [
       {"type": "phrase", "text": "I'm sorry", "cost": 2},
@@ -19,7 +19,7 @@
     "min_keep": 1
   },
   "neighbors_L003": {
-    "speaker": "son",
+    "speaker": "leo",
     "expr": "nervous",
     "segments": [
       {"type": "phrase", "text": "Maybe", "cost": 1},

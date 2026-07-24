@@ -28,7 +28,9 @@ gdscript/warnings/untyped_declaration=1
 
 [dialogic]
 
-directories/dch_directory={}
+directories/dch_directory={
+"leo": "res://content/characters/leo/leo.dch"
+}
 directories/dtl_directory={
 "dad/dialogue": "res://content/episodes/dad/dialogue.dtl",
 "dialogue": "res://content/episodes/intro/dialogue.dtl",

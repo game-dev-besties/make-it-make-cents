@@ -1,6 +1,12 @@
 class_name DialogicGameHandler
 extends Node
 
+const CHARACTER_RESOURCE_LOADER := preload("res://addons/dialogic/Resources/CharacterResourceLoader.gd")
+const TIMELINE_RESOURCE_LOADER := preload("res://addons/dialogic/Resources/TimelineResourceLoader.gd")
+
+var _character_resource_loader: ResourceFormatLoader
+var _timeline_resource_loader: ResourceFormatLoader
+
 ## Class that is used as the Dialogic autoload.
 
 ## Autoload script that allows you to interact with all of Dialogic's systems:[br]
@@ -171,6 +177,20 @@ var Wait: WaitSubsystem:
 	get: return get_subsystem("Wait")
 
 #endregion
+
+
+func _enter_tree() -> void:
+	_character_resource_loader = CHARACTER_RESOURCE_LOADER.new()
+	_timeline_resource_loader = TIMELINE_RESOURCE_LOADER.new()
+	ResourceLoader.add_resource_format_loader(_character_resource_loader)
+	ResourceLoader.add_resource_format_loader(_timeline_resource_loader)
+
+
+func _exit_tree() -> void:
+	if _character_resource_loader != null:
+		ResourceLoader.remove_resource_format_loader(_character_resource_loader)
+	if _timeline_resource_loader != null:
+		ResourceLoader.remove_resource_format_loader(_timeline_resource_loader)
 
 
 ## Autoloads are added first, so this happens REALLY early on game startup.

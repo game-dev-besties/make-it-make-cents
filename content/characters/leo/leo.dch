@@ -1,0 +1,36 @@
+{
+"@path": "res://addons/dialogic/Resources/character.gd",
+"@subpath": NodePath(""),
+&"_translation_id": "",
+&"color": Color(0, 0, 0, 1),
+&"custom_info": {
+"prefix": "",
+"sound_mood_default": "",
+"sound_moods": {},
+"style": "",
+"suffix": ""
+},
+&"default_portrait": "shy",
+&"description": "",
+&"display_name": "Leo",
+&"mirror": false,
+&"nicknames": [""],
+&"offset": Vector2(0, 0),
+&"portraits": {
+"neutral": {
+"export_overrides": {
+"image": "res://content/characters/leo/neutral.png"
+},
+"offset": Vector2(0, 0),
+"scene": ""
+},
+"shy": {
+"export_overrides": {
+"image": "res://content/characters/leo/shy.png"
+},
+"offset": Vector2(0, 0),
+"scene": ""
+}
+},
+&"scale": 1.0
+}

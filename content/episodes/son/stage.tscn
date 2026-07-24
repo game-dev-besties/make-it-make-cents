@@ -18,9 +18,43 @@ corner_radius_bottom_left = 16
 resource_name = "RESET"
 length = 0.001
 
+[sub_resource type="Animation" id="Animation_leo_neutral"]
+resource_name = "leo_neutral"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:expression")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": ["neutral"]
+}
+
+[sub_resource type="Animation" id="Animation_leo_shy"]
+resource_name = "leo_shy"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:expression")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": ["shy"]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_son"]
 _data = {
-&"RESET": SubResource("Animation_RESET")
+&"RESET": SubResource("Animation_RESET"),
+&"leo_neutral": SubResource("Animation_leo_neutral"),
+&"leo_shy": SubResource("Animation_leo_shy")
 }
 
 [node name="SonStage" unique_id=181511991 instance=ExtResource("1_base")]
@@ -58,10 +92,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
-offset_left = 328.0
-offset_right = 548.0
+offset_left = 143.0
+offset_top = 92.5
+offset_right = 468.0
+offset_bottom = 580.0
 actor_name = "Leo"
-expression = "working up the courage to ask"
+character_id = &"leo"
 accent_color = Color(0.35, 0.67, 0.86, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]

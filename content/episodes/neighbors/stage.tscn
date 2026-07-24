@@ -60,6 +60,7 @@ vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
 actor_name = "Mom and Leo"
+character_id = &"leo"
 expression = "holding welcome cookies"
 accent_color = Color(0.82, 0.5, 0.35, 1)
 

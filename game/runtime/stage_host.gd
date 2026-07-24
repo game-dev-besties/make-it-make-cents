@@ -16,6 +16,7 @@ func show_presentation(scene: PackedScene) -> Node:
 	var presentation := scene.instantiate()
 	var container := _get_container()
 	container.add_child(presentation)
+	presentation.add_to_group(&"active_story_presentation")
 	current_presentation = presentation
 	presentation_changed.emit(current_presentation)
 	return current_presentation

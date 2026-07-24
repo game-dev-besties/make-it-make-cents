@@ -1,7 +1,7 @@
-# Ported verbatim from story/scripts/son/1_son_asks_out.md.
-# TODO: not written yet. Placeholder so the cutscene id exists in the
-# flow resource and the DSL/pipeline can be exercised end-to-end; `dad` is the
-# actual proof-of-concept content for now.
-
-This cutscene hasn't been written yet.
+# Temporary dialogue for Leo's portrait and expression staging.
+presentation_cue leo_neutral
+Narrator: At the park, Leo spots Mira near the swings.
+leo (neutral): Hey, Mira. I was hoping I might run into you.
+presentation_cue leo_shy
+leo (shy): Would you maybe want to get ice cream sometime?
 end_timeline

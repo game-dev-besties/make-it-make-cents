@@ -4,16 +4,16 @@ mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
 interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Mira.
 if GameStats.crush_fondness >= 4:
 	crush (happy): Wait — you're that sweet kid from the park! Leo!
-	phrase_cut son (surprised) neighbors_L001
+	phrase_cut leo (shy) neighbors_L001
 	crush (happy): I told you I'd see you tomorrow. Guess it's today!
 	jump warm
 elif GameStats.crush_creeped_out >= 3:
 	crush (nervous): ...You. You're the one from the park, aren't you.
-	phrase_cut son (sad) neighbors_L002
+	phrase_cut leo (shy) neighbors_L002
 	jump chilly
 else:
 	crush (neutral): ...Huh. You look familiar. Have we met?
-	phrase_cut son (nervous) neighbors_L003
+	phrase_cut leo (shy) neighbors_L003
 	jump neutral_end
 label warm
 if GameStats.interviewer_weirded_out >= 2:
