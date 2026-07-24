@@ -9,10 +9,7 @@ build/*
 # Vercel build cache
 /.vercel/
 
-# Local Godot binary (downloaded by scripts/setup-godot.sh)
+# Local Godot binary
 /.bin/
 
 references/
-
-# Compiled cutscene DSL output (tools/compile_scenes.py, tools/generate_characters.gd)
-/generated/

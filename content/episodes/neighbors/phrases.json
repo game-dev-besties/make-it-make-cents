@@ -1,0 +1,87 @@
+{
+  "neighbors_L001": {
+    "speaker": "son",
+    "expr": "surprised",
+    "segments": [
+      {"type": "phrase", "text": "Mira", "cost": 1},
+      {"type": "phrase", "text": "you live here", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L002": {
+    "speaker": "son",
+    "expr": "sad",
+    "segments": [
+      {"type": "phrase", "text": "I'm sorry", "cost": 2},
+      {"type": "phrase", "text": "I didn't mean", "cost": 3},
+      {"type": "phrase", "text": "to be strange", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L003": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {"type": "phrase", "text": "Maybe", "cost": 1},
+      {"type": "phrase", "text": "at the park", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L004": {
+    "speaker": "dad",
+    "expr": "sad",
+    "segments": [
+      {"type": "phrase", "text": "The overseller", "cost": 2},
+      {"type": "phrase", "text": "yes", "cost": 1},
+      {"type": "phrase", "text": "that was me", "cost": 3},
+      {"type": "phrase", "text": "I'm sorry", "cost": 2}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L005": {
+    "speaker": "dad",
+    "expr": "happy",
+    "segments": [
+      {"type": "phrase", "text": "Thank you", "cost": 2},
+      {"type": "phrase", "text": "Mr Reed", "cost": 2},
+      {"type": "phrase", "text": "this is wonderful", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L006": {
+    "speaker": "dad",
+    "expr": "happy",
+    "segments": [
+      {"type": "phrase", "text": "Thank you", "cost": 2},
+      {"type": "phrase", "text": "I appreciate it", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L007": {
+    "speaker": "dad",
+    "expr": "happy",
+    "segments": [
+      {"type": "phrase", "text": "Thank you", "cost": 2},
+      {"type": "phrase", "text": "so much", "cost": 2}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L008": {
+    "speaker": "grandma",
+    "expr": "happy",
+    "segments": [
+      {"type": "phrase", "text": "Dr Park", "cost": 2},
+      {"type": "phrase", "text": "what a surprise", "cost": 3}
+    ],
+    "min_keep": 1
+  },
+  "neighbors_L009": {
+    "speaker": "grandma",
+    "expr": "happy",
+    "segments": [
+      {"type": "phrase", "text": "Much better", "cost": 2},
+      {"type": "phrase", "text": "thank you doctor", "cost": 3}
+    ],
+    "min_keep": 1
+  }
+}

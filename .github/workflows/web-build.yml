@@ -32,7 +32,7 @@ jobs:
           cp -a /root/.local/share/godot/export_templates/4.7.1.stable/. "$HOME/.local/share/godot/export_templates/4.7.1.stable/"
 
       - name: Build Web Export
-        run: ./scripts/build-web.sh
+        run: bash scripts/build-web.sh
 
       # note: we probably don't need to upload builds (?)
       # - name: Upload Web build

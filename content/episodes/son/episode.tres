@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://d4cd2fuqhdogn"]
+
+[ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
+[ext_resource type="PackedScene" uid="uid://b3ce61hbul4dd" path="res://content/episodes/intro/stage.tscn" id="2_stage"]
+[ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
+
+[sub_resource type="Resource" id="CampaignRoute_next"]
+script = ExtResource("3_route")
+next_episode_id = &"dad"
+
+[resource]
+resource_name = "SonAsksOutAGirl"
+script = ExtResource("1_episode")
+id = &"son"
+title = "Son Asks Out a Girl"
+description = "Original placeholder episode; the authored dialogue has not yet been written."
+presentation_scene = ExtResource("2_stage")
+dialogue_timeline_path = "res://content/episodes/son/dialogue.dtl"
+phrase_data_path = "res://content/episodes/son/phrases.json"
+word_budget = 80
+routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])

@@ -1,0 +1,53 @@
+# Ported from story/scripts/neighbors/1_neighbors_ending.md using the original compiler's Dialogic emission.
+label door
+mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
+interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Mira.
+if GameStats.crush_fondness >= 4:
+	crush (happy): Wait — you're that sweet kid from the park! Leo!
+	phrase_cut son (surprised) neighbors_L001
+	crush (happy): I told you I'd see you tomorrow. Guess it's today!
+	jump warm
+elif GameStats.crush_creeped_out >= 3:
+	crush (nervous): ...You. You're the one from the park, aren't you.
+	phrase_cut son (sad) neighbors_L002
+	jump chilly
+else:
+	crush (neutral): ...Huh. You look familiar. Have we met?
+	phrase_cut son (nervous) neighbors_L003
+	jump neutral_end
+label warm
+if GameStats.interviewer_weirded_out >= 2:
+	interviewer (confused): Wait — you're the fellow who applied with us. The...
+	phrase_cut dad (sad) neighbors_L004
+	jump mixed
+else:
+	interviewer (happy): And you must be Marco! Welcome to the team, neighbor.
+	phrase_cut dad (happy) neighbors_L005
+	jump good_end
+label chilly
+interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
+if GameStats.interviewer_weirded_out >= 2:
+	interviewer (nervous): ...Both of you, quite the impression.
+	jump bad_end
+else:
+	interviewer (happy): Marco! Welcome to the team. Don't mind Mira, she's shy.
+	phrase_cut dad (happy) neighbors_L006
+	jump mixed
+label neutral_end
+interviewer (happy): And you're Marco — welcome to the team, neighbor!
+phrase_cut dad (happy) neighbors_L007
+jump good_end
+label mixed
+mom (happy): What a small world! Let's all have tea.
+doctor (happy): Rosa! I didn't expect to see you so soon.
+phrase_cut grandma (happy) neighbors_L008
+end_timeline
+label good_end
+mom (happy): What a wonderful welcome. I think we're going to like it here.
+doctor (happy): Rosa, nice to see you again! How's the back?
+phrase_cut grandma (happy) neighbors_L009
+end_timeline
+label bad_end
+mom (sad): Well. Thank you for the cookies... reception.
+crush (nervous): ...Please go now.
+end_timeline

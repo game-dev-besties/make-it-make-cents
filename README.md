@@ -1,62 +1,39 @@
-# GMTK 2026 Project
+# Money Where Your Mouth Is
 
-The latest version of the game should be available to test at https://legendary-disco-lemon.vercel.app/
+A Godot 4 narrative game built around self-contained, Inspector-editable episodes.
 
-## Setup Notes:
+## Open the project
 
-Clone this repository:
+Open `project.godot` with Godot 4.7 or newer and press **Play**. Dialogic is
+vendored under `addons/dialogic` and is the only required third-party plugin.
 
-```bash
-git clone https://github.com/game-dev-besties/legendary-disco.git
-cd legendary-disco
-```
+To produce the web build, run `bash scripts/build-web.sh` with `godot` on your
+PATH (or set `GODOT_BIN` to its executable). The Vercel build script downloads
+the pinned Godot release and export templates into Vercel's cache.
 
-Download [Godot 4.7.1](https://godotengine.org/download/archive/). The [Godot Introduction](https://docs.godotengine.org/en/stable/getting_started/introduction/) is a good place to get started / get a refresher.
+## Where work belongs
 
-## Tooling
+| If you are changing… | Start here |
+| --- | --- |
+| The order of the story | `content/campaign/campaign.tres` |
+| A scene's title, budget, stage, or dialogue | `content/episodes/<episode>/episode.tres` |
+| Backgrounds, actors, props, and animation | `content/episodes/<episode>/stage.tscn` |
+| Dialogue | `content/episodes/<episode>/dialogue.dtl` in Dialogic's editor |
+| Shared character art | `content/characters/` |
+| Reusable UI or stage parts | `ui/` and `game/components/` |
+| Runtime behaviour | `game/runtime/` |
 
-If you want to test web export (what people will see when we actually upload the game to itch), you can run the following:
+Every episode is a vertical slice: duplicate the `content/episodes/intro/`
+folder, edit its Godot assets, then register its `episode.tres` in the campaign
+resource. There is no content compiler and no generated source directory.
 
-NOTE: you will need to install Web export templates before doing this, there are some instructions on how to do that in the [Godot documentation](https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html#export-templates). You should be able to get away with just selecting the "Web - Single Threaded" template.
+## Architecture
 
-```bash
-./scripts/build-web.sh
-python3 -m http.server 8000 --directory build/web
-```
-And then you should be able to view the game at `http://localhost:8000` (http://localhost:8000) in the browser.
+`app/` owns the application shell. `CampaignPlayer` chooses an episode, mounts
+its stage, and asks Dialogic to play its timeline. Stage scenes only own their
+visuals and animations; they do not know campaign order. `GameState` contains
+the small amount of game-wide state and budget accounting.
 
-If port 8000 is busy (i.e you get error `Address already in use`), you can use another port, such as:
-
-```bash
-python3 -m http.server 8011 --directory build/web
-```
-
-And you should be able to view it from a different port (swap out the numbers)
-
-## Cutscene DSL
-
-See CUTSCENE_DSL.md for syntax and folder structure
-
-### One-time setup
-
-```bash
-./scripts/setup-godot.sh      # downloads the macOS Godot 4.7.1 binary (gitignored)
-# Dialogic is already vendored in addons/dialogic (committed) + enabled in project.godot.
-./scripts/setup-dialogic.sh   # sanity-check + reminder of the steps below
-python3 tools/gen_game_stats.py     # generate the typed GameStats autoload from story/stats.yaml
-python3 tools/compile_scenes.py     # compile story/scripts/<id>/*.md → generated/timelines/*.dtl
-./scripts/dev.sh             # headless import (generates .import files so the game runs)
-```
-
-Then you can playtest in browser
-
-```
-./scripts/play-web.sh
-```
-
-which builds the web export and serves it on http://localhost:8000. (Web export templates
-auto-download on first run via `scripts/install-web-templates.sh`.) Pushing to
-a PR branch also deploys a Vercel preview.
-
-After editing, re-run `python3 tools/compile_scenes.py`.
-
+`addons/` is reserved for third-party plugins or true Godot editor plugins.
+Application code belongs in `game/`, and authored game content belongs in
+`content/`.

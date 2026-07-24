@@ -11,16 +11,16 @@ config_version=5
 [application]
 
 config/name="legendary-disco"
-run/main_scene="uid://bjcqpgj7rhbyb"
+run/main_scene="res://app/app.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameStats="*res://addons/game/autoloads/GameStats.gd"
-CutsceneRunner="*res://addons/game/autoloads/CutsceneRunner.gd"
-PhraseMemory="*res://addons/game/autoloads/PhraseMemory.gd"
+GameState="*res://game/runtime/game_state.gd"
 Dialogic="*uid://ds2q0uclmolvu"
+GameStats="*res://game/runtime/game_state.gd"
+PhraseMemory="*res://game/runtime/phrase_memory.gd"
 
 [debug]
 
@@ -30,12 +30,14 @@ gdscript/warnings/untyped_declaration=1
 
 directories/dch_directory={}
 directories/dtl_directory={
-"dad": "res://generated/timelines/dad.dtl",
-"grandma": "res://generated/timelines/grandma.dtl",
-"neighbors": "res://generated/timelines/neighbors.dtl",
-"son": "res://generated/timelines/son.dtl"
+"dad/dialogue": "res://content/episodes/dad/dialogue.dtl",
+"dialogue": "res://content/episodes/intro/dialogue.dtl",
+"grandma/dialogue": "res://content/episodes/grandma/dialogue.dtl",
+"neighbors/dialogue": "res://content/episodes/neighbors/dialogue.dtl",
+"son/dialogue": "res://content/episodes/son/dialogue.dtl"
 }
 layout/style_directory={}
+extensions_folder="res://addons/legendary_dialogic"
 
 [display]
 

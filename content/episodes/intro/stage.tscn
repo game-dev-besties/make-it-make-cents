@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://b3ce61hbul4dd"]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Center:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_center_focus"]
+resource_name = "center_focus"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Center:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.05, 1.05)]
+}
+
+[sub_resource type="Animation" id="Animation_intro_reveal"]
+resource_name = "intro_reveal"
+length = 1.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.55),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Center:modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.35, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_intro"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"center_focus": SubResource("Animation_center_focus"),
+&"intro_reveal": SubResource("Animation_intro_reveal")
+}
+
+[node name="IntroStage" unique_id=807907574 instance=ExtResource("1_base")]
+stage_title = "Friday night — apartment 4B"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.035, 0.07, 0.135, 1)
+
+[node name="Window" type="ColorRect" parent="Props" index="0" unique_id=1951995971]
+layout_mode = 0
+offset_left = 646.0
+offset_top = 65.0
+offset_right = 850.0
+offset_bottom = 267.0
+mouse_filter = 2
+color = Color(0.06, 0.14, 0.25, 1)
+
+[node name="WindowCrossbarVertical" type="ColorRect" parent="Props" index="1" unique_id=308387187]
+layout_mode = 0
+offset_left = 744.0
+offset_top = 65.0
+offset_right = 752.0
+offset_bottom = 267.0
+mouse_filter = 2
+color = Color(0.27, 0.38, 0.52, 1)
+
+[node name="WindowCrossbarHorizontal" type="ColorRect" parent="Props" index="2" unique_id=72356849]
+layout_mode = 0
+offset_left = 646.0
+offset_top = 162.0
+offset_right = 850.0
+offset_bottom = 170.0
+mouse_filter = 2
+color = Color(0.27, 0.38, 0.52, 1)
+
+[node name="CityLights" type="Label" parent="Props" index="3" unique_id=1514138013]
+layout_mode = 0
+offset_left = 664.0
+offset_top = 106.0
+offset_right = 831.0
+offset_bottom = 145.0
+theme_override_colors/font_color = Color(0.76, 0.84, 0.57, 0.8)
+theme_override_font_sizes/font_size = 20
+text = "·  ✦  ·  ·  ✦  ·"
+horizontal_alignment = 1
+
+[node name="Floor" type="ColorRect" parent="Props" index="4" unique_id=2091437068]
+layout_mode = 0
+offset_top = 440.0
+offset_right = 1152.0
+offset_bottom = 647.0
+mouse_filter = 2
+color = Color(0.1, 0.075, 0.105, 1)
+
+[node name="Left" parent="ActorSlots" index="0"]
+actor_name = "dog"
+expression = "woof woof idk"
+accent_color = Color(0.67, 0.42, 0.53, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+offset_left = 859.0
+offset_top = 208.0
+offset_right = 1079.0
+offset_bottom = 538.0
+pivot_offset = Vector2(-318, 16)
+actor_name = "You"
+expression = "blah blah"
+accent_color = Color(0.34, 0.63, 0.75, 1)
+
+[node name="Right" parent="ActorSlots" index="2"]
+visible = false
+modulate = Color(1, 1, 1, 0.45)
+actor_name = ""
+expression = ""
+is_active = false
+
+[node name="StageTitle" parent="." index="4"]
+offset_left = 873.0
+offset_top = 14.0
+offset_right = 1145.0
+offset_bottom = 49.0
+text = "stage title idk night room"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_intro")

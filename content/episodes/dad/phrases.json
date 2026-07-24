@@ -1,0 +1,61 @@
+{
+  "dad_L001": {
+    "speaker": "dad",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Good morning",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "thank you",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "for seeing me",
+        "cost": 3
+      },
+      {
+        "type": "phrase",
+        "text": "I'm Marco",
+        "cost": 2
+      }
+    ],
+    "min_keep": 1
+  },
+  "dad_L002": {
+    "speaker": "dad",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I worked",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "for ten years",
+        "cost": 3
+      },
+      {
+        "type": "phrase",
+        "text": "back home",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "in logistics",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "and management",
+        "cost": 2
+      }
+    ],
+    "min_keep": 1
+  }
+}

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://boia4vxt4ud1y"]
+
+[ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
+[ext_resource type="PackedScene" path="res://content/episodes/intro/stage.tscn" id="2_stage"]
+[ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
+
+[sub_resource type="Resource" id="CampaignRoute_restart"]
+script = ExtResource("3_route")
+exit_id = &"restart"
+next_episode_id = &"intro"
+
+[resource]
+resource_name = "IntroEpisode"
+script = ExtResource("1_episode")
+id = &"intro"
+title = "Friday Night, Apartment 4B"
+description = "A short opening scene in which the player arrives for a quiet first conversation with Mara."
+presentation_scene = ExtResource("2_stage")
+dialogue_timeline_path = "res://content/episodes/intro/dialogue.dtl"
+budget_delta = 1
+state_changes = {
+"met_mara": true
+}
+routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_restart")])

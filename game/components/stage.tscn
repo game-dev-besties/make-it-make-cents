@@ -1,0 +1,115 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://game/components/stage.gd" id="1_stage"]
+[ext_resource type="PackedScene" path="res://game/components/stage_actor_slot.tscn" id="2_slot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title"]
+bg_color = Color(0.025, 0.04, 0.075, 0.78)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [1.0]}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_default"]
+_data = {"RESET": SubResource("Animation_RESET")}
+
+[node name="Stage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_stage")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.1, 0.17, 1)
+mouse_filter = 2
+
+[node name="Props" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ActorSlots" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Left" parent="ActorSlots" instance=ExtResource("2_slot")]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 210.0
+offset_right = 274.0
+offset_bottom = 540.0
+
+[node name="Center" parent="ActorSlots" instance=ExtResource("2_slot")]
+layout_mode = 0
+offset_left = 370.0
+offset_top = 160.0
+offset_right = 590.0
+offset_bottom = 490.0
+
+[node name="Right" parent="ActorSlots" instance=ExtResource("2_slot")]
+layout_mode = 0
+offset_left = 686.0
+offset_top = 210.0
+offset_right = 906.0
+offset_bottom = 540.0
+
+[node name="Effects" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StageTitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 290.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.82, 0.89, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_title")
+text = "Untitled stage"
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {"": SubResource("AnimationLibrary_default")}
