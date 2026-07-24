@@ -1,0 +1,41 @@
+# Typed stat schema — the single source of truth for game stats.
+# `tools/gen_game_stats.py` turns this into addons/game/autoloads/GameStats.gd.
+#
+# Stat paths in story scripts are dotted, e.g. `crush.fondness`. The generator
+# flattens them to `crush_fondness` (group_phrase) so GDScript stays typed and
+# autocompleted. Group is documentation only.
+#
+# Supported types: int, float, bool, String
+
+stats:
+  # ── The neighbor family (same people the family meets all day) ──────────
+  crush:               # = neighbor teen daughter, Mira. Met by the son.
+    fondness:     {type: int, default: 0}   # how warmly she remembers the son
+    creeped_out:  {type: int, default: 0}   # how off-put she found him
+  interviewer:         # = neighbor dad, Mr. Reed. Met by the dad.
+    impression:   {type: int, default: 0}   # professional regard
+    weirded_out:  {type: int, default: 0}
+  doctor:              # = neighbor mom, Dr. Park. Met by the grandma.
+    patience:     {type: int, default: 0}
+    concern:      {type: int, default: 0}
+
+  # ── Per-cutscene pass/fail stats (WIP — not yet wired into any branching).
+  # Each family member's own conversation tracks two invisible meters:
+  #   success (1-10): sensible answers raise it, nonsensical ones lower it;
+  #     ending the cutscene above 5 = a normal success.
+  #   silly (0+): purposefully funny answers raise this (while lowering
+  #     success); a low success but high silly can still succeed, just with
+  #     different ending dialogue.
+  son:
+    success:      {type: int, default: 5}
+    silly:        {type: int, default: 0}
+  dad:
+    success:      {type: int, default: 5}
+    silly:        {type: int, default: 0}
+  grandma:
+    success:      {type: int, default: 5}
+    silly:        {type: int, default: 0}
+
+  # ── Economy, persisted across the whole game ────────────────────────────
+  money:
+    total_saved:  {type: int, default: 0}   # cumulative unspent budget
