@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://5nwf3fpjwgkt"]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.13, 0.075, 0.17, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.98, 0.47, 0.68, 0.7)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_son"]
+_data = {
+&"RESET": SubResource("Animation_RESET")
+}
+
+[node name="SonStage" unique_id=181511991 instance=ExtResource("1_base")]
+stage_title = "Saturday afternoon - the park"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.11, 0.22, 0.2, 1)
+
+[node name="Grass" type="ColorRect" parent="Props" index="0" unique_id=1809885009]
+layout_mode = 0
+offset_top = 380.0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.18, 0.39, 0.26, 1)
+
+[node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=641323101]
+layout_mode = 0
+offset_left = 332.0
+offset_top = 72.0
+offset_right = 820.0
+offset_bottom = 142.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Label" type="Label" parent="Props/SceneCard" index="0" unique_id=2919873]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.94, 1)
+theme_override_font_sizes/font_size = 22
+text = "Dummy scene: Leo meets Mira at the park"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Left" parent="ActorSlots" index="0"]
+offset_left = 328.0
+offset_right = 548.0
+actor_name = "Leo"
+expression = "working up the courage to ask"
+accent_color = Color(0.35, 0.67, 0.86, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+offset_left = 644.0
+offset_right = 864.0
+actor_name = "Mira"
+expression = "curious"
+accent_color = Color(0.96, 0.48, 0.7, 1)
+
+[node name="Right" parent="ActorSlots" index="2"]
+visible = false
+modulate = Color(1, 1, 1, 0.45)
+actor_name = ""
+expression = ""
+is_active = false
+
+[node name="StageTitle" parent="." index="4"]
+text = "Saturday afternoon - the park"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_son")

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://dbq7u44rm8523"]
 
 [ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
-[ext_resource type="PackedScene" uid="uid://b3ce61hbul4dd" path="res://content/episodes/intro/stage.tscn" id="2_stage"]
+[ext_resource type="PackedScene" path="res://content/episodes/grandma/stage.tscn" id="2_stage"]
 [ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
 
 [sub_resource type="Resource" id="CampaignRoute_next"]
@@ -13,7 +13,7 @@ resource_name = "GrandmaAtTheDoctor"
 script = ExtResource("1_episode")
 id = &"grandma"
 title = "Grandma at the Doctor"
-description = "Original placeholder episode; the authored dialogue has not yet been written."
+description = "Rosa checks in with the neighborhood doctor."
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/grandma/dialogue.dtl"
 phrase_data_path = "res://content/episodes/grandma/phrases.json"

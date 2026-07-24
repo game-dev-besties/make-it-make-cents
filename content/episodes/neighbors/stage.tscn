@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://6fhu10fibdfi"]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.19, 0.12, 0.065, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.72, 0.37, 0.7)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_neighbors"]
+_data = {
+&"RESET": SubResource("Animation_RESET")
+}
+
+[node name="NeighborsStage" unique_id=271038792 instance=ExtResource("1_base")]
+stage_title = "Tuesday evening - the Reeds' front door"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.18, 0.12, 0.07, 1)
+
+[node name="Door" type="ColorRect" parent="Props" index="0" unique_id=1778350045]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 105.0
+offset_right = 722.0
+offset_bottom = 510.0
+color = Color(0.35, 0.2, 0.1, 1)
+
+[node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=1518144790]
+layout_mode = 0
+offset_left = 302.0
+offset_top = 48.0
+offset_right = 850.0
+offset_bottom = 118.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Label" type="Label" parent="Props/SceneCard" index="0" unique_id=1105883971]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.78, 1)
+theme_override_font_sizes/font_size = 22
+text = "Dummy scene: the family meets their new neighbors"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Left" parent="ActorSlots" index="0"]
+actor_name = "Mom and Leo"
+expression = "holding welcome cookies"
+accent_color = Color(0.82, 0.5, 0.35, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+offset_left = 457.0
+offset_right = 677.0
+actor_name = "Mira"
+expression = "surprised"
+accent_color = Color(0.97, 0.5, 0.68, 1)
+
+[node name="Right" parent="ActorSlots" index="2"]
+offset_left = 654.0
+offset_top = 178.0
+offset_right = 874.0
+offset_bottom = 508.0
+actor_name = "The Reeds"
+expression = "at the door"
+accent_color = Color(0.9, 0.72, 0.37, 1)
+
+[node name="Effects" parent="." index="3"]
+visible = false
+
+[node name="StageTitle" parent="." index="4"]
+text = "Tuesday evening - the Reeds' front door"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_neighbors")

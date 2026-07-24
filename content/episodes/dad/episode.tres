@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://tjsooa7dbvlc"]
 
 [ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
-[ext_resource type="PackedScene" uid="uid://b3ce61hbul4dd" path="res://content/episodes/intro/stage.tscn" id="2_stage"]
+[ext_resource type="PackedScene" uid="uid://ctrpyg27xarws" path="res://content/episodes/dad/stage.tscn" id="2_stage"]
 [ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
 
 [sub_resource type="Resource" id="CampaignRoute_next"]
