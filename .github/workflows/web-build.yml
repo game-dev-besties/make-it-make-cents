@@ -26,13 +26,21 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.x"
+
       - name: Set up Godot export templates
         run: |
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.1.stable"
           cp -a /root/.local/share/godot/export_templates/4.7.1.stable/. "$HOME/.local/share/godot/export_templates/4.7.1.stable/"
 
+      - name: Validate dialogue and runtime
+        run: bash scripts/check.sh
+
       - name: Build Web Export
-        run: ./scripts/build-web.sh
+        run: bash scripts/build-web.sh
 
       # note: we probably don't need to upload builds (?)
       # - name: Upload Web build

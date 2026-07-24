@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://hevs8800v4gq"]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.08, 0.2, 0.2, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.38, 0.86, 0.78, 0.7)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_grandma"]
+_data = {
+&"RESET": SubResource("Animation_RESET")
+}
+
+[node name="GrandmaStage" unique_id=1842540065 instance=ExtResource("1_base")]
+stage_title = "Tuesday morning - neighborhood clinic"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.08, 0.19, 0.2, 1)
+
+[node name="ExamTable" type="ColorRect" parent="Props" index="0" unique_id=2065134856]
+layout_mode = 0
+offset_left = 334.0
+offset_top = 382.0
+offset_right = 820.0
+offset_bottom = 444.0
+color = Color(0.7, 0.84, 0.82, 1)
+
+[node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=1370703156]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 68.0
+offset_right = 832.0
+offset_bottom = 138.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Label" type="Label" parent="Props/SceneCard" index="0" unique_id=1443874626]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.84, 1, 0.94, 1)
+theme_override_font_sizes/font_size = 22
+text = "Rosa visits the doctor"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Left" parent="ActorSlots" index="0"]
+character_id = &"grandma"
+actor_name = "Rosa"
+expression = "neutral"
+accent_color = Color(0.75, 0.48, 0.74, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+visible = false
+modulate = Color(1, 1, 1, 0.45)
+actor_name = ""
+expression = ""
+is_active = false
+
+[node name="Right" parent="ActorSlots" index="2"]
+offset_left = 860.0
+offset_right = 1080.0
+character_id = &"doctor"
+actor_name = "Doctor"
+expression = "neutral"
+accent_color = Color(0.36, 0.8, 0.73, 1)
+
+[node name="StageTitle" parent="." index="4"]
+text = "Tuesday morning - neighborhood clinic"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_grandma")

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CampaignDefinition" format=3 uid="uid://d0rciqkklbe5j"]
+
+[ext_resource type="Script" uid="uid://dx1ylc6tuuy4q" path="res://game/domain/campaign_definition.gd" id="1_campaign"]
+[ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_jdu1k"]
+[ext_resource type="Resource" path="res://content/episodes/intro/episode.tres" id="2_intro"]
+[ext_resource type="Resource" path="res://content/episodes/son/episode.tres" id="3_son"]
+[ext_resource type="Resource" path="res://content/episodes/dad/episode.tres" id="4_dad"]
+[ext_resource type="Resource" path="res://content/episodes/grandma/episode.tres" id="5_grandma"]
+[ext_resource type="Resource" path="res://content/episodes/neighbors/episode.tres" id="6_neighbors"]
+
+[resource]
+resource_name = "LegendaryDiscoCampaign"
+script = ExtResource("1_campaign")
+id = &"legendary_disco"
+title = "Legendary Disco"
+first_episode_id = &"intro"
+episodes = Array[ExtResource("1_jdu1k")]([ExtResource("2_intro"), ExtResource("3_son"), ExtResource("4_dad"), ExtResource("5_grandma"), ExtResource("6_neighbors")])

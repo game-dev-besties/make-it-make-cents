@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://ctrpyg27xarws"]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.08, 0.12, 0.2, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.36, 0.72, 0.96, 0.7)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_dad_enters"]
+resource_name = "dad_enters"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_interviewer_enters"]
+resource_name = "interviewer_enters"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dad"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"dad_enters": SubResource("Animation_dad_enters"),
+&"interviewer_enters": SubResource("Animation_interviewer_enters")
+}
+
+[node name="DadStage" unique_id=1877146217 instance=ExtResource("1_base")]
+stage_title = "Monday morning - Reed & Co. interview room"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.075, 0.12, 0.19, 1)
+
+[node name="Desk" type="ColorRect" parent="Props" index="0" unique_id=242553458]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 392.0
+offset_right = 900.0
+offset_bottom = 452.0
+color = Color(0.3, 0.2, 0.15, 1)
+
+[node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=1890263746]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 68.0
+offset_right = 832.0
+offset_bottom = 138.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Label" type="Label" parent="Props/SceneCard" index="0" unique_id=1012797203]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.84, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Marco's job interview"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Left" parent="ActorSlots" index="0"]
+character_id = &"dad"
+actor_name = "Marco"
+expression = "nervous"
+accent_color = Color(0.36, 0.66, 0.9, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+visible = false
+modulate = Color(1, 1, 1, 0.45)
+actor_name = ""
+expression = ""
+is_active = false
+
+[node name="Right" parent="ActorSlots" index="2"]
+offset_left = 894.0
+offset_right = 1114.0
+character_id = &"interviewer"
+actor_name = "Mr. Reed"
+expression = "neutral"
+accent_color = Color(0.86, 0.65, 0.35, 1)
+
+[node name="StageTitle" parent="." index="4"]
+text = "Monday morning - Reed & Co. interview room"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_dad")

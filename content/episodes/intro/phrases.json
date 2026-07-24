@@ -1,0 +1,158 @@
+{
+  "intro_L001": {
+    "speaker": "son",
+    "expr": "shy",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Hello,",
+        "cost": 1,
+        "id": "hello"
+      },
+      {
+        "type": "phrase",
+        "text": "my name is Percy.",
+        "cost": 4,
+        "id": "name"
+      },
+      {
+        "type": "phrase",
+        "text": "I am",
+        "cost": 2,
+        "id": "i_am"
+      },
+      {
+        "type": "phrase",
+        "text": "pleased to be",
+        "cost": 3,
+        "id": "pleased"
+      },
+      {
+        "type": "phrase",
+        "text": "here",
+        "cost": 1,
+        "id": "here"
+      },
+      {
+        "type": "phrase",
+        "text": "in your beautiful country.",
+        "cost": 4,
+        "id": "beautiful"
+      }
+    ]
+  },
+  "intro_L002": {
+    "speaker": "son",
+    "expr": "neutral",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "No,",
+        "cost": 1,
+        "id": "no"
+      },
+      {
+        "type": "phrase",
+        "text": "I don’t",
+        "cost": 2,
+        "id": "dont"
+      },
+      {
+        "type": "phrase",
+        "text": "think",
+        "cost": 1,
+        "id": "think"
+      },
+      {
+        "type": "phrase",
+        "text": "so.",
+        "cost": 1,
+        "id": "so"
+      },
+      {
+        "type": "phrase",
+        "text": "What counts",
+        "cost": 2,
+        "id": "what_counts"
+      },
+      {
+        "type": "phrase",
+        "text": "as a declaration?",
+        "cost": 3,
+        "id": "declaration"
+      }
+    ]
+  },
+  "intro_L003": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I need",
+        "cost": 2,
+        "id": "need"
+      },
+      {
+        "type": "phrase",
+        "text": "to answer.",
+        "cost": 2,
+        "id": "answer"
+      }
+    ]
+  },
+  "intro_L004": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Can we",
+        "cost": 2,
+        "id": "can_we"
+      },
+      {
+        "type": "phrase",
+        "text": "afford",
+        "cost": 1,
+        "id": "afford"
+      },
+      {
+        "type": "phrase",
+        "text": "one more sentence?",
+        "cost": 3,
+        "id": "sentence"
+      }
+    ]
+  },
+  "intro_L005": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "They are",
+        "cost": 2,
+        "id": "they_are"
+      },
+      {
+        "type": "phrase",
+        "text": "Grandma’s",
+        "cost": 1,
+        "id": "grandmas"
+      },
+      {
+        "type": "phrase",
+        "text": "prescription",
+        "cost": 1,
+        "id": "prescription"
+      },
+      {
+        "type": "phrase",
+        "text": "pills.",
+        "cost": 1,
+        "id": "pills"
+      }
+    ]
+  }
+}

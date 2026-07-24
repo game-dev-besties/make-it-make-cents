@@ -1,0 +1,68 @@
+{
+  "dad_L001": {
+    "speaker": "dad",
+    "expr": "",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I have",
+        "cost": 2,
+        "id": "have"
+      },
+      {
+        "type": "phrase",
+        "text": "no",
+        "cost": 1,
+        "id": "no"
+      },
+      {
+        "type": "phrase",
+        "text": "experience",
+        "cost": 1,
+        "id": "experience"
+      },
+      {
+        "type": "phrase",
+        "text": "but",
+        "cost": 1,
+        "id": "but"
+      },
+      {
+        "type": "phrase",
+        "text": "I’m a fast learner.",
+        "cost": 4,
+        "id": "fast"
+      }
+    ]
+  },
+  "dad_L002": {
+    "speaker": "dad",
+    "expr": "",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Honestly,",
+        "cost": 1,
+        "id": "honestly"
+      },
+      {
+        "type": "phrase",
+        "text": "I just need money,",
+        "cost": 4,
+        "id": "money"
+      },
+      {
+        "type": "phrase",
+        "text": "but",
+        "cost": 1,
+        "id": "but"
+      },
+      {
+        "type": "phrase",
+        "text": "I also think I can contribute a lot.",
+        "cost": 8,
+        "id": "contribute"
+      }
+    ]
+  }
+}

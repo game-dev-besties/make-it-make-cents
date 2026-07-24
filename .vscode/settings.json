@@ -1,6 +1,4 @@
 {
-  "godot_tools.godot_path": "${workspaceFolder}/.bin/Godot.app",
-  "godot_tools.editor_path": "${workspaceFolder}/.bin/Godot.app",
   "python.defaultInterpreterPath": "python3",
   "files.associations": {
     "*.md": "markdown",

@@ -5,24 +5,14 @@
       "name": "Run Game",
       "type": "godot",
       "request": "launch",
-      "project": "${workspaceFolder}",
-      "editor_path": "${workspaceFolder}/.bin/Godot.app"
+      "project": "${workspaceFolder}"
     },
     {
       "name": "Open Editor",
       "type": "godot",
       "request": "launch",
       "project": "${workspaceFolder}",
-      "editor_path": "${workspaceFolder}/.bin/Godot.app",
       "editor": true
-    },
-    {
-      "name": "Playtest (terminal, no Godot)",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}/tools/playtest.py",
-      "args": ["son"],
-      "console": "integratedTerminal"
     }
   ]
 }

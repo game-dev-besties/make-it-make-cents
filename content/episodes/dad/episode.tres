@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://tjsooa7dbvlc"]
+
+[ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
+[ext_resource type="PackedScene" uid="uid://ctrpyg27xarws" path="res://content/episodes/dad/stage.tscn" id="2_stage"]
+[ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
+
+[sub_resource type="Resource" id="CampaignRoute_next"]
+script = ExtResource("3_route")
+next_episode_id = &"grandma"
+
+[resource]
+resource_name = "DadsJobInterview"
+script = ExtResource("1_episode")
+id = &"dad"
+title = "Dad's Job Interview"
+description = "Marco interviews with Mr. Reed, not yet knowing they will become neighbors."
+presentation_scene = ExtResource("2_stage")
+dialogue_timeline_path = "res://content/episodes/dad/dialogue.dtl"
+phrase_data_path = "res://content/episodes/dad/phrases.json"
+word_budget = 100
+score_owner = &"dad"
+routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])
