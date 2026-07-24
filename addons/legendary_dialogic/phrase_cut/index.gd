@@ -1,6 +1,6 @@
 @tool
 extends DialogicIndexer
-## Dialogic extension index for the legacy phrase-cut event.
+## Dialogic extension index for phrase cutting and editor-authored stage cues.
 ##
 ## Configure Dialogic's `dialogic/extensions_folder` setting to
 ## `res://addons/legendary_dialogic` so it discovers this folder.

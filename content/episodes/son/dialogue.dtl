@@ -1,7 +1,3 @@
-# Ported verbatim from story/scripts/son/1_son_asks_out.md.
-# TODO: not written yet. Placeholder so the cutscene id exists in the
-# flow resource and the DSL/pipeline can be exercised end-to-end; `dad` is the
-# actual proof-of-concept content for now.
-
+# Generated from content/episodes/son/script.md; edit script.md, not this file.
 This cutscene hasn't been written yet.
 end_timeline

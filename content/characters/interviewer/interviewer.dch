@@ -1,0 +1,24 @@
+{
+"@path": "res://addons/dialogic/Resources/character.gd",
+"@subpath": NodePath(""),
+&"_translation_id": "",
+&"color": Color(0.541176, 0.627451, 0.709804, 1),
+&"custom_info": {
+"sound_mood_default": "",
+"sound_moods": {},
+"style": ""
+},
+&"default_portrait": "neutral",
+&"description": "Mr. Reed, Marco's interviewer and one of the family's new neighbors.",
+&"display_name": "Mr. Reed",
+&"mirror": false,
+&"nicknames": ["Interviewer"],
+&"offset": Vector2(0, 0),
+&"portraits": {
+"confused": {},
+"happy": {},
+"nervous": {},
+"neutral": {}
+},
+&"scale": 1.0
+}

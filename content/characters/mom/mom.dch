@@ -1,0 +1,23 @@
+{
+"@path": "res://addons/dialogic/Resources/character.gd",
+"@subpath": NodePath(""),
+&"_translation_id": "",
+&"color": Color(0.960784, 0.372549, 0.541176, 1),
+&"custom_info": {
+"sound_mood_default": "",
+"sound_moods": {},
+"style": ""
+},
+&"default_portrait": "neutral",
+&"description": "Leo's mother.",
+&"display_name": "Elena",
+&"mirror": false,
+&"nicknames": ["Mom"],
+&"offset": Vector2(0, 0),
+&"portraits": {
+"happy": {},
+"neutral": {},
+"sad": {}
+},
+&"scale": 1.0
+}

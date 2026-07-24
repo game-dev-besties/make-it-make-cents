@@ -1,0 +1,17 @@
+{
+  "stats": [
+    "crush.fondness",
+    "crush.creeped_out",
+    "interviewer.impression",
+    "interviewer.weirded_out",
+    "doctor.patience",
+    "doctor.concern",
+    "son.success",
+    "son.silly",
+    "dad.success",
+    "dad.silly",
+    "grandma.success",
+    "grandma.silly",
+    "money.total_saved"
+  ]
+}

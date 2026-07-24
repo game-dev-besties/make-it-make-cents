@@ -70,47 +70,47 @@ _data = {
 }
 
 [node name="IntroStage" unique_id=807907574 instance=ExtResource("1_base")]
-stage_title = "Friday night — apartment 4B"
+stage_title = "Border crossing — verbal tariff checkpoint"
 
 [node name="Background" parent="." index="0"]
-color = Color(0.035, 0.07, 0.135, 1)
+color = Color(0.12, 0.13, 0.14, 1)
 
-[node name="Window" type="ColorRect" parent="Props" index="0" unique_id=1951995971]
+[node name="CustomsWindow" type="ColorRect" parent="Props" index="0" unique_id=1951995971]
 layout_mode = 0
 offset_left = 646.0
 offset_top = 65.0
 offset_right = 850.0
 offset_bottom = 267.0
 mouse_filter = 2
-color = Color(0.06, 0.14, 0.25, 1)
+color = Color(0.2, 0.22, 0.22, 1)
 
-[node name="WindowCrossbarVertical" type="ColorRect" parent="Props" index="1" unique_id=308387187]
+[node name="CustomsWindowVerticalBar" type="ColorRect" parent="Props" index="1" unique_id=308387187]
 layout_mode = 0
 offset_left = 744.0
 offset_top = 65.0
 offset_right = 752.0
 offset_bottom = 267.0
 mouse_filter = 2
-color = Color(0.27, 0.38, 0.52, 1)
+color = Color(0.53, 0.55, 0.52, 1)
 
-[node name="WindowCrossbarHorizontal" type="ColorRect" parent="Props" index="2" unique_id=72356849]
+[node name="CustomsWindowHorizontalBar" type="ColorRect" parent="Props" index="2" unique_id=72356849]
 layout_mode = 0
 offset_left = 646.0
 offset_top = 162.0
 offset_right = 850.0
 offset_bottom = 170.0
 mouse_filter = 2
-color = Color(0.27, 0.38, 0.52, 1)
+color = Color(0.53, 0.55, 0.52, 1)
 
-[node name="CityLights" type="Label" parent="Props" index="3" unique_id=1514138013]
+[node name="CheckpointSign" type="Label" parent="Props" index="3" unique_id=1514138013]
 layout_mode = 0
-offset_left = 664.0
-offset_top = 106.0
-offset_right = 831.0
-offset_bottom = 145.0
-theme_override_colors/font_color = Color(0.76, 0.84, 0.57, 0.8)
-theme_override_font_sizes/font_size = 20
-text = "·  ✦  ·  ·  ✦  ·"
+offset_left = 637.0
+offset_top = 102.0
+offset_right = 860.0
+offset_bottom = 151.0
+theme_override_colors/font_color = Color(0.86, 0.84, 0.68, 0.9)
+theme_override_font_sizes/font_size = 16
+text = "VERBAL TARIFF\nCHECKPOINT"
 horizontal_alignment = 1
 
 [node name="Floor" type="ColorRect" parent="Props" index="4" unique_id=2091437068]
@@ -119,12 +119,12 @@ offset_top = 440.0
 offset_right = 1152.0
 offset_bottom = 647.0
 mouse_filter = 2
-color = Color(0.1, 0.075, 0.105, 1)
+color = Color(0.16, 0.15, 0.13, 1)
 
 [node name="Left" parent="ActorSlots" index="0"]
-actor_name = "dog"
-expression = "woof woof idk"
-accent_color = Color(0.67, 0.42, 0.53, 1)
+actor_name = "Dad"
+expression = "trying to stay upbeat"
+accent_color = Color(0.68, 0.52, 0.31, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
 offset_left = 859.0
@@ -132,15 +132,14 @@ offset_top = 208.0
 offset_right = 1079.0
 offset_bottom = 538.0
 pivot_offset = Vector2(-318, 16)
-actor_name = "You"
-expression = "blah blah"
+actor_name = "Leo"
+expression = "skeptical"
 accent_color = Color(0.34, 0.63, 0.75, 1)
 
 [node name="Right" parent="ActorSlots" index="2"]
-visible = false
 modulate = Color(1, 1, 1, 0.45)
-actor_name = ""
-expression = ""
+actor_name = "Grandma"
+expression = "quietly waiting"
 is_active = false
 
 [node name="StageTitle" parent="." index="4"]
@@ -148,7 +147,7 @@ offset_left = 873.0
 offset_top = 14.0
 offset_right = 1145.0
 offset_bottom = 49.0
-text = "stage title idk night room"
+text = "Border checkpoint"
 
 [node name="AnimationPlayer" parent="." index="5"]
 libraries/ = SubResource("AnimationLibrary_intro")

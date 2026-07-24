@@ -1,6 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+/*.import
+__pycache__/
+*.py[cod]
 
 # web build artifacts
 build/*

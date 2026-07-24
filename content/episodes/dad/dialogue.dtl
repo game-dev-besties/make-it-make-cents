@@ -1,31 +1,58 @@
-# Ported from story/scripts/dad/1_dad_job_interview.md using the original compiler's Dialogic emission.
+# Generated from content/episodes/dad/script.md; edit script.md, not this file.
 label intro
 presentation_cue dad_enters
-interviewer (neutral): Good morning. Have a seat. Let's begin.
-presentation_cue interviewer_enters
-dad (nervous): okay...
-phrase_cut dad (nervous) dad_L001
-interviewer (curious): So, Marco, why do you want this job?
-- Give an honest, humble answer
-	dad (sad): I need to support my family we just moved here and money is tight
-	interviewer (happy): I appreciate the honesty. That takes courage.
-	set {GameStats.interviewer_impression} += 3
-	jump skills
-- Oversell yourself aggressively
-	dad (confident): I am the best candidate you will ever meet guaranteed
-	interviewer (confused): ...Right.
-	set {GameStats.interviewer_impression} -= 2
+interviewer: Hmm. Thanks for taking the time to interview with us today. Tell me a little about yourself.
+phrase_cut dad dad_L001
+if PhraseMemory.delivery_is("sponsor"):
+	interviewer: Advertising during an interview? That does not help your case.
+elif PhraseMemory.kept("have") and PhraseMemory.kept("no") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3:
+	interviewer: Tsk, tsk. Not what we are looking for.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.interviewer_impression} -= 1
+elif PhraseMemory.kept("fast") and PhraseMemory.kept_count() == 1:
+	interviewer: Ah, I see. Straight to the point.
+	set {GameStats.interviewer_impression} += 1
+elif PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.removed("no") and PhraseMemory.removed("but") and PhraseMemory.kept_count() <= 3:
+	interviewer: Ah, I see. Straight to the point.
+	set {GameStats.interviewer_impression} += 1
+elif PhraseMemory.kept("have") and PhraseMemory.kept("but") and PhraseMemory.removed("experience") and PhraseMemory.removed("fast") and PhraseMemory.kept_count() <= 3:
+	interviewer: Sir!? That is not something I need to know.
+	set {GameStats.dad_success} -= 2
+	set {GameStats.dad_silly} += 2
 	set {GameStats.interviewer_weirded_out} += 2
-	jump skills
-label skills
-interviewer (neutral): What experience do you have?
-phrase_cut dad (nervous) dad_L002
-interviewer (happy): That's exactly what we need. You're a strong candidate.
-set {GameStats.interviewer_impression} += 2
-jump outro
-label outro
-if GameStats.interviewer_weirded_out >= 2:
-	interviewer (nervous): We'll be in touch. ...Eventually.
 else:
-	interviewer (happy): Welcome to the team, Marco. You start Monday.
+	interviewer: Hmm. Not sure I understand what you mean.
+	set {GameStats.dad_success} -= 3
+	set {GameStats.interviewer_impression} -= 2
+jump motivation
+label motivation
+interviewer: What makes you want to work here at Paperbox, Inc.?
+phrase_cut dad dad_L002
+if PhraseMemory.delivery_is("sponsor"):
+	interviewer: Again with the soda? Please focus on Paperbox, Inc.
+elif PhraseMemory.kept("money") and PhraseMemory.removed("but") and PhraseMemory.removed("contribute") and PhraseMemory.kept_count() <= 2:
+	interviewer: Honesty is not always the best policy, sir.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("contribute") and PhraseMemory.removed("money") and PhraseMemory.removed("but") and PhraseMemory.kept_count() <= 2:
+	interviewer: Hmm, yes, your resume seems to agree.
+	set {GameStats.dad_success} += 2
+	set {GameStats.interviewer_impression} += 2
+elif PhraseMemory.kept("but") and PhraseMemory.kept_count() == 1:
+	interviewer: Sir, focus less on behinds and more on business.
+	set {GameStats.dad_success} -= 2
+	set {GameStats.dad_silly} += 2
+	set {GameStats.interviewer_weirded_out} += 2
+else:
+	interviewer: Hmm. Not sure I understand what you mean.
+	set {GameStats.dad_success} -= 3
+	set {GameStats.interviewer_impression} -= 2
+jump outcome
+label outcome
+if GameStats.dad_success > 5:
+	interviewer: I like your work ethic. I think you belong here.
+elif GameStats.dad_silly >= 3:
+	interviewer: You know, we need more people with your creativity around.
+else:
+	interviewer: We will be in touch.
 end_timeline

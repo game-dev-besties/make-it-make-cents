@@ -7,18 +7,20 @@ const CAMPAIGN := preload("res://content/campaign/campaign.tres")
 @onready var title_screen: Control = %TitleScreen
 @onready var start_button: Button = %StartButton
 @onready var episode_label: Label = %EpisodeLabel
+@onready var budget_label: Label = %BudgetLabel
 @onready var status_label: Label = %StatusLabel
 @onready var campaign_player: CampaignPlayer = %CampaignPlayer
 
 
 func _ready() -> void:
-	campaign_player.set_stage_host($StageHost as StageHost)
-	campaign_player.set_game_state(get_node_or_null("/root/GameStats") as GameStateStore)
-	campaign_player.set_dialogic(get_node_or_null("/root/Dialogic"))
+	campaign_player.set_stage_host(%StageHost as StageHost)
+	campaign_player.set_game_state(GameStats as GameStateStore)
+	campaign_player.set_dialogic(Dialogic)
 	campaign_player.episode_started.connect(_on_episode_started)
 	campaign_player.campaign_finished.connect(_on_campaign_finished)
 	campaign_player.validation_failed.connect(_on_validation_failed)
 	campaign_player.integration_warning.connect(_on_integration_warning)
+	GameStats.budget_changed.connect(_on_budget_changed)
 	start_button.grab_focus()
 
 
@@ -30,10 +32,13 @@ func _on_start_button_pressed() -> void:
 
 func _on_episode_started(episode: EpisodeDefinition) -> void:
 	episode_label.text = episode.title
+	budget_label.show()
+	_on_budget_changed(GameStats.remaining_budget(), GameStats.remaining_budget())
 
 
 func _on_campaign_finished() -> void:
 	episode_label.text = "The story is complete."
+	budget_label.hide()
 	title_screen.show()
 	start_button.text = "Play again"
 	start_button.grab_focus()
@@ -45,3 +50,7 @@ func _on_validation_failed(errors: PackedStringArray) -> void:
 
 func _on_integration_warning(message: String) -> void:
 	status_label.text = message
+
+
+func _on_budget_changed(current_budget: int, _previous_budget: int) -> void:
+	budget_label.text = "Words left: $%d" % current_budget

@@ -1,61 +1,68 @@
 {
   "dad_L001": {
     "speaker": "dad",
-    "expr": "nervous",
+    "expr": "",
     "segments": [
       {
         "type": "phrase",
-        "text": "Good morning",
-        "cost": 2
+        "text": "I have",
+        "cost": 2,
+        "id": "have"
       },
       {
         "type": "phrase",
-        "text": "thank you",
-        "cost": 2
+        "text": "no",
+        "cost": 1,
+        "id": "no"
       },
       {
         "type": "phrase",
-        "text": "for seeing me",
-        "cost": 3
+        "text": "experience",
+        "cost": 1,
+        "id": "experience"
       },
       {
         "type": "phrase",
-        "text": "I'm Marco",
-        "cost": 2
+        "text": "but",
+        "cost": 1,
+        "id": "but"
+      },
+      {
+        "type": "phrase",
+        "text": "I’m a fast learner.",
+        "cost": 4,
+        "id": "fast"
       }
-    ],
-    "min_keep": 1
+    ]
   },
   "dad_L002": {
     "speaker": "dad",
-    "expr": "nervous",
+    "expr": "",
     "segments": [
       {
         "type": "phrase",
-        "text": "I worked",
-        "cost": 2
+        "text": "Honestly,",
+        "cost": 1,
+        "id": "honestly"
       },
       {
         "type": "phrase",
-        "text": "for ten years",
-        "cost": 3
+        "text": "I just need money,",
+        "cost": 4,
+        "id": "money"
       },
       {
         "type": "phrase",
-        "text": "back home",
-        "cost": 2
+        "text": "but",
+        "cost": 1,
+        "id": "but"
       },
       {
         "type": "phrase",
-        "text": "in logistics",
-        "cost": 2
-      },
-      {
-        "type": "phrase",
-        "text": "and management",
-        "cost": 2
+        "text": "I also think I can contribute a lot.",
+        "cost": 8,
+        "id": "contribute"
       }
-    ],
-    "min_keep": 1
+    ]
   }
 }

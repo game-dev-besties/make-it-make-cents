@@ -9,7 +9,6 @@ extends Resource
 @export_file("*.dtl") var dialogue_timeline_path := ""
 @export_file("*.json") var phrase_data_path := ""
 @export_range(0, 100000, 1, "or_greater") var word_budget := 0
-@export var budget_delta := 0
 @export var state_changes: Dictionary = {}
 @export var routes: Array[CampaignRoute] = []
 

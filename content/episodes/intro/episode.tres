@@ -4,21 +4,18 @@
 [ext_resource type="PackedScene" path="res://content/episodes/intro/stage.tscn" id="2_stage"]
 [ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="3_route"]
 
-[sub_resource type="Resource" id="CampaignRoute_restart"]
+[sub_resource type="Resource" id="CampaignRoute_next"]
 script = ExtResource("3_route")
-exit_id = &"restart"
-next_episode_id = &"intro"
+next_episode_id = &"son"
 
 [resource]
-resource_name = "IntroEpisode"
+resource_name = "BorderTutorial"
 script = ExtResource("1_episode")
 id = &"intro"
-title = "Friday Night, Apartment 4B"
-description = "A short opening scene in which the player arrives for a quiet first conversation with Mara."
+title = "Crossing the Border"
+description = "Dad teaches Leo how to use Penny before the family's words begin costing money."
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/intro/dialogue.dtl"
-budget_delta = 1
-state_changes = {
-"met_mara": true
-}
-routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_restart")])
+phrase_data_path = "res://content/episodes/intro/phrases.json"
+word_budget = 15
+routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])

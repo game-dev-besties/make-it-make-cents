@@ -4,9 +4,15 @@ extends Node
 
 signal presentation_changed(presentation: Node)
 
+const GROUP_NAME := &"story_stage_host"
+
 @export var presentation_container: NodePath
 
 var current_presentation: Node
+
+
+func _enter_tree() -> void:
+	add_to_group(GROUP_NAME)
 
 
 func show_presentation(scene: PackedScene) -> Node:
@@ -26,6 +32,16 @@ func clear_presentation() -> void:
 		current_presentation.queue_free()
 	current_presentation = null
 	presentation_changed.emit(null)
+
+
+func play_cue(cue_id: StringName) -> bool:
+	if not is_instance_valid(current_presentation):
+		push_warning("Cannot play stage cue '%s' without a mounted presentation." % cue_id)
+		return false
+	if not current_presentation.has_method("play_cue"):
+		push_warning("Mounted presentation '%s' does not support stage cues." % current_presentation.name)
+		return false
+	return bool(current_presentation.call("play_cue", cue_id))
 
 
 func _get_container() -> Node:

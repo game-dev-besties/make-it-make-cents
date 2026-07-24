@@ -1,0 +1,104 @@
+{
+  "intro_L001": {
+    "speaker": "son",
+    "expr": "shy",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Hello,",
+        "cost": 1,
+        "id": "hello"
+      },
+      {
+        "type": "phrase",
+        "text": "my name is Leo.",
+        "cost": 4,
+        "id": "name"
+      },
+      {
+        "type": "phrase",
+        "text": "I am",
+        "cost": 2,
+        "id": "i_am"
+      },
+      {
+        "type": "phrase",
+        "text": "pleased to be",
+        "cost": 3,
+        "id": "pleased"
+      },
+      {
+        "type": "phrase",
+        "text": "here",
+        "cost": 1,
+        "id": "here"
+      },
+      {
+        "type": "phrase",
+        "text": "in your beautiful country.",
+        "cost": 4,
+        "id": "beautiful"
+      }
+    ]
+  },
+  "intro_L002": {
+    "speaker": "son",
+    "expr": "neutral",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "No,",
+        "cost": 1,
+        "id": "no"
+      },
+      {
+        "type": "phrase",
+        "text": "I don’t",
+        "cost": 2,
+        "id": "dont"
+      },
+      {
+        "type": "phrase",
+        "text": "think",
+        "cost": 1,
+        "id": "think"
+      },
+      {
+        "type": "phrase",
+        "text": "so.",
+        "cost": 1,
+        "id": "so"
+      },
+      {
+        "type": "phrase",
+        "text": "What counts",
+        "cost": 2,
+        "id": "what_counts"
+      },
+      {
+        "type": "phrase",
+        "text": "as a declaration?",
+        "cost": 3,
+        "id": "declaration"
+      }
+    ]
+  },
+  "intro_L003": {
+    "speaker": "son",
+    "expr": "neutral",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Ready",
+        "cost": 1,
+        "id": "ready"
+      },
+      {
+        "type": "phrase",
+        "text": "to go.",
+        "cost": 2,
+        "id": "go"
+      }
+    ]
+  }
+}

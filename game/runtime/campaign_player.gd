@@ -154,7 +154,11 @@ func _load_phrase_data(episode: EpisodeDefinition) -> void:
 		return
 	var subsystem: Variant = _dialogic_node.call("get_subsystem", "PhraseCut")
 	if subsystem != null and subsystem.has_method("load_for"):
-		subsystem.call("load_for", episode.phrase_data_path)
+		subsystem.call(
+			"load_for",
+			episode.phrase_data_path,
+			episode.dialogue_timeline_path,
+		)
 
 
 func _on_timeline_ended() -> void:
