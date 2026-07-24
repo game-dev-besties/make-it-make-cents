@@ -16,4 +16,4 @@ if [ -z "${GODOT_BIN:-}" ] && ! command -v godot >/dev/null 2>&1; then
   fi
 fi
 
-"${GODOT_BIN}" --headless --path . --export-release "Web" build/web/index.html
+"${GODOT_BIN:-godot}" --headless --path . --export-release "Web" build/web/index.html
