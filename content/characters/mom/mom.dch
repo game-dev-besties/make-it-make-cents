@@ -4,18 +4,22 @@
 &"_translation_id": "",
 &"color": Color(0.960784, 0.372549, 0.541176, 1),
 &"custom_info": {
+"prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": ""
+"style": "",
+"suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "Leo's mother.",
+&"description": "Percy's mother.",
 &"display_name": "Elena",
 &"mirror": false,
 &"nicknames": ["Mom"],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"happy": {},
+"happy": {
+"offset": Vector2(0, 0)
+},
 "neutral": {},
 "sad": {}
 },

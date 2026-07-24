@@ -5,7 +5,9 @@ extends DialogicEvent
 
 @export var cue_id: String = ""
 
-var _pattern: RegEx = RegEx.create_from_string(r"presentation_cue\s+(?<cue>[A-Za-z_]\w*)")
+var _pattern: RegEx = RegEx.create_from_string(
+	r"^presentation_cue\s+(?<cue>[A-Za-z_]\w*)\s*$"
+)
 
 
 func _init() -> void:
@@ -13,6 +15,7 @@ func _init() -> void:
 	event_description = "Requests a named presentation animation."
 	set_default_color("Color5")
 	event_category = "Presentation"
+	disable_editor_button = true
 
 
 func to_text() -> String:

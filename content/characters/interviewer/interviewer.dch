@@ -4,9 +4,11 @@
 &"_translation_id": "",
 &"color": Color(0.541176, 0.627451, 0.709804, 1),
 &"custom_info": {
+"prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": ""
+"style": "",
+"suffix": ""
 },
 &"default_portrait": "neutral",
 &"description": "Mr. Reed, Marco's interviewer and one of the family's new neighbors.",
@@ -15,7 +17,9 @@
 &"nicknames": ["Interviewer"],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"confused": {},
+"confused": {
+"offset": Vector2(0, 0)
+},
 "happy": {},
 "nervous": {},
 "neutral": {}

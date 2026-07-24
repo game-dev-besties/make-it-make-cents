@@ -13,7 +13,7 @@ const PHRASE_CUT_OVERLAY := preload("res://ui/phrase_cut/phrase_cut_overlay.tscn
 const SPONSOR_CREDIT := 3
 
 var regex: RegEx = RegEx.create_from_string(
-	r"phrase_cut\s+(?<speaker>[A-Za-z_][A-Za-z0-9_-]*)(?:\s*\((?<portrait>[^)]*)\))?\s+(?<line_id>[A-Za-z_]\w*)"
+	r"^phrase_cut\s+(?<speaker>[A-Za-z_][A-Za-z0-9_-]*)(?:\s*\((?<portrait>[^)]*)\))?\s+(?<line_id>[A-Za-z_]\w*)\s*$"
 )
 var _active_overlay: PhraseCutOverlay
 var _active_text_event: DialogicTextEvent
@@ -26,6 +26,7 @@ func _init() -> void:
 	event_category = "Main"
 	event_sorting_index = 5
 	expand_by_default = false
+	disable_editor_button = true
 
 
 func to_text() -> String:
@@ -44,7 +45,7 @@ func from_text(text: String) -> void:
 
 
 func is_valid_event(text: String) -> bool:
-	return text.strip_edges().begins_with("phrase_cut ")
+	return regex.search(text.strip_edges()) != null
 
 
 func _execute() -> void:
@@ -64,6 +65,7 @@ func _execute() -> void:
 		return
 	var character: DialogicCharacter = _resolve_character()
 	_apply_speaker(character)
+	_forward_speaker_to_stage(character)
 
 	var game_stats: Node = dialogic.get_node_or_null("/root/GameStats")
 	if game_stats == null or not game_stats.has_method("remaining_budget") or not game_stats.has_method("spend"):
@@ -76,13 +78,25 @@ func _execute() -> void:
 	_overlay().add_child(ui)
 	var budget: int = int(game_stats.call("remaining_budget"))
 	var recovery_data: Dictionary = _recovery_data(data)
+	var recovery_policy: Dictionary = phrase_cut.consume_recovery_policy()
+	var speaker_name := speaker
+	if character != null:
+		var display_name := character.get_display_name_translated()
+		if not display_name.is_empty():
+			speaker_name = display_name
 	ui.setup(
 		segments,
 		budget,
-		speaker,
+		speaker_name,
 		{
-			"can_use_pity": _recovery_available(game_stats, "can_use_pity"),
-			"can_use_sponsor": _recovery_available(game_stats, "can_use_sponsor"),
+			"can_use_pity": (
+				_policy_allows(recovery_policy, "allow_pity")
+				and _recovery_available(game_stats, "can_use_pity")
+			),
+			"can_use_sponsor": (
+				_policy_allows(recovery_policy, "allow_sponsor")
+				and _recovery_available(game_stats, "can_use_sponsor")
+			),
 			"pity_text": String(recovery_data.get("pity_text", PhraseCutOverlay.DEFAULT_PITY_TEXT)),
 			"sponsor_text": String(recovery_data.get("sponsor_text", PhraseCutOverlay.DEFAULT_SPONSOR_TEXT)),
 		},
@@ -129,6 +143,21 @@ func _apply_speaker(character: DialogicCharacter) -> void:
 		dialogic.Text.update_name_label(character)
 
 
+func _forward_speaker_to_stage(character: DialogicCharacter) -> void:
+	if not is_instance_valid(dialogic):
+		return
+	var tree := dialogic.get_tree()
+	if tree == null:
+		return
+	var stage_host := tree.get_first_node_in_group(&"story_stage_host")
+	if stage_host == null or not stage_host.has_method("apply_dialogic_text"):
+		return
+	stage_host.call(
+		"apply_dialogic_text",
+		{"character": character, "portrait": portrait},
+	)
+
+
 func _overlay() -> Node:
 	if dialogic.has_subsystem("Styles") and dialogic.Styles.has_active_layout_node():
 		return dialogic.Styles.get_layout_node()
@@ -142,6 +171,10 @@ func _recovery_data(data: Dictionary) -> Dictionary:
 
 func _recovery_available(game_stats: Node, method: StringName) -> bool:
 	return game_stats.has_method(method) and bool(game_stats.call(method))
+
+
+func _policy_allows(policy: Dictionary, key: String) -> bool:
+	return bool(policy.get(key, true))
 
 
 func _apply_delivery(game_stats: Node, result: Dictionary) -> void:

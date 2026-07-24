@@ -9,6 +9,8 @@ extends Resource
 @export_file("*.dtl") var dialogue_timeline_path := ""
 @export_file("*.json") var phrase_data_path := ""
 @export_range(0, 100000, 1, "or_greater") var word_budget := 0
+## Optional family member whose conversation score starts fresh in this episode.
+@export var score_owner: StringName = &""
 @export var state_changes: Dictionary = {}
 @export var routes: Array[CampaignRoute] = []
 
@@ -25,6 +27,8 @@ func validate() -> PackedStringArray:
 		errors.append("Episode '%s' references a missing timeline: %s" % [id, dialogue_timeline_path])
 	if not phrase_data_path.is_empty() and not FileAccess.file_exists(phrase_data_path):
 		errors.append("Episode '%s' references missing phrase data: %s" % [id, phrase_data_path])
+	if score_owner not in [&"", &"son", &"dad", &"grandma"]:
+		errors.append("Episode '%s' has unknown score owner '%s'." % [id, score_owner])
 	var exit_ids: Dictionary = {}
 	var automatic_route_count := 0
 	for route in routes:

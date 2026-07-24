@@ -4,29 +4,31 @@
 &"_translation_id": "",
 &"color": Color(0.35, 0.67, 0.86, 1),
 &"custom_info": {
+"prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": ""
+"style": "",
+"suffix": ""
 },
 &"default_portrait": "neutral",
 &"description": "The family's teenage son.",
-&"display_name": "Leo",
+&"display_name": "Percy",
 &"mirror": false,
-&"nicknames": ["Son"],
+&"nicknames": ["Son", "Percy"],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"neutral": {
+"nervous": {
 "export_overrides": {
-"image": "\"res://son-neutral.png\""
+"image": "\"res://content/characters/son/shy.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
 "scale": 1.0,
 "scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
 },
-"nervous": {
+"neutral": {
 "export_overrides": {
-"image": "\"res://son-shy.png\""
+"image": "\"res://content/characters/son/neutral.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -35,7 +37,7 @@
 },
 "sad": {
 "export_overrides": {
-"image": "\"res://son-shy.png\""
+"image": "\"res://content/characters/son/shy.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -44,7 +46,7 @@
 },
 "shy": {
 "export_overrides": {
-"image": "\"res://son-shy.png\""
+"image": "\"res://content/characters/son/shy.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -53,7 +55,7 @@
 },
 "surprised": {
 "export_overrides": {
-"image": "\"res://son-neutral.png\""
+"image": "\"res://content/characters/son/neutral.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),

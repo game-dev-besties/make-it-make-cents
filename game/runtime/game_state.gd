@@ -15,6 +15,9 @@ const SPONSOR_SUCCESS_PENALTY := 3
 var money_total_saved := 0
 var cutscene_budget := 0
 var cutscene_spent := 0
+var cutscene_reserved_savings := 0
+## Sponsor-funded words can be spoken, but cannot become family savings.
+var cutscene_sponsor_credit := 0
 var pity_used := false
 var sponsor_used := false
 
@@ -24,6 +27,8 @@ var interviewer_impression := 0
 var interviewer_weirded_out := 0
 var doctor_patience := 0
 var doctor_concern := 0
+var intro_grandma_praised_for_silence := false
+var intro_pills_confiscated := false
 var son_success := 5:
 	set(value):
 		son_success = clampi(value, 1, 10)
@@ -56,6 +61,8 @@ func reset_for_new_game() -> void:
 	money_total_saved = 0
 	cutscene_budget = 0
 	cutscene_spent = 0
+	cutscene_reserved_savings = 0
+	cutscene_sponsor_credit = 0
 	pity_used = false
 	sponsor_used = false
 	_cutscene_open = false
@@ -66,6 +73,8 @@ func reset_for_new_game() -> void:
 	interviewer_weirded_out = 0
 	doctor_patience = 0
 	doctor_concern = 0
+	intro_grandma_praised_for_silence = false
+	intro_pills_confiscated = false
 	son_success = 5
 	son_silly = 0
 	dad_success = 5
@@ -94,14 +103,36 @@ func apply_episode(episode: EpisodeDefinition) -> void:
 	if episode == null:
 		return
 	begin_cutscene(episode.word_budget)
-	for key in episode.state_changes:
+	reset_score_for(episode.score_owner)
+	for key: Variant in episode.state_changes:
 		set_value(StringName(key), episode.state_changes[key])
+
+
+func reset_score_for(score_owner: StringName) -> bool:
+	match score_owner:
+		&"son":
+			son_success = 5
+			son_silly = 0
+		&"dad":
+			dad_success = 5
+			dad_silly = 0
+		&"grandma":
+			grandma_success = 5
+			grandma_silly = 0
+		&"":
+			return false
+		_:
+			push_warning("Unknown score owner '%s'." % score_owner)
+			return false
+	return true
 
 
 func begin_cutscene(next_budget: int) -> void:
 	var previous_budget := remaining_budget()
 	cutscene_budget = max(0, next_budget)
 	cutscene_spent = 0
+	cutscene_reserved_savings = 0
+	cutscene_sponsor_credit = 0
 	pity_used = false
 	sponsor_used = false
 	_cutscene_open = true
@@ -113,6 +144,7 @@ func spend(amount: int) -> int:
 	var previous_budget := remaining_budget()
 	var charged: int = mini(maxi(0, amount), previous_budget)
 	cutscene_spent += charged
+	cutscene_sponsor_credit = maxi(0, cutscene_sponsor_credit - charged)
 	if charged > 0:
 		budget_changed.emit(remaining_budget(), previous_budget)
 	return charged
@@ -126,6 +158,30 @@ func add_budget(amount: int) -> int:
 	cutscene_budget += credit
 	budget_changed.emit(remaining_budget(), previous_budget)
 	return credit
+
+
+func set_remaining_budget(amount: int) -> int:
+	var previous_budget := remaining_budget()
+	var next_budget := maxi(0, amount)
+	if next_budget < previous_budget:
+		var removed_budget := previous_budget - next_budget
+		var removed_sponsor_credit := mini(
+			cutscene_sponsor_credit,
+			removed_budget,
+		)
+		cutscene_sponsor_credit -= removed_sponsor_credit
+		cutscene_reserved_savings += removed_budget - removed_sponsor_credit
+	elif next_budget > previous_budget:
+		var released_savings := mini(
+			cutscene_reserved_savings,
+			next_budget - previous_budget,
+		)
+		cutscene_reserved_savings -= released_savings
+	cutscene_budget = cutscene_spent + next_budget
+	cutscene_sponsor_credit = mini(cutscene_sponsor_credit, next_budget)
+	if next_budget != previous_budget:
+		budget_changed.emit(next_budget, previous_budget)
+	return next_budget
 
 
 func remaining_budget() -> int:
@@ -151,13 +207,13 @@ func use_sponsor(credit: int) -> bool:
 	if not can_use_sponsor():
 		return false
 	sponsor_used = true
-	add_budget(credit)
+	cutscene_sponsor_credit += add_budget(credit)
 	return true
 
 
 func apply_sponsor_penalty(speaker: StringName) -> bool:
 	match String(speaker).to_lower():
-		"son", "leo":
+		"son", "percy":
 			son_success -= SPONSOR_SUCCESS_PENALTY
 		"dad", "marco":
 			dad_success -= SPONSOR_SUCCESS_PENALTY
@@ -171,7 +227,10 @@ func apply_sponsor_penalty(speaker: StringName) -> bool:
 func end_cutscene() -> void:
 	if not _cutscene_open:
 		return
-	money_total_saved += max(0, remaining_budget())
+	var savable_budget := maxi(0, remaining_budget() - cutscene_sponsor_credit)
+	money_total_saved += cutscene_reserved_savings + savable_budget
+	cutscene_reserved_savings = 0
+	cutscene_sponsor_credit = 0
 	_cutscene_open = false
 
 
@@ -180,6 +239,8 @@ func to_dictionary() -> Dictionary:
 		"money_total_saved": money_total_saved,
 		"cutscene_budget": cutscene_budget,
 		"cutscene_spent": cutscene_spent,
+		"cutscene_reserved_savings": cutscene_reserved_savings,
+		"cutscene_sponsor_credit": cutscene_sponsor_credit,
 		"cutscene_open": _cutscene_open,
 		"pity_used": pity_used,
 		"sponsor_used": sponsor_used,
@@ -189,6 +250,8 @@ func to_dictionary() -> Dictionary:
 		"interviewer_weirded_out": interviewer_weirded_out,
 		"doctor_patience": doctor_patience,
 		"doctor_concern": doctor_concern,
+		"intro_grandma_praised_for_silence": intro_grandma_praised_for_silence,
+		"intro_pills_confiscated": intro_pills_confiscated,
 		"son_success": son_success,
 		"son_silly": son_silly,
 		"dad_success": dad_success,
@@ -204,15 +267,32 @@ func load_dictionary(data: Dictionary) -> void:
 	money_total_saved = max(0, int(data.get("money_total_saved", 0)))
 	cutscene_budget = max(0, int(data.get("cutscene_budget", data.get("budget", 0))))
 	cutscene_spent = clampi(int(data.get("cutscene_spent", 0)), 0, cutscene_budget)
+	cutscene_reserved_savings = max(0, int(data.get("cutscene_reserved_savings", 0)))
+	cutscene_sponsor_credit = clampi(
+		int(data.get("cutscene_sponsor_credit", 0)),
+		0,
+		remaining_budget(),
+	)
 	_cutscene_open = bool(data.get("cutscene_open", false))
 	pity_used = bool(data.get("pity_used", false))
 	sponsor_used = bool(data.get("sponsor_used", false))
+	if not sponsor_used:
+		cutscene_sponsor_credit = 0
 	crush_fondness = int(data.get("crush_fondness", 0))
 	crush_creeped_out = int(data.get("crush_creeped_out", 0))
 	interviewer_impression = int(data.get("interviewer_impression", 0))
 	interviewer_weirded_out = int(data.get("interviewer_weirded_out", 0))
 	doctor_patience = int(data.get("doctor_patience", 0))
 	doctor_concern = int(data.get("doctor_concern", 0))
+	intro_grandma_praised_for_silence = bool(
+		data.get(
+			"intro_grandma_praised_for_silence",
+			data.get("grandma_praised_for_silence", false),
+		)
+	)
+	intro_pills_confiscated = bool(
+		data.get("intro_pills_confiscated", data.get("pills_confiscated", false))
+	)
 	son_success = int(data.get("son_success", 5))
 	son_silly = int(data.get("son_silly", 0))
 	dad_success = int(data.get("dad_success", 5))

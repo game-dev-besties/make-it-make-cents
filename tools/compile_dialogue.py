@@ -5,6 +5,9 @@ The source for an episode lives beside its Godot resources:
 
     content/episodes/<episode-id>/script.md
 
+Long episodes may instead add an adjacent `scripts.json` containing an ordered
+list of Markdown source files.
+
 This compiler writes `dialogue.dtl` and `phrases.json` into the same folder.
 It deliberately uses only the Python standard library so a normal Python 3
 installation is enough.
@@ -26,6 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EPISODES_DIR = ROOT / "content" / "episodes"
 STATS_PATH = ROOT / "story" / "stats.json"
 SOURCE_NAME = "script.md"
+SOURCE_MANIFEST_NAME = "scripts.json"
 TIMELINE_NAME = "dialogue.dtl"
 PHRASES_NAME = "phrases.json"
 
@@ -53,6 +57,8 @@ OUTSIDE_PHRASE_RE = re.compile(r"^[\s,.;:!?…—-]*$")
 
 DELIVERY_MODES = frozenset({"normal", "silence", "pity", "sponsor"})
 CONDITION_FUNCTIONS = frozenset({"kept", "removed", "kept_count", "delivery"})
+RECOVERY_MODE_ORDER = ("pity", "sponsor")
+RECOVERY_MODES = frozenset(RECOVERY_MODE_ORDER)
 
 
 class CompileError(Exception):
@@ -81,6 +87,14 @@ class Artifact:
     phrase_line_count: int
 
 
+@dataclass(frozen=True)
+class EpisodeSources:
+    episode_id: str
+    episode_dir: Path
+    source_paths: tuple[Path, ...]
+    source_label: str
+
+
 def _fail(line: SourceLine, message: str) -> None:
     raise CompileError(line.path, line.number, message)
 
@@ -92,22 +106,62 @@ def _tokenize(path: Path) -> list[SourceLine]:
         raise CompileError(path, 1, f"cannot read source: {exc}") from exc
 
     lines: list[SourceLine] = []
+    continued_text: str | None = None
+    continued_number = 0
+    continued_indent = 0
+
     for number, raw in enumerate(raw_text.splitlines(), start=1):
         if "\t" in raw[: len(raw) - len(raw.lstrip())]:
             raise CompileError(path, number, "use spaces for indentation, not tabs")
         content = raw.lstrip(" ")
-        if not content.strip():
-            continue
         stripped = content.rstrip()
-        if stripped.startswith("//") or stripped == "#" or stripped.startswith("# "):
+
+        if continued_text is None and (
+            not stripped
+            or stripped.startswith("//")
+            or stripped == "#"
+            or stripped.startswith("# ")
+        ):
             continue
+
+        if continued_text is not None and not stripped:
+            raise CompileError(
+                path,
+                number,
+                "a continued line cannot continue onto a blank line",
+            )
+
+        continues = stripped.endswith("\\")
+        piece = stripped[:-1].rstrip() if continues else stripped
+        if continued_text is None:
+            if not piece:
+                raise CompileError(path, number, "line continuation needs text before `\\`")
+            continued_text = piece
+            continued_number = number
+            continued_indent = len(raw) - len(content)
+        else:
+            continued_text += " " + piece.lstrip()
+
+        if continues:
+            continue
+
         lines.append(
             SourceLine(
                 path=path,
-                number=number,
-                indent=len(raw) - len(content),
-                text=stripped,
+                number=continued_number,
+                indent=continued_indent,
+                text=continued_text,
             )
+        )
+        continued_text = None
+        continued_number = 0
+        continued_indent = 0
+
+    if continued_text is not None:
+        raise CompileError(
+            path,
+            continued_number,
+            "line continuation has no following physical line",
         )
     return lines
 
@@ -119,7 +173,7 @@ class ScriptParser:
         self.allowed_stats = allowed_stats
         self.position = 0
 
-    def parse(self) -> list[dict]:
+    def parse(self, *, validate_flow: bool = True) -> list[dict]:
         if not self.lines:
             raise CompileError(self.path, 1, "script is empty")
         if self.lines[0].indent != 0:
@@ -130,7 +184,8 @@ class ScriptParser:
             if ELIF_RE.fullmatch(leftover.text) or ELSE_RE.fullmatch(leftover.text):
                 _fail(leftover, "`elif`/`else` has no matching `if`")
             _fail(leftover, "unexpected indentation")
-        self._validate_flow(statements)
+        if validate_flow:
+            self._validate_flow(statements)
         return statements
 
     def _parse_block(self, indent: int) -> list[dict]:
@@ -272,7 +327,10 @@ class ScriptParser:
                 "expression": dialogue_match.group("expression") or "",
                 "line": line,
             }
-            if "[" in spoken_text or "]" in spoken_text:
+            # A phrase-cut line is deliberately identified by its first
+            # character. Ordinary Dialogic text may still contain inline
+            # effects such as `Slow down [speed=2]here[speed]`.
+            if spoken_text.startswith("["):
                 statement["phrases"] = _parse_phrases(spoken_text, line)
             else:
                 statement["text"] = spoken_text
@@ -295,6 +353,41 @@ class ScriptParser:
         argument = parts[1].strip() if len(parts) == 2 else ""
         aliases = {"bg": "background", "presentation": "cue"}
         command = aliases.get(command, command)
+
+        if command == "budget":
+            if not re.fullmatch(r"\d+", argument):
+                _fail(line, "`@budget` needs a nonnegative whole number")
+            return {"kind": "budget", "amount": int(argument), "line": line}
+
+        if command == "recovery":
+            if not argument:
+                _fail(
+                    line,
+                    "`@recovery` needs `none` or a comma-separated subset of "
+                    "`pity,sponsor`",
+                )
+            raw_modes = [mode.strip() for mode in argument.split(",")]
+            if any(not mode for mode in raw_modes):
+                _fail(line, "`@recovery` cannot contain an empty mode")
+            if "none" in raw_modes:
+                if raw_modes != ["none"]:
+                    _fail(line, "`none` cannot be combined with recovery modes")
+                return {"kind": "recovery", "policy": "none", "line": line}
+            unknown_modes = [
+                mode for mode in raw_modes if mode not in RECOVERY_MODES
+            ]
+            if unknown_modes:
+                _fail(
+                    line,
+                    "unknown recovery mode "
+                    f"`{unknown_modes[0]}`; expected pity and/or sponsor",
+                )
+            if len(set(raw_modes)) != len(raw_modes):
+                _fail(line, "`@recovery` cannot repeat a recovery mode")
+            policy = ",".join(
+                mode for mode in RECOVERY_MODE_ORDER if mode in raw_modes
+            )
+            return {"kind": "recovery", "policy": policy, "line": line}
 
         if command == "wait":
             try:
@@ -322,7 +415,7 @@ class ScriptParser:
         _fail(
             line,
             "unknown directive; supported directives are "
-            "@background, @music, @sfx, @cue, and @wait",
+            "@background, @music, @sfx, @cue, @wait, @budget, and @recovery",
         )
 
     def _validate_condition(self, condition: str, line: SourceLine) -> None:
@@ -459,6 +552,19 @@ class ScriptParser:
                         for phrase in statement["phrases"]
                         if phrase["id"]
                     )
+                elif kind == "recovery":
+                    next_position = position + 1
+                    next_is_phrase_line = (
+                        next_position < len(items)
+                        and items[next_position]["kind"] == "dialogue"
+                        and "phrases" in items[next_position]
+                    )
+                    if not next_is_phrase_line:
+                        _fail(
+                            line,
+                            "`@recovery` must be immediately followed by a "
+                            "phrase-cut dialogue line",
+                        )
                 elif kind == "if":
                     branch_results: list[frozenset[str]] = []
                     has_else = False
@@ -645,11 +751,11 @@ class Emitter:
     def __init__(
         self,
         episode_id: str,
-        source_path: Path,
+        source_label: str,
         allowed_stats: frozenset[str],
     ):
         self.episode_id = episode_id
-        self.source_path = source_path
+        self.source_label = source_label
         self.allowed_stats = allowed_stats
         self.timeline_lines: list[str] = []
         self.phrase_lines: dict[str, dict] = {}
@@ -658,9 +764,14 @@ class Emitter:
     def build(self, statements: Sequence[dict]) -> Artifact:
         # Use the logical project path rather than an absolute filesystem path
         # so output is byte-for-byte identical on every contributor's machine.
-        source_name = f"content/episodes/{self.episode_id}/{SOURCE_NAME}"
+        source_name = f"content/episodes/{self.episode_id}/{self.source_label}"
+        edit_hint = (
+            "edit script.md, not this file."
+            if self.source_label == SOURCE_NAME
+            else "edit the listed source Markdown, not this file."
+        )
         self.timeline_lines.append(
-            f"# Generated from {source_name}; edit script.md, not this file."
+            f"# Generated from {source_name}; {edit_hint}"
         )
         self._emit_statements(statements, 0)
         timeline = "\n".join(self.timeline_lines) + "\n"
@@ -679,6 +790,12 @@ class Emitter:
     def _emit(self, depth: int, text: str) -> None:
         self.timeline_lines.append("\t" * depth + text)
 
+    def _emit_text(self, depth: int, text: str) -> None:
+        # Dialogic uses a leading backslash to force a line through its Text
+        # event parser. This prevents valid prose or speaker IDs such as
+        # `doctor` from being claimed by another event's prefix matcher.
+        self._emit(depth, "\\" + text)
+
     def _emit_statements(self, statements: Sequence[dict], depth: int) -> None:
         for statement in statements:
             kind = statement["kind"]
@@ -686,7 +803,10 @@ class Emitter:
                 self._emit(depth, f"label {statement['name']}")
             elif kind == "jump":
                 target = statement["target"]
-                self._emit(depth, "end_timeline" if target == "end" else f"jump {target}")
+                self._emit(
+                    depth,
+                    "[end_timeline]" if target == "end" else f"goto_label {target}",
+                )
             elif kind == "set":
                 stat = statement["stat"].replace(".", "_")
                 self._emit(
@@ -695,7 +815,7 @@ class Emitter:
                     f"{statement['value']}",
                 )
             elif kind == "narration":
-                self._emit(depth, statement["text"])
+                self._emit_text(depth, statement["text"])
             elif kind == "dialogue":
                 self._emit_dialogue(statement, depth)
             elif kind == "choice":
@@ -715,6 +835,10 @@ class Emitter:
                     self._emit_statements(body, depth + 1)
             elif kind == "wait":
                 self._emit(depth, f'[wait time="{statement["seconds"]:g}"]')
+            elif kind == "budget":
+                self._emit(depth, f"budget_set {statement['amount']}")
+            elif kind == "recovery":
+                self._emit(depth, f"recovery_policy {statement['policy']}")
             elif kind == "cue":
                 self._emit(depth, f"presentation_cue {statement['id']}")
             elif kind == "background":
@@ -741,7 +865,7 @@ class Emitter:
         prefix = f"{speaker} ({expression})" if expression else speaker
         phrases = statement.get("phrases")
         if phrases is None:
-            self._emit(depth, f"{prefix}: {statement['text']}")
+            self._emit_text(depth, f"{prefix}: {statement['text']}")
             return
 
         self.sequence += 1
@@ -795,39 +919,162 @@ def compile_source(
     episode_id: str,
     allowed_stats: frozenset[str],
 ) -> Artifact:
+    return compile_sources(
+        [source_path],
+        episode_id,
+        allowed_stats,
+        source_label=SOURCE_NAME,
+    )
+
+
+def compile_sources(
+    source_paths: Sequence[Path],
+    episode_id: str,
+    allowed_stats: frozenset[str],
+    *,
+    source_label: str = SOURCE_MANIFEST_NAME,
+) -> Artifact:
     if not IDENTIFIER_RE.fullmatch(episode_id):
-        raise CompileError(source_path, 1, f"invalid episode id `{episode_id}`")
-    statements = ScriptParser(source_path, allowed_stats).parse()
-    return Emitter(episode_id, source_path, allowed_stats).build(statements)
+        error_path = source_paths[0] if source_paths else Path(source_label)
+        raise CompileError(error_path, 1, f"invalid episode id `{episode_id}`")
+    if not source_paths:
+        raise CompileError(Path(source_label), 1, "episode source list cannot be empty")
+
+    parsers: list[ScriptParser] = []
+    statements: list[dict] = []
+    for source_path in source_paths:
+        parser = ScriptParser(source_path, allowed_stats)
+        parsers.append(parser)
+        statements.extend(parser.parse(validate_flow=False))
+
+    # Labels, jumps, and latest-phrase conditions are one episode-wide flow,
+    # even when writers split its physical source across several files.
+    parsers[0]._validate_flow(statements)
+    return Emitter(episode_id, source_label, allowed_stats).build(statements)
+
+
+def _load_episode_sources(episode_dir: Path, episode_id: str) -> EpisodeSources:
+    manifest_path = episode_dir / SOURCE_MANIFEST_NAME
+    fallback_path = episode_dir / SOURCE_NAME
+    if not manifest_path.is_file():
+        if not fallback_path.is_file():
+            raise CompileError(
+                fallback_path,
+                1,
+                f"episode `{episode_id}` has neither {SOURCE_NAME} nor "
+                f"{SOURCE_MANIFEST_NAME}",
+            )
+        return EpisodeSources(
+            episode_id=episode_id,
+            episode_dir=episode_dir,
+            source_paths=(fallback_path,),
+            source_label=SOURCE_NAME,
+        )
+
+    try:
+        manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise CompileError(
+            manifest_path,
+            exc.lineno,
+            f"invalid JSON: {exc.msg}",
+        ) from exc
+    except OSError as exc:
+        raise CompileError(manifest_path, 1, f"cannot read source manifest: {exc}") from exc
+
+    if not isinstance(manifest_data, dict):
+        raise CompileError(manifest_path, 1, "source manifest must be a JSON object")
+    unknown_keys = sorted(set(manifest_data) - {"sources"})
+    if unknown_keys:
+        raise CompileError(
+            manifest_path,
+            1,
+            f"unknown source manifest key `{unknown_keys[0]}`",
+        )
+    raw_sources = manifest_data.get("sources")
+    if not isinstance(raw_sources, list) or not raw_sources:
+        raise CompileError(
+            manifest_path,
+            1,
+            "`sources` must be a nonempty array of adjacent Markdown filenames",
+        )
+
+    source_paths: list[Path] = []
+    seen_names: set[str] = set()
+    for source_name in raw_sources:
+        if not isinstance(source_name, str) or not source_name.strip():
+            raise CompileError(
+                manifest_path,
+                1,
+                "every source entry must be a Markdown filename string",
+            )
+        if (
+            source_name != source_name.strip()
+            or "/" in source_name
+            or "\\" in source_name
+            or Path(source_name).suffix.lower() != ".md"
+        ):
+            raise CompileError(
+                manifest_path,
+                1,
+                f"source `{source_name}` must be an adjacent `.md` filename",
+            )
+        if source_name in seen_names:
+            raise CompileError(
+                manifest_path,
+                1,
+                f"duplicate source `{source_name}`",
+            )
+        seen_names.add(source_name)
+        source_path = episode_dir / source_name
+        if not source_path.is_file():
+            raise CompileError(
+                manifest_path,
+                1,
+                f"listed source does not exist: {source_name}",
+            )
+        source_paths.append(source_path)
+
+    return EpisodeSources(
+        episode_id=episode_id,
+        episode_dir=episode_dir,
+        source_paths=tuple(source_paths),
+        source_label=SOURCE_MANIFEST_NAME,
+    )
 
 
 def discover_sources(
     requested_ids: Sequence[str],
     episodes_dir: Path = EPISODES_DIR,
-) -> list[tuple[str, Path]]:
+) -> list[EpisodeSources]:
     if requested_ids:
-        sources: list[tuple[str, Path]] = []
+        sources: list[EpisodeSources] = []
         for episode_id in requested_ids:
-            source = episodes_dir / episode_id / SOURCE_NAME
-            if not source.is_file():
+            if not IDENTIFIER_RE.fullmatch(episode_id):
                 raise CompileError(
-                    source,
+                    episodes_dir,
                     1,
-                    f"episode `{episode_id}` has no {SOURCE_NAME}",
+                    f"invalid episode id `{episode_id}`",
                 )
-            sources.append((episode_id, source))
+            episode_dir = episodes_dir / episode_id
+            sources.append(_load_episode_sources(episode_dir, episode_id))
         return sources
 
     sources = [
-        (folder.name, folder / SOURCE_NAME)
+        _load_episode_sources(folder, folder.name)
         for folder in sorted(episodes_dir.iterdir(), key=lambda path: path.name)
-        if folder.is_dir() and (folder / SOURCE_NAME).is_file()
+        if folder.is_dir()
+        and (
+            (folder / SOURCE_NAME).is_file()
+            or (folder / SOURCE_MANIFEST_NAME).is_file()
+        )
     ]
     if not sources:
         raise CompileError(
             episodes_dir,
             1,
-            f"no episode sources named {SOURCE_NAME} were found",
+            f"no episode sources named {SOURCE_NAME} or "
+            f"{SOURCE_MANIFEST_NAME} were found",
         )
     return sources
 
@@ -872,7 +1119,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "episodes",
         nargs="*",
         metavar="EPISODE",
-        help="episode ids to compile (default: every episode with script.md)",
+        help=(
+            "episode ids to compile "
+            "(default: every episode with script.md or scripts.json)"
+        ),
     )
     parser.add_argument(
         "--check",
@@ -890,8 +1140,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         # Compile everything before writing anything. An author error therefore
         # cannot leave half the episodes updated.
         artifacts = [
-            (source.parent, compile_source(source, episode_id, allowed_stats))
-            for episode_id, source in sources
+            (
+                episode_sources.episode_dir,
+                compile_sources(
+                    episode_sources.source_paths,
+                    episode_sources.episode_id,
+                    allowed_stats,
+                    source_label=episode_sources.source_label,
+                ),
+            )
+            for episode_sources in sources
         ]
     except CompileError as exc:
         print(exc, file=sys.stderr)

@@ -18,11 +18,17 @@ signal integration_warning(message: String)
 var campaign: CampaignDefinition
 var current_episode: EpisodeDefinition
 var _dialogic_node: Node
+var _dialogic_text_subsystem: Node
+var _dialogic_background_subsystem: Node
 var _assigned_stage_host: StageHost
 
 
 func _ready() -> void:
 	_connect_dialogic()
+
+
+func _exit_tree() -> void:
+	_disconnect_dialogic()
 
 
 func set_game_state(next_game_state: GameStateStore) -> void:
@@ -34,11 +40,22 @@ func set_stage_host(next_stage_host: StageHost) -> void:
 
 
 func set_dialogic(next_dialogic: Node) -> void:
+	if _dialogic_node != next_dialogic:
+		_disconnect_dialogic()
 	_dialogic_node = next_dialogic
 	_connect_dialogic()
 
 
 func start_campaign(next_campaign: CampaignDefinition) -> bool:
+	return start_campaign_at(next_campaign)
+
+
+## Starts a campaign at a specific episode for editor/debug playtesting.
+## Passing an empty ID follows the campaign's normal first-episode route.
+func start_campaign_at(
+	next_campaign: CampaignDefinition,
+	episode_id: StringName = &"",
+) -> bool:
 	if next_campaign == null:
 		validation_failed.emit(PackedStringArray(["Cannot start an empty campaign."]))
 		return false
@@ -46,10 +63,20 @@ func start_campaign(next_campaign: CampaignDefinition) -> bool:
 	if not errors.is_empty():
 		validation_failed.emit(errors)
 		return false
+	var target_id := episode_id if not episode_id.is_empty() else next_campaign.first_episode_id
+	var target_episode := next_campaign.get_episode(target_id)
+	if target_episode == null:
+		validation_failed.emit(
+			PackedStringArray(
+				["Campaign '%s' has no episode '%s'." % [next_campaign.id, target_id]],
+			),
+		)
+		return false
 	campaign = next_campaign
+	_reset_dialogic_history()
 	if game_state != null:
 		game_state.reset_for_new_game()
-	return play_episode(campaign.get_episode(campaign.first_episode_id))
+	return play_episode(target_episode)
 
 
 func play_episode(episode: EpisodeDefinition) -> bool:
@@ -122,7 +149,7 @@ func _get_stage_host() -> StageHost:
 
 
 func _connect_dialogic() -> void:
-	if _dialogic_node == null:
+	if not is_instance_valid(_dialogic_node):
 		if dialogic.is_empty():
 			return
 		_dialogic_node = get_node_or_null(dialogic)
@@ -131,6 +158,130 @@ func _connect_dialogic() -> void:
 		return
 	if _dialogic_node.has_signal("timeline_ended") and not _dialogic_node.is_connected("timeline_ended", _on_timeline_ended):
 		_dialogic_node.connect("timeline_ended", _on_timeline_ended)
+	_connect_dialogic_text()
+	_connect_dialogic_backgrounds()
+
+
+func _connect_dialogic_text() -> void:
+	if not is_instance_valid(_dialogic_node):
+		return
+	if _dialogic_node.has_method("has_subsystem"):
+		if not bool(_dialogic_node.call("has_subsystem", "Text")):
+			return
+	if not _dialogic_node.has_method("get_subsystem"):
+		return
+
+	var text_subsystem := _dialogic_node.call("get_subsystem", "Text") as Node
+	if not is_instance_valid(text_subsystem):
+		return
+	if _dialogic_text_subsystem != text_subsystem:
+		_disconnect_dialogic_text()
+		_dialogic_text_subsystem = text_subsystem
+	if (
+		_dialogic_text_subsystem.has_signal("about_to_show_text")
+		and not _dialogic_text_subsystem.is_connected(
+			"about_to_show_text",
+			_on_dialogic_text_about_to_show,
+		)
+	):
+		_dialogic_text_subsystem.connect(
+			"about_to_show_text",
+			_on_dialogic_text_about_to_show,
+		)
+
+
+func _connect_dialogic_backgrounds() -> void:
+	if not is_instance_valid(_dialogic_node):
+		return
+	if _dialogic_node.has_method("has_subsystem"):
+		if not bool(_dialogic_node.call("has_subsystem", "Backgrounds")):
+			return
+	if not _dialogic_node.has_method("get_subsystem"):
+		return
+
+	var background_subsystem := _dialogic_node.call("get_subsystem", "Backgrounds") as Node
+	if not is_instance_valid(background_subsystem):
+		return
+	if _dialogic_background_subsystem != background_subsystem:
+		_disconnect_dialogic_backgrounds()
+		_dialogic_background_subsystem = background_subsystem
+	if (
+		_dialogic_background_subsystem.has_signal("background_changed")
+		and not _dialogic_background_subsystem.is_connected(
+			"background_changed",
+			_on_dialogic_background_changed,
+		)
+	):
+		_dialogic_background_subsystem.connect(
+			"background_changed",
+			_on_dialogic_background_changed,
+		)
+
+
+func _disconnect_dialogic() -> void:
+	if (
+		is_instance_valid(_dialogic_node)
+		and _dialogic_node.has_signal("timeline_ended")
+		and _dialogic_node.is_connected("timeline_ended", _on_timeline_ended)
+	):
+		_dialogic_node.disconnect("timeline_ended", _on_timeline_ended)
+	_disconnect_dialogic_text()
+	_disconnect_dialogic_backgrounds()
+
+
+func _disconnect_dialogic_text() -> void:
+	if (
+		is_instance_valid(_dialogic_text_subsystem)
+		and _dialogic_text_subsystem.has_signal("about_to_show_text")
+		and _dialogic_text_subsystem.is_connected(
+			"about_to_show_text",
+			_on_dialogic_text_about_to_show,
+		)
+	):
+		_dialogic_text_subsystem.disconnect(
+			"about_to_show_text",
+			_on_dialogic_text_about_to_show,
+		)
+	_dialogic_text_subsystem = null
+
+
+func _disconnect_dialogic_backgrounds() -> void:
+	if (
+		is_instance_valid(_dialogic_background_subsystem)
+		and _dialogic_background_subsystem.has_signal("background_changed")
+		and _dialogic_background_subsystem.is_connected(
+			"background_changed",
+			_on_dialogic_background_changed,
+		)
+	):
+		_dialogic_background_subsystem.disconnect(
+			"background_changed",
+			_on_dialogic_background_changed,
+		)
+	_dialogic_background_subsystem = null
+
+
+func _on_dialogic_text_about_to_show(info: Dictionary) -> void:
+	var host := _get_stage_host()
+	if host != null:
+		host.apply_dialogic_text(info)
+
+
+func _on_dialogic_background_changed(info: Dictionary) -> void:
+	var host := _get_stage_host()
+	if host != null:
+		host.apply_dialogic_background(info)
+
+
+func _reset_dialogic_history() -> void:
+	if not is_instance_valid(_dialogic_node) or not _dialogic_node.has_method("get_subsystem"):
+		return
+	var history := _dialogic_node.call("get_subsystem", "History") as Node
+	if history == null:
+		return
+	history.set("simple_history_content", [])
+	if history.has_signal("simple_history_changed"):
+		history.emit_signal("simple_history_changed")
 
 
 func _start_dialogue(episode: EpisodeDefinition) -> void:

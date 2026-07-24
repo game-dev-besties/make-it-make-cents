@@ -59,8 +59,9 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
+character_id = &"grandma"
 actor_name = "Rosa"
-expression = "patient"
+expression = "neutral"
 accent_color = Color(0.75, 0.48, 0.74, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
@@ -73,8 +74,9 @@ is_active = false
 [node name="Right" parent="ActorSlots" index="2"]
 offset_left = 860.0
 offset_right = 1080.0
+character_id = &"doctor"
 actor_name = "Doctor"
-expression = "attentive"
+expression = "neutral"
 accent_color = Color(0.36, 0.8, 0.73, 1)
 
 [node name="StageTitle" parent="." index="4"]

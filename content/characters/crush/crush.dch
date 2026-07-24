@@ -4,18 +4,22 @@
 &"_translation_id": "",
 &"color": Color(0.960784, 0.435294, 0.690196, 1),
 &"custom_info": {
+"prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": ""
+"style": "",
+"suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "Mira, the unimpressed girl Leo meets at the park.",
-&"display_name": "Mira",
+&"description": "Clementine, the unimpressed girl Percy meets at the park.",
+&"display_name": "Clementine",
 &"mirror": false,
-&"nicknames": ["Crush"],
+&"nicknames": ["Crush", "Clem"],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"happy": {},
+"happy": {
+"offset": Vector2(0, 0)
+},
 "nervous": {},
 "neutral": {}
 },

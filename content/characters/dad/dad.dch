@@ -4,18 +4,22 @@
 &"_translation_id": "",
 &"color": Color(0.960784, 0.639216, 0.372549, 1),
 &"custom_info": {
+"prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": ""
+"style": "",
+"suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "Leo's father and the family's determined job seeker.",
+&"description": "Percy's father and the family's determined job seeker.",
 &"display_name": "Marco",
 &"mirror": false,
 &"nicknames": ["Dad"],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"happy": {},
+"happy": {
+"offset": Vector2(0, 0)
+},
 "nervous": {},
 "neutral": {},
 "sad": {}

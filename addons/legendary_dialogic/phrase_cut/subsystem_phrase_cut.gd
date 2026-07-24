@@ -5,18 +5,20 @@ extends DialogicSubsystem
 var _current: Dictionary = {}
 var _loaded_path: String = ""
 var _loaded_timeline_path: String = ""
+var _pending_recovery_policy: StringName = &""
 
 
 func _clear_state(_clear_flag: int = DialogicGameHandler.ClearFlags.FULL_CLEAR) -> void:
 	# Do not clear metadata here. Dialogic can reset subsystems while the layout
 	# is first becoming ready, after a PhraseCut event has resolved its sidecar.
-	pass
+	clear_recovery_policy()
 
 
 func load_for(phrases_res_path: String, timeline_res_path: String = "") -> void:
 	_loaded_path = phrases_res_path
 	_loaded_timeline_path = timeline_res_path
 	_current.clear()
+	clear_recovery_policy()
 	if phrases_res_path.is_empty() or not FileAccess.file_exists(phrases_res_path):
 		return
 
@@ -42,3 +44,27 @@ func ensure_loaded_for_timeline(timeline_path: String) -> void:
 func get_data(line_id: String) -> Dictionary:
 	var data: Variant = _current.get(line_id, {})
 	return data if data is Dictionary else {}
+
+
+func set_recovery_policy(policy: StringName) -> bool:
+	if policy == &"both":
+		policy = &"pity,sponsor"
+	if policy not in [&"pity", &"sponsor", &"pity,sponsor", &"none"]:
+		return false
+	_pending_recovery_policy = policy
+	return true
+
+
+func consume_recovery_policy() -> Dictionary:
+	if _pending_recovery_policy.is_empty():
+		return {}
+	var policy := _pending_recovery_policy
+	clear_recovery_policy()
+	return {
+		"allow_pity": policy == &"pity" or policy == &"pity,sponsor",
+		"allow_sponsor": policy == &"sponsor" or policy == &"pity,sponsor",
+	}
+
+
+func clear_recovery_policy() -> void:
+	_pending_recovery_policy = &""

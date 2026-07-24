@@ -44,6 +44,22 @@ func play_cue(cue_id: StringName) -> bool:
 	return bool(current_presentation.call("play_cue", cue_id))
 
 
+func apply_dialogic_text(info: Dictionary) -> bool:
+	if not is_instance_valid(current_presentation):
+		return false
+	if not current_presentation.has_method("apply_dialogic_text"):
+		return false
+	return bool(current_presentation.call("apply_dialogic_text", info))
+
+
+func apply_dialogic_background(info: Dictionary) -> bool:
+	if not is_instance_valid(current_presentation):
+		return false
+	if not current_presentation.has_method("apply_dialogic_background"):
+		return false
+	return bool(current_presentation.call("apply_dialogic_background", info))
+
+
 func _get_container() -> Node:
 	if not presentation_container.is_empty():
 		var configured_container := get_node_or_null(presentation_container)

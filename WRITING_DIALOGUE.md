@@ -24,6 +24,27 @@ Generated files are committed so a fresh Godot checkout opens without a
 separate content bootstrap. Do not edit `dialogue.dtl` or `phrases.json` by
 hand when the folder has a `script.md`.
 
+### Splitting a long episode
+
+`script.md` remains the default and is all most episodes need. To split one
+episode across several files, add `scripts.json` beside `episode.tres`:
+
+```json
+{
+  "sources": [
+    "01_arrival.md",
+    "02_tutorial.md",
+    "03_customs.md"
+  ]
+}
+```
+
+The compiler reads those adjacent Markdown files in exactly that order and
+produces the same single `dialogue.dtl` and `phrases.json`. Labels and jumps
+may cross file boundaries. Filenames must be unique, end in `.md`, and stay in
+the episode folder. When `scripts.json` exists, its list is authoritative;
+without it, the compiler continues to use `script.md`.
+
 ## The small language
 
 Ordinary dialogue includes a speaker and optional expression:
@@ -31,11 +52,33 @@ Ordinary dialogue includes a speaker and optional expression:
 ```md
 interviewer (neutral): Why do you want to work here?
 dad (nervous): I would be proud to join the team.
+dad (serious): Percy, [speed=2]do not say one word.[speed]
 ```
 
 An expression names a portrait on that speaker's Dialogic character resource.
 Omit `(expression)` until the character and matching portrait exist; Dialogic
 otherwise treats the parenthesized value as a fallback speaker color.
+
+Dialogic inline text effects are preserved on ordinary dialogue. Put any
+opening effect after some ordinary text, as in the `[speed]` example above. A
+spoken line whose first character is `[` is deliberately reserved for
+phrase-cut dialogue.
+
+Useful Dialogic effects include `[pause=0.5]`, `[speed=2]... [speed]`,
+`[lspeed=0.03]... [lspeed]`, `[n]` for a new line, and `[aa]` to auto-advance
+one line. Use them sparingly; the ordinary click/keyboard advance behavior
+should remain predictable.
+
+End a physical source line with `\` to continue it on the next line. The
+compiler replaces the backslash and newline with one space, so this changes
+source formatting only:
+
+```md
+dad (neutral): This is one long sentence that is easier \
+  to review across two physical lines.
+```
+
+The same continuation works between bracketed chunks on a phrase-cut line.
 
 Bare lines are narration. `// comments` and Markdown `# comments` are ignored.
 
@@ -95,6 +138,12 @@ else:
   interviewer (neutral): We will be in touch.
 ```
 
+`GameStateStore` owns the matching flattened properties, such as
+`dad_success`. `bash scripts/check.sh` verifies that every compiler-visible
+stat exists in the runtime state and is serialized, and that every serialized
+story stat is declared in `story/stats.json`. Update both files when adding a
+new stat; CI fails with the mismatched name otherwise.
+
 Indent child lines consistently with spaces. The compiler accepts any
 indentation width, but two spaces is easiest to scan.
 
@@ -110,6 +159,9 @@ interviewer (happy): Thank you for your time.
 -> end
 ```
 
+`-> label_name` is a one-way goto and does not return to the arrow afterward.
+Use it for retries and for converging branches. `-> end` ends the timeline.
+
 Dialogic choices are available for non-phrase decisions:
 
 ```md
@@ -118,6 +170,42 @@ Dialogic choices are available for non-phrase decisions:
 - Skip the question
   -> next_question
 ```
+
+## Budget and recovery controls
+
+Tutorials can set the current word budget immediately:
+
+```md
+@budget 0
+```
+
+The amount must be a nonnegative whole number. This emits:
+
+```text
+budget_set 0
+```
+
+Use `@recovery` immediately before a phrase-cut line to choose which one-time
+recovery buttons that line offers:
+
+```md
+@recovery sponsor, pity
+son: [Please]{id=please} [let me speak.]{id=speak}
+```
+
+The allowed modes are `pity` and `sponsor`. Use `@recovery none` for neither.
+Modes cannot be repeated, and `none` cannot be combined with another mode.
+Silence remains the normal zero-cost delivery rather than a recovery mode.
+Policies are canonicalized and consumed by only the following phrase-cut
+line. For example, the source above emits:
+
+```text
+recovery_policy pity,sponsor
+phrase_cut son intro_L001
+```
+
+The other exact policy forms are `recovery_policy pity`,
+`recovery_policy sponsor`, and `recovery_policy none`.
 
 ## Presentation and audio cues
 
@@ -138,6 +226,20 @@ Short asset ids map to `res://art/backgrounds/<id>.png`,
 `res://...` path is also accepted. The compiler validates the syntax but does
 not require an asset to exist yet, so writers can work ahead of art and audio.
 
+Background, music, and sound directives use Dialogic's native Alpha 20 events.
+The project style bridges Dialogic background changes into the active
+editor-authored stage, keeping the image behind its props and actor slots.
+Music and sound effects play through Dialogic's audio subsystem.
+
+Dialogic's History button shows delivered dialogue and selected choices. It is
+enabled across the current playthrough and resets when a new campaign starts.
+
+The generated `.dtl` may be opened in Dialogic to inspect the compiled result,
+but do not author changes there. Custom compiler events are intentionally
+hidden from Dialogic's add-event menu, and the next compile replaces generated
+timelines.
+
 Compiler errors include the source file and line number. It rejects malformed
-brackets, negative costs, unknown stats/directives, bad indentation, duplicate
-labels, and jumps to missing labels before changing any generated file.
+brackets, negative costs, invalid budgets or recovery policies, unknown
+stats/directives, bad indentation, duplicate labels, and jumps to missing
+labels before changing any generated file.

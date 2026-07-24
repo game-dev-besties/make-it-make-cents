@@ -27,25 +27,28 @@ script = ExtResource("3_stage_host")
 [node name="EpisodeLabel" type="Label" parent="." unique_id=651386616]
 unique_name_in_owner = true
 layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
 offset_left = 28.0
 offset_top = 24.0
-offset_right = 600.0
+offset_right = -340.0
 offset_bottom = 56.0
+grow_horizontal = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 1, 0.9)
 theme_override_font_sizes/font_size = 18
+text_overrun_behavior = 3
 
-[node name="BudgetLabel" type="Label" parent="."]
+[node name="BudgetLabel" type="Label" parent="." unique_id=258078519]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = -260.0
+offset_left = -320.0
 offset_top = 24.0
-offset_right = -28.0
+offset_right = -92.0
 offset_bottom = 56.0
 grow_horizontal = 0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.84, 0.48, 0.95)
 theme_override_font_sizes/font_size = 18
 text = "Words left: $0"
@@ -80,6 +83,7 @@ layout_mode = 2
 theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=230356689]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.12, 0.35, 1)
 theme_override_font_sizes/font_size = 44
@@ -88,6 +92,7 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="Subtitle" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=214073515]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "A conversation game about choosing the words that matter."
@@ -100,11 +105,41 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Start"
 
-[node name="StatusLabel" type="Label" parent="TitleScreen/Panel/Margin/VBox"]
+[node name="DeveloperTools" type="VBoxContainer" parent="TitleScreen/Panel/Margin/VBox" unique_id=438741980]
 unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Separator" type="HSeparator" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1162151089]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1809211383]
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.32, 0.46, 1)
+theme_override_font_sizes/font_size = 14
+text = "Developer playtest — debug builds only"
+autowrap_mode = 2
+
+[node name="EpisodePicker" type="OptionButton" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1485440068]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Start directly at an episode without changing the campaign's normal opening."
+fit_to_longest_item = false
+
+[node name="PlayEpisodeButton" type="Button" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=152920818]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Play selected episode"
+
+[node name="StatusLabel" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=557643815]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.22, 0.28, 1)
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
 [connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]

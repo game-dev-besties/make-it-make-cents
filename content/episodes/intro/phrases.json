@@ -11,7 +11,7 @@
       },
       {
         "type": "phrase",
-        "text": "my name is Leo.",
+        "text": "my name is Percy.",
         "cost": 4,
         "id": "name"
       },
@@ -85,19 +85,73 @@
   },
   "intro_L003": {
     "speaker": "son",
-    "expr": "neutral",
+    "expr": "nervous",
     "segments": [
       {
         "type": "phrase",
-        "text": "Ready",
-        "cost": 1,
-        "id": "ready"
+        "text": "I need",
+        "cost": 2,
+        "id": "need"
       },
       {
         "type": "phrase",
-        "text": "to go.",
+        "text": "to answer.",
         "cost": 2,
-        "id": "go"
+        "id": "answer"
+      }
+    ]
+  },
+  "intro_L004": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Can we",
+        "cost": 2,
+        "id": "can_we"
+      },
+      {
+        "type": "phrase",
+        "text": "afford",
+        "cost": 1,
+        "id": "afford"
+      },
+      {
+        "type": "phrase",
+        "text": "one more sentence?",
+        "cost": 3,
+        "id": "sentence"
+      }
+    ]
+  },
+  "intro_L005": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "They are",
+        "cost": 2,
+        "id": "they_are"
+      },
+      {
+        "type": "phrase",
+        "text": "Grandma’s",
+        "cost": 1,
+        "id": "grandmas"
+      },
+      {
+        "type": "phrase",
+        "text": "prescription",
+        "cost": 1,
+        "id": "prescription"
+      },
+      {
+        "type": "phrase",
+        "text": "pills.",
+        "cost": 1,
+        "id": "pills"
       }
     ]
   }

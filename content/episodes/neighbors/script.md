@@ -2,11 +2,11 @@
 
 ## door
 mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
-interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Mira.
+interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Clementine.
 
 if crush.fondness >= 4:
-  crush (happy): Wait — you're that sweet kid from the park! Leo!
-  son (surprised): [Mira] [you live here]
+  crush (happy): Wait — you're that sweet kid from the park! Percy!
+  son (surprised): [Clementine] [you live here]
   crush (happy): I told you I'd see you tomorrow. Guess it's today!
   -> warm
 elif crush.creeped_out >= 3:
@@ -39,7 +39,7 @@ else:
 ## chilly
 interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
 if dad.success > 5:
-  interviewer (happy): Marco! Welcome to the team. Don't mind Mira, she's shy.
+  interviewer (happy): Marco! Welcome to the team. Don't mind Clementine, she's shy.
   dad (happy): [Thank you] [I appreciate it]
   -> mixed
 elif dad.silly >= 3:

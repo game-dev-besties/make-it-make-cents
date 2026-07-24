@@ -13,6 +13,10 @@ const DELIVERY_SPONSOR := &"sponsor"
 const DEFAULT_PITY_TEXT := "hnf"
 const DEFAULT_SPONSOR_TEXT := "Sam's Soda: pop open freedom."
 
+const MAX_PANEL_WIDTH := 780.0
+const MIN_PANEL_WIDTH := 220.0
+const HORIZONTAL_GUTTER := 48.0
+
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
 var result: Dictionary = {}
@@ -27,10 +31,13 @@ var _sponsor_text := DEFAULT_SPONSOR_TEXT
 var _phrase_buttons: Array[Button] = []
 var _is_resolved := false
 
+@onready var _panel: PanelContainer = %Panel
+@onready var _panel_scroll: ScrollContainer = %PanelScroll
 @onready var _title_label: Label = %TitleLabel
 @onready var _sentence_label: Label = %SentenceLabel
 @onready var _chips: FlowContainer = %Chips
 @onready var _budget_label: Label = %BudgetLabel
+@onready var _status_label: Label = %StatusLabel
 @onready var _confirm_button: Button = %ConfirmButton
 @onready var _recovery_box: VBoxContainer = %RecoveryBox
 @onready var _recovery_label: Label = %RecoveryLabel
@@ -41,11 +48,17 @@ var _is_resolved := false
 
 
 func _ready() -> void:
+	_update_panel_width()
 	_confirm_button.pressed.connect(_on_confirm)
 	_silence_button.pressed.connect(_on_silence)
 	_pity_button.pressed.connect(_on_pity)
 	_sponsor_button.pressed.connect(_on_sponsor)
 	_rebuild()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and is_node_ready():
+		_update_panel_width()
 
 
 func setup(segments: Array, budget: int, speaker: String, recovery: Dictionary = {}) -> void:
@@ -66,7 +79,9 @@ func _rebuild() -> void:
 	if not is_node_ready():
 		return
 
-	_title_label.text = "Trim what %s will say (tap a phrase to cut it):" % (_speaker if not _speaker.is_empty() else "they")
+	_title_label.text = "Trim what %s will say (toggle phrases to keep or cut them):" % (
+		_speaker if not _speaker.is_empty() else "they"
+	)
 	for child: Node in _chips.get_children():
 		child.queue_free()
 	_phrase_buttons.clear()
@@ -99,8 +114,11 @@ func _rebuild() -> void:
 	)
 	_pity_button.visible = _can_use_pity
 	_sponsor_button.visible = _can_use_sponsor
+	_pity_button.text = 'Pity word: "%s" ($0)' % _pity_text
+	_pity_button.tooltip_text = 'Deliver the one free pity word: "%s".' % _pity_text
 	_recovery_label.text = _recovery_description()
 	_recompute()
+	_focus_initial_control(is_out_of_budget)
 
 
 func _on_chip_toggled(_pressed: bool) -> void:
@@ -180,11 +198,77 @@ func _recompute() -> void:
 	var kept_count := _kept_count()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
+	var budget_after := _budget - cost
 	_sentence_label.text = "\"%s\"" % kept_text if not kept_text.is_empty() else "(say nothing)"
-	_budget_label.text = "Budget left: $%d   |   this line: $%d   |   kept %d/%d phrases" % [_budget, cost, kept_count, _phrase_buttons.size()]
+	_budget_label.text = "This line: $%d   |   Budget after: %s" % [
+		cost,
+		_format_dollars(budget_after),
+	]
 	_budget_label.modulate = Color(1.0, 0.42, 0.42) if over_budget else Color.WHITE
+	if over_budget:
+		_status_label.text = "Cut at least $%d more to afford this line." % (cost - _budget)
+		_status_label.modulate = Color(1.0, 0.42, 0.42)
+	elif kept_text.is_empty():
+		_status_label.text = "Silence is free."
+		_status_label.modulate = Color(0.65, 0.82, 0.7)
+	else:
+		_status_label.text = "%d of %d phrases kept." % [
+			kept_count,
+			_phrase_buttons.size(),
+		]
+		_status_label.modulate = Color.WHITE
 	_confirm_button.disabled = over_budget
 	_confirm_button.text = "Say nothing ($0)" if kept_text.is_empty() else "Say it ($%d)" % cost
+	_refresh_chip_presentation()
+
+
+func _format_dollars(amount: int) -> String:
+	return "-$%d" % -amount if amount < 0 else "$%d" % amount
+
+
+func _refresh_chip_presentation() -> void:
+	for chip: Button in _phrase_buttons:
+		var segment_index := int(chip.get_meta("segment_index", -1))
+		if segment_index < 0 or segment_index >= _segments.size():
+			continue
+		var segment: Dictionary = _segments[segment_index]
+		var phrase_text := String(segment.get("text", ""))
+		var phrase_cost := _segment_cost(segment)
+		if chip.disabled:
+			chip.text = "[UNAVAILABLE] %s  ($%d)" % [phrase_text, phrase_cost]
+			chip.tooltip_text = (
+				'Unavailable: "%s" costs $%d and your budget is empty.'
+				% [phrase_text, phrase_cost]
+			)
+		elif chip.button_pressed:
+			chip.text = "[KEEP] %s  ($%d)" % [phrase_text, phrase_cost]
+			chip.tooltip_text = (
+				'Kept: "%s" will be spoken for $%d. Click or press Space to cut it.'
+				% [phrase_text, phrase_cost]
+			)
+		else:
+			chip.text = "[CUT] %s  (save $%d)" % [phrase_text, phrase_cost]
+			chip.tooltip_text = (
+				'Cut: "%s" will be omitted, saving $%d. Click or press Space to restore it.'
+				% [phrase_text, phrase_cost]
+			)
+
+
+func _focus_initial_control(is_out_of_budget: bool) -> void:
+	var focus_target: Control
+	if is_out_of_budget:
+		focus_target = _silence_button
+	elif not _phrase_buttons.is_empty():
+		focus_target = _phrase_buttons.front()
+	else:
+		focus_target = _confirm_button
+	focus_target.grab_focus()
+	_panel_scroll.call_deferred("ensure_control_visible", focus_target)
+
+
+func _update_panel_width() -> void:
+	var available_width := maxf(size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
+	_panel.custom_minimum_size.x = minf(available_width, MAX_PANEL_WIDTH)
 
 
 func _recovery_description() -> String:

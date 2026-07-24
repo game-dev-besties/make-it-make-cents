@@ -53,22 +53,24 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.94, 1)
 theme_override_font_sizes/font_size = 22
-text = "Leo meets Mira at the park"
+text = "Percy meets Clementine at the park"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
 offset_left = 328.0
 offset_right = 548.0
-actor_name = "Leo"
-expression = "working up the courage to ask"
+character_id = &"son"
+actor_name = "Percy"
+expression = "shy"
 accent_color = Color(0.35, 0.67, 0.86, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
 offset_left = 644.0
 offset_right = 864.0
-actor_name = "Mira"
-expression = "curious"
+character_id = &"crush"
+actor_name = "Clementine"
+expression = "neutral"
 accent_color = Color(0.96, 0.48, 0.7, 1)
 
 [node name="Right" parent="ActorSlots" index="2"]

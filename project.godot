@@ -34,6 +34,7 @@ directories/dch_directory={
 "grandma": "res://content/characters/grandma/grandma.dch",
 "interviewer": "res://content/characters/interviewer/interviewer.dch",
 "mom": "res://content/characters/mom/mom.dch",
+"officer": "res://content/characters/officer/officer.dch",
 "penny": "res://content/characters/penny/penny.dch",
 "son": "res://content/characters/son/son.dch"
 }
@@ -44,7 +45,13 @@ directories/dtl_directory={
 "neighbors/dialogue": "res://content/episodes/neighbors/dialogue.dtl",
 "son/dialogue": "res://content/episodes/son/dialogue.dtl"
 }
-layout/style_directory={}
+history/simple_history_enabled=true
+layout/default_style="res://ui/dialogue/dialogue_style.tres"
+layout/style_directory={
+"": "res://ui/dialogue/dialogue_style.tres",
+"Game Dialogue": "res://ui/dialogue/dialogue_style.tres"
+}
+layout/style_list=Array[String](["res://ui/dialogue/dialogue_style.tres"])
 extensions_folder="res://addons/legendary_dialogic"
 
 [display]

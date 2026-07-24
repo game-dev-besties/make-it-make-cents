@@ -1,77 +1,77 @@
 # Generated from content/episodes/neighbors/script.md; edit script.md, not this file.
 label door
-mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
-interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Mira.
+\mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
+\interviewer (happy): How lovely! Come in, come in. I'm Reed, this is my wife Park, and our daughter Clementine.
 if GameStats.crush_fondness >= 4:
-	crush (happy): Wait — you're that sweet kid from the park! Leo!
+	\crush (happy): Wait — you're that sweet kid from the park! Percy!
 	phrase_cut son (surprised) neighbors_L001
-	crush (happy): I told you I'd see you tomorrow. Guess it's today!
-	jump warm
+	\crush (happy): I told you I'd see you tomorrow. Guess it's today!
+	goto_label warm
 elif GameStats.crush_creeped_out >= 3:
-	crush (nervous): ...You. You're the one from the park, aren't you.
+	\crush (nervous): ...You. You're the one from the park, aren't you.
 	phrase_cut son (sad) neighbors_L002
-	jump chilly
+	goto_label chilly
 else:
-	crush (neutral): ...Huh. You look familiar. Have we met?
+	\crush (neutral): ...Huh. You look familiar. Have we met?
 	phrase_cut son (nervous) neighbors_L003
-	jump neutral_end
+	goto_label neutral_end
 label warm
 if GameStats.dad_success > 5:
-	interviewer (happy): And you must be Marco! Welcome to the team, neighbor.
+	\interviewer (happy): And you must be Marco! Welcome to the team, neighbor.
 	phrase_cut dad (happy) neighbors_L004
-	jump good_end
+	goto_label good_end
 elif GameStats.dad_silly >= 3:
-	interviewer (happy): And here is our new creative hire. I knew you looked familiar.
+	\interviewer (happy): And here is our new creative hire. I knew you looked familiar.
 	phrase_cut dad (happy) neighbors_L005
-	jump good_end
+	goto_label good_end
 elif GameStats.interviewer_weirded_out >= 2:
-	interviewer (confused): Wait — you're the fellow who applied with us. The...
+	\interviewer (confused): Wait — you're the fellow who applied with us. The...
 	phrase_cut dad (sad) neighbors_L006
-	jump mixed
+	goto_label mixed
 else:
-	interviewer (neutral): Marco. I am afraid the position was not the right fit.
+	\interviewer (neutral): Marco. I am afraid the position was not the right fit.
 	phrase_cut dad (sad) neighbors_L007
-	jump mixed
+	goto_label mixed
 label chilly
-interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
+\interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
 if GameStats.dad_success > 5:
-	interviewer (happy): Marco! Welcome to the team. Don't mind Mira, she's shy.
+	\interviewer (happy): Marco! Welcome to the team. Don't mind Clementine, she's shy.
 	phrase_cut dad (happy) neighbors_L008
-	jump mixed
+	goto_label mixed
 elif GameStats.dad_silly >= 3:
-	interviewer (happy): Marco, our unexpected creative hire. Quite the family.
+	\interviewer (happy): Marco, our unexpected creative hire. Quite the family.
 	phrase_cut dad (happy) neighbors_L009
-	jump mixed
+	goto_label mixed
 elif GameStats.interviewer_weirded_out >= 2:
-	interviewer (nervous): ...Both of you, quite the impression.
-	jump bad_end
+	\interviewer (nervous): ...Both of you, quite the impression.
+	goto_label bad_end
 else:
-	interviewer (neutral): We did. I am afraid I do not have better news about the position.
-	jump bad_end
+	\interviewer (neutral): We did. I am afraid I do not have better news about the position.
+	goto_label bad_end
 label neutral_end
 if GameStats.dad_success > 5:
-	interviewer (happy): And you're Marco — welcome to the team, neighbor!
+	\interviewer (happy): And you're Marco — welcome to the team, neighbor!
 	phrase_cut dad (happy) neighbors_L010
-	jump good_end
+	goto_label good_end
 elif GameStats.dad_silly >= 3:
-	interviewer (happy): And you are our new creative hire. Small world.
+	\interviewer (happy): And you are our new creative hire. Small world.
 	phrase_cut dad (happy) neighbors_L011
-	jump good_end
+	goto_label good_end
 else:
-	interviewer (neutral): And you are Marco. I recognize you from the office.
+	\interviewer (neutral): And you are Marco. I recognize you from the office.
 	phrase_cut dad (nervous) neighbors_L012
-	jump mixed
+	goto_label mixed
 label mixed
-mom (happy): What a small world! Let's all have tea.
-doctor (happy): Rosa! I didn't expect to see you so soon.
+\mom (happy): What a small world! Let's all have tea.
+\doctor (happy): Rosa! I didn't expect to see you so soon.
 phrase_cut grandma (happy) neighbors_L013
-end_timeline
+[end_timeline]
 label good_end
-mom (happy): What a wonderful welcome. I think we're going to like it here.
-doctor (happy): Rosa, nice to see you again! How's the back?
+\mom (happy): What a wonderful welcome. I think we're going to like it here.
+\doctor (happy): Rosa, nice to see you again! How's the back?
 phrase_cut grandma (happy) neighbors_L014
-end_timeline
+[end_timeline]
 label bad_end
-mom (sad): Well. Thank you for the cookies... reception.
-crush (nervous): ...Please go now.
-end_timeline
+\mom (sad): Well. Thank you for the cookies... reception.
+\crush (nervous): ...Please go now.
+[end_timeline]
