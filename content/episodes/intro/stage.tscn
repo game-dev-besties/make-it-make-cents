@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://b27fmeybtbkc2" path="res://content/episodes/intro/customs.png" id="2_customs"]
 [ext_resource type="Texture2D" uid="uid://dfj5hd72bdwbw" path="res://content/episodes/intro/wall.png" id="3_wall"]
 [ext_resource type="Texture2D" uid="uid://8xkkcni4b74t" path="res://content/characters/penny/moneybot.png" id="4_moneybot"]
+[ext_resource type="Texture2D" uid="uid://dw8lfiolcrkpq" path="res://content/characters/crush/neutral.png" id="5_clementine"]
 
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"
@@ -47,7 +48,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Effects/ClementineCard:modulate:a")
+tracks/3/path = NodePath("Effects/ClementineSprite:modulate:a")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -91,7 +92,7 @@ length = 0.35
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Effects/ClementineCard:modulate:a")
+tracks/0/path = NodePath("Effects/ClementineSprite:modulate:a")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -409,36 +410,17 @@ texture = ExtResource("4_moneybot")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ClementineCard" type="ColorRect" parent="Effects" index="1" unique_id=1458912915]
+[node name="ClementineSprite" type="TextureRect" parent="Effects" index="1" unique_id=1458912915]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 895.0
-offset_top = 155.0
-offset_right = 1085.0
-offset_bottom = 475.0
+offset_left = 580.0
+offset_top = -30.0
+offset_right = 1180.0
+offset_bottom = 620.0
 mouse_filter = 2
-color = Color(0.055, 0.045, 0.075, 0.98)
-
-[node name="Label" type="Label" parent="Effects/ClementineCard" index="0" unique_id=1547055618]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = -12.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.82, 0.63, 0.95, 1)
-theme_override_font_sizes/font_size = 18
-text = "CLEMENTINE
-black + violet
-
-(first non-beige
-thing in sight)"
-horizontal_alignment = 1
-vertical_alignment = 1
+texture = ExtResource("5_clementine")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="SponsorBlackout" type="ColorRect" parent="Effects" index="2" unique_id=499350083]
 modulate = Color(1, 1, 1, 0)

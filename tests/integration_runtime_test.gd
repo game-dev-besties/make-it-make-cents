@@ -429,6 +429,17 @@ func _test_campaign_and_stage() -> void:
 			is_zero_approx(penny_sprite.modulate.a),
 			"The home reveal should dismiss the Moneybot sprite.",
 		)
+		var clementine_sprite := intro_stage.get_node("Effects/ClementineSprite") as TextureRect
+		_check(
+			clementine_sprite.texture != null,
+			"The intro's home scene should use Clementine's finished portrait.",
+		)
+		host.play_cue(&"clementine_reveal")
+		animation_player.advance(0.35)
+		_check(
+			is_equal_approx(clementine_sprite.modulate.a, 1.0),
+			"The Clementine reveal should show her portrait instead of a placeholder card.",
+		)
 		var sponsor_blackout := intro_stage.get_node("Effects/SponsorBlackout") as Control
 		host.play_cue(&"sponsor_blackout")
 		animation_player.advance(0.15)
