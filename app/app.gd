@@ -44,6 +44,7 @@ const BACK_TO_TITLE_WIDTH := 150.0
 @onready var subtitle_label: Label = $TitleScreen/Panel/Margin/VBox/Subtitle
 
 var _history_box: Control = null
+var _budget_visible_before_history := false
 
 
 func _ready() -> void:
@@ -192,6 +193,23 @@ func _on_history_box_visibility_changed() -> void:
 
 
 func _on_history_opened() -> void:
+	var compact_history := size.x < 680.0 or size.y < 460.0
+	if compact_history:
+		# Header space is scarce on a phone. Keep the escape action available
+		# without letting three fixed-width controls collide.
+		_budget_visible_before_history = _budget_visible_before_history or budget_label.visible
+		budget_label.hide()
+		episode_label.hide()
+		back_to_title_button.anchor_left = 0.0
+		back_to_title_button.anchor_right = 0.0
+		back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
+		back_to_title_button.offset_left = 16.0
+		back_to_title_button.offset_right = 166.0
+		back_to_title_button.offset_top = 16.0
+		back_to_title_button.offset_bottom = 47.0
+		back_to_title_button.show()
+		return
+
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
 	episode_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -215,6 +233,9 @@ func _on_history_opened() -> void:
 func _on_history_closed() -> void:
 	episode_label.hide()
 	back_to_title_button.hide()
+	if _budget_visible_before_history:
+		budget_label.show()
+	_budget_visible_before_history = false
 
 
 func _apply_responsive_layout() -> void:
@@ -238,6 +259,8 @@ func _apply_responsive_layout() -> void:
 		_layout_stacked_hud()
 	else:
 		_layout_inline_hud()
+	if _history_box != null and is_instance_valid(_history_box) and _history_box.visible:
+		_on_history_opened()
 
 
 ## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
