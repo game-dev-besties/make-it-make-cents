@@ -16,9 +16,13 @@ const DEFAULT_SPONSOR_TEXT := "Sam's Soda: pop open freedom."
 const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
 const HORIZONTAL_GUTTER := 48.0
+const MONEYBOT_COMPANION_MIN_WIDTH := 1080.0
+const MONEYBOT_COMPANION_MIN_HEIGHT := 540.0
+const COMPACT_SAFE_MARGIN := 16
+const COMPANION_SAFE_MARGIN_RIGHT := 180
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
-const FIXED_WORD_COLOR := Color(0.141176, 0.188235, 0.121569, 1)
+const FIXED_WORD_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
 
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
@@ -36,6 +40,9 @@ var _is_resolved := false
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
+@onready var _safe_margin: MarginContainer = %SafeMargin
+@onready var _moneybot_companion: TextureRect = %MoneybotCompanion
+@onready var _moneybot_icon: TextureRect = %MoneybotIcon
 @onready var _title_label: Label = %TitleLabel
 @onready var _budget_label: Label = %BudgetLabel
 @onready var _chips: FlowContainer = %Chips
@@ -273,6 +280,16 @@ func _focus_initial_control(is_out_of_budget: bool) -> void:
 func _update_panel_width() -> void:
 	var available_width := maxf(size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
 	_panel.custom_minimum_size.x = minf(available_width, MAX_PANEL_WIDTH)
+	var show_companion := (
+		size.x >= MONEYBOT_COMPANION_MIN_WIDTH
+		and size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
+	)
+	_moneybot_companion.visible = show_companion
+	_moneybot_icon.visible = not show_companion
+	_safe_margin.add_theme_constant_override(
+		"margin_right",
+		COMPANION_SAFE_MARGIN_RIGHT if show_companion else COMPACT_SAFE_MARGIN,
+	)
 
 
 func _recovery_description() -> String:
