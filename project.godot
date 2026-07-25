@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameState="*res://game/runtime/game_state.gd"
 Dialogic="*uid://ds2q0uclmolvu"
 GameStats="*res://game/runtime/game_state.gd"
 PhraseMemory="*res://game/runtime/phrase_memory.gd"
@@ -33,6 +34,7 @@ directories/dch_directory={
 "doctor": "res://content/characters/doctor/doctor.dch",
 "grandma": "res://content/characters/grandma/grandma.dch",
 "interviewer": "res://content/characters/interviewer/interviewer.dch",
+"leo": "res://content/characters/leo/leo.dch",
 "officer": "res://content/characters/officer/officer.dch",
 "penny": "res://content/characters/penny/penny.dch",
 "son": "res://content/characters/son/son.dch"
@@ -48,11 +50,11 @@ layout/style_directory={
 "": "res://ui/dialogue/dialogue_style.tres",
 "Game Dialogue": "res://ui/dialogue/dialogue_style.tres"
 }
-text/autoskip_time_per_event=0.0
 extensions_folder="res://addons/legendary_dialogic"
 history/simple_history_enabled=true
 layout/default_style="res://ui/dialogue/dialogue_style.tres"
 layout/style_list=Array[String](["res://ui/dialogue/dialogue_style.tres"])
+text/autoskip_time_per_event=0.0
 
 [display]
 
