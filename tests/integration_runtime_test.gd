@@ -15,6 +15,7 @@ func _run() -> void:
 	_test_state_round_trip()
 	_test_explicit_phrase_sidecar()
 	_test_non_stacking_goto()
+	_test_type_sound_lifecycle()
 	await _test_campaign_and_stage()
 
 	if _failures.is_empty():
@@ -221,6 +222,35 @@ func _test_explicit_phrase_sidecar() -> void:
 		"The phrase subsystem should reject unknown recovery policies.",
 	)
 	subsystem.free()
+
+
+func _test_type_sound_lifecycle() -> void:
+	var type_sound := DialogicNode_TypeSounds.new()
+	var authored_sound := AudioStreamWAV.new()
+	type_sound.sounds = [authored_sound]
+	type_sound.end_sound = authored_sound
+	root.add_child(type_sound)
+	root.remove_child(type_sound)
+	_check(
+		type_sound.sounds == [authored_sound] and type_sound.end_sound == authored_sound,
+		"Removing a type-sound node from the tree should preserve its authored sounds.",
+	)
+	root.add_child(type_sound)
+
+	var mood_sound := AudioStreamWAV.new()
+	var shared_mood := {
+		"sounds": [mood_sound],
+		"mode": DialogicNode_TypeSounds.Modes.AWAIT,
+	}
+	type_sound.load_overwrite(shared_mood)
+	type_sound.current_overwrite_data["mode"] = DialogicNode_TypeSounds.Modes.INTERRUPT
+	(type_sound.current_overwrite_data["sounds"] as Array).clear()
+	_check(
+		shared_mood["mode"] == DialogicNode_TypeSounds.Modes.AWAIT
+		and shared_mood["sounds"] == [mood_sound],
+		"Type-sound overrides should not mutate shared character mood data.",
+	)
+	type_sound.free()
 
 
 func _test_non_stacking_goto() -> void:

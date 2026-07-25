@@ -335,10 +335,19 @@ func _rect_is_inside(outer: Rect2, inner: Rect2) -> bool:
 func _reset_runtime() -> void:
 	for type_sound: Node in get_nodes_in_group(&"dialogic_type_sounds"):
 		if type_sound is AudioStreamPlayer:
-			(type_sound as AudioStreamPlayer).stop()
+			var type_sound_player := type_sound as AudioStreamPlayer
+			type_sound_player.stop()
+			type_sound_player.stream = null
+		if type_sound is DialogicNode_TypeSounds:
+			var dialogic_type_sound := type_sound as DialogicNode_TypeSounds
+			dialogic_type_sound.sounds.clear()
+			dialogic_type_sound.end_sound = null
+			dialogic_type_sound.current_overwrite_data.clear()
 		for child: Node in type_sound.get_children():
 			if child is AudioStreamPlayer:
-				(child as AudioStreamPlayer).stop()
+				var child_player := child as AudioStreamPlayer
+				child_player.stop()
+				child_player.stream = null
 				child.queue_free()
 	await _dialogic.clear(DialogicGameHandler.ClearFlags.FULL_CLEAR)
 	if _dialogic.has_subsystem("Styles") and _dialogic.Styles.has_active_layout_node():
@@ -347,6 +356,7 @@ func _reset_runtime() -> void:
 	if game_stats != null:
 		game_stats.reset_for_new_game()
 	await process_frame
+	await create_timer(0.05).timeout
 
 
 func _check(condition: bool, message: String) -> void:

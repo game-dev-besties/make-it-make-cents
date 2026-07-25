@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://b3ce61hbul4dd"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
-[ext_resource type="Texture2D" uid="uid://dcaqqjt04jk6f" path="res://content/episodes/intro/airport.webp" id="2_1a3fy"]
+[ext_resource type="Texture2D" uid="uid://b27fmeybtbkc2" path="res://content/episodes/intro/customs.png" id="2_customs"]
+[ext_resource type="Texture2D" uid="uid://dfj5hd72bdwbw" path="res://content/episodes/intro/wall.png" id="3_wall"]
 
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"
@@ -105,7 +106,7 @@ length = 0.3
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Props/CheckpointSign:modulate")
+tracks/0/path = NodePath("Background/BackgroundImage:modulate")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -251,9 +252,10 @@ stage_title = "Verbal Tariff checkpoint"
 color = Color(0.12, 0.13, 0.14, 1)
 
 [node name="BackgroundImage" parent="Background" index="0"]
-texture = ExtResource("2_1a3fy")
+texture = ExtResource("2_customs")
 
 [node name="CustomsWindow" type="ColorRect" parent="Props" index="0" unique_id=1951995971]
+visible = false
 layout_mode = 0
 offset_left = 646.0
 offset_top = 65.0
@@ -263,6 +265,7 @@ mouse_filter = 2
 color = Color(0.2, 0.22, 0.22, 1)
 
 [node name="CustomsWindowVerticalBar" type="ColorRect" parent="Props" index="1" unique_id=308387187]
+visible = false
 layout_mode = 0
 offset_left = 744.0
 offset_top = 65.0
@@ -272,6 +275,7 @@ mouse_filter = 2
 color = Color(0.53, 0.55, 0.52, 1)
 
 [node name="CustomsWindowHorizontalBar" type="ColorRect" parent="Props" index="2" unique_id=72356849]
+visible = false
 layout_mode = 0
 offset_left = 646.0
 offset_top = 162.0
@@ -281,6 +285,7 @@ mouse_filter = 2
 color = Color(0.53, 0.55, 0.52, 1)
 
 [node name="CheckpointSign" type="Label" parent="Props" index="3" unique_id=1514138013]
+visible = false
 layout_mode = 0
 offset_left = 637.0
 offset_top = 102.0
@@ -293,6 +298,7 @@ CHECKPOINT"
 horizontal_alignment = 1
 
 [node name="Floor" type="ColorRect" parent="Props" index="4" unique_id=2091437068]
+visible = false
 layout_mode = 0
 offset_top = 547.0
 offset_right = 1152.0
@@ -301,7 +307,7 @@ scale = Vector2(1, 4.2)
 mouse_filter = 2
 color = Color(0.16, 0.15, 0.13, 1)
 
-[node name="HomeBackdrop" type="ColorRect" parent="Props" index="5" unique_id=857637138]
+[node name="HomeBackdrop" type="TextureRect" parent="Props" index="5" unique_id=857637138]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
@@ -310,9 +316,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.76, 0.71, 0.61, 1)
+texture = ExtResource("3_wall")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="Lawn" type="ColorRect" parent="Props/HomeBackdrop" index="0" unique_id=2050787041]
+visible = false
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -325,6 +334,7 @@ mouse_filter = 2
 color = Color(0.55, 0.55, 0.42, 1)
 
 [node name="House" type="ColorRect" parent="Props/HomeBackdrop" index="1" unique_id=1468450984]
+visible = false
 layout_mode = 0
 offset_left = 330.0
 offset_top = 95.0

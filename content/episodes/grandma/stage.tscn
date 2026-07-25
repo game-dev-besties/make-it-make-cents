@@ -59,6 +59,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
+offset_left = 80.0
+offset_top = 40.0
+offset_right = 500.0
+offset_bottom = 640.0
 character_id = &"grandma"
 actor_name = "Grandma"
 expression = "neutral"
@@ -72,8 +76,10 @@ expression = ""
 is_active = false
 
 [node name="Right" parent="ActorSlots" index="2"]
-offset_left = 860.0
-offset_right = 1080.0
+offset_left = 650.0
+offset_top = 40.0
+offset_right = 1070.0
+offset_bottom = 640.0
 character_id = &"doctor"
 actor_name = "Doctor"
 expression = "neutral"

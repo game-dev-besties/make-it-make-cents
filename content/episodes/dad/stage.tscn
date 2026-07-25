@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://ctrpyg27xarws"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://c11drnv37is8a" path="res://content/episodes/dad/interview.png" id="2_interview"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 bg_color = Color(0.08, 0.12, 0.2, 0.9)
@@ -75,6 +76,12 @@ stage_title = "Monday morning - Reed & Co. interview room"
 [node name="Background" parent="." index="0"]
 color = Color(0.075, 0.12, 0.19, 1)
 
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_interview")
+
+[node name="Props" parent="." index="1"]
+visible = false
+
 [node name="Desk" type="ColorRect" parent="Props" index="0" unique_id=242553458]
 layout_mode = 0
 offset_left = 250.0
@@ -105,6 +112,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
+offset_left = 150.0
+offset_top = 20.0
+offset_right = 570.0
+offset_bottom = 620.0
 character_id = &"dad"
 actor_name = "Dad"
 expression = "nervous"
@@ -118,8 +129,10 @@ expression = ""
 is_active = false
 
 [node name="Right" parent="ActorSlots" index="2"]
-offset_left = 894.0
-offset_right = 1114.0
+offset_left = 620.0
+offset_top = 20.0
+offset_right = 1040.0
+offset_bottom = 620.0
 character_id = &"interviewer"
 actor_name = "Interviewer"
 expression = "neutral"

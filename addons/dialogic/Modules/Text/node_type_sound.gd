@@ -43,6 +43,30 @@ func _ready() -> void:
 		get_parent().finished_revealing_text.connect(_on_finished_revealing_text)
 
 
+func _exit_tree() -> void:
+	stop()
+	stream = null
+	current_overwrite_data = {}
+	for child: Node in get_children():
+		if child is AudioStreamPlayer:
+			var audio_player := child as AudioStreamPlayer
+			audio_player.stop()
+			audio_player.stream = null
+	if is_queued_for_deletion():
+		_release_configuration_resources()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_release_configuration_resources()
+
+
+func _release_configuration_resources() -> void:
+	sounds = []
+	end_sound = null
+	current_overwrite_data = {}
+
+
 func _on_started_revealing_text() -> void:
 	if !enabled or (get_parent() is DialogicNode_DialogText and !get_parent().enabled):
 		return
@@ -113,7 +137,7 @@ func _on_finished_revealing_text() -> void:
 
 
 func load_overwrite(dictionary:Dictionary) -> void:
-	current_overwrite_data = dictionary
+	current_overwrite_data = dictionary.duplicate(true)
 	if dictionary.has('sound_path'):
 		current_overwrite_data['sounds'] = DialogicNode_TypeSounds.load_sounds_from_path(dictionary.sound_path)
 

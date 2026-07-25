@@ -186,7 +186,7 @@ func _on_history_box_visibility_changed() -> void:
 func _on_history_opened() -> void:
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
-	episode_label.grow_horizontal = 2
+	episode_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	episode_label.offset_left = HISTORY_MODAL_LEFT_INSET + HISTORY_MODAL_RING_CLEARANCE
 	episode_label.offset_right = episode_label.offset_left + 320.0
 	episode_label.offset_top = HISTORY_ROW_TOP
@@ -196,7 +196,7 @@ func _on_history_opened() -> void:
 	var back_to_title_right := -(HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
 	back_to_title_button.anchor_left = 1.0
 	back_to_title_button.anchor_right = 1.0
-	back_to_title_button.grow_horizontal = 0
+	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	back_to_title_button.offset_right = back_to_title_right
 	back_to_title_button.offset_left = back_to_title_right - BACK_TO_TITLE_WIDTH
 	back_to_title_button.offset_top = HISTORY_ROW_TOP
