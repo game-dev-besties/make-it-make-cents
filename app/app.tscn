@@ -46,7 +46,10 @@ grow_horizontal = 2
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("11_hud_status_panel")
 
-[node name="EpisodeLabel" type="Label" parent="." unique_id=651386616]
+[node name="HistoryControls" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="EpisodeLabel" type="Label" parent="HistoryControls" unique_id=651386616]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -81,7 +84,7 @@ text = "Words left: $0"
 horizontal_alignment = 1
 text_overrun_behavior = 3
 
-[node name="BackToTitleButton" type="Button" parent="." unique_id=4029581736]
+[node name="BackToTitleButton" type="Button" parent="HistoryControls" unique_id=4029581736]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -232,4 +235,4 @@ autowrap_mode = 2
 
 [connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]
-[connection signal="pressed" from="BackToTitleButton" to="." method="_on_back_to_title_button_pressed"]
+[connection signal="pressed" from="HistoryControls/BackToTitleButton" to="." method="_on_back_to_title_button_pressed"]

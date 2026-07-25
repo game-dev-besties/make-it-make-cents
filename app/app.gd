@@ -109,7 +109,7 @@ func _on_back_to_title_button_pressed() -> void:
 	var history: Object = dialogic_node.call("get_subsystem", "History")
 	if history != null and history.has_method("close_history"):
 		history.call("close_history")
-	campaign_player.finish_campaign()
+	await campaign_player.abort_campaign()
 
 
 func _on_validation_failed(errors: PackedStringArray) -> void:

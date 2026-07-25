@@ -20,11 +20,17 @@ func _run() -> void:
 		printerr("FAIL: The app should expose its Dialogic singleton.")
 		quit(1)
 		return
+	_check(
+		root.get_node_or_null("GameState") == null,
+		"The app should only register the canonical GameStats state singleton.",
+	)
 	# Auto-skip suppresses per-letter typing audio in headless tests. The smoke
 	# jumps by semantic event ID before its timer can advance production text.
 	_dialogic.Inputs.auto_skip.enabled = true
 	await _test_responsive_layout()
 	await _test_developer_launcher()
+	await _reset_runtime()
+	await _test_return_to_title_stops_dialogue()
 	await _reset_runtime()
 	await _test_start_to_phrase_delivery()
 	_dialogic.Inputs.auto_skip.enabled = false
@@ -118,6 +124,48 @@ func _test_developer_launcher() -> void:
 				not (app.get_node("%TitleScreen") as Control).visible,
 				"Starting a developer episode should leave the title screen.",
 			)
+
+	app.queue_free()
+	await process_frame
+
+
+func _test_return_to_title_stops_dialogue() -> void:
+	var app := APP_SCENE.instantiate()
+	root.add_child(app)
+	await process_frame
+
+	var title_screen := app.get_node("%TitleScreen") as Control
+	var campaign_player := app.get_node("%CampaignPlayer") as CampaignPlayer
+	var history_controls := app.get_node("HistoryControls") as CanvasLayer
+	var back_to_title_button := app.get_node("%BackToTitleButton") as Button
+	_check(
+		history_controls.layer > 1 and back_to_title_button.get_parent() == history_controls,
+		"History controls should render above Dialogic's canvas layer.",
+	)
+	(app.get_node("%StartButton") as Button).pressed.emit()
+	await process_frame
+	await process_frame
+	_check(
+		campaign_player.current_episode != null and _dialogic.current_timeline != null,
+		"Starting a campaign should create an active episode and Dialogic timeline.",
+	)
+
+	back_to_title_button.pressed.emit()
+	for _attempt: int in 30:
+		if _dialogic.current_timeline == null:
+			break
+		await process_frame
+	await process_frame
+
+	_check(title_screen.visible, "Returning to title should reveal the title screen.")
+	_check(
+		campaign_player.current_episode == null,
+		"Returning to title should clear the active campaign episode.",
+	)
+	_check(
+		_dialogic.current_timeline == null,
+		"Returning to title should terminate the active Dialogic timeline.",
+	)
 
 	app.queue_free()
 	await process_frame
