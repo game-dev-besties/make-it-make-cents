@@ -114,6 +114,13 @@ func _run() -> void:
 		hover_style != null and hover_style.bg_color.a >= 0.12,
 		"the neutral hover should remain visibly distinct from the charcoal panel",
 	)
+	var focus_style := first_normal_chip.get_theme_stylebox("focus") as StyleBoxFlat
+	_assert(
+		focus_style != null
+		and focus_style.border_width_bottom == 0
+		and is_zero_approx(focus_style.bg_color.a),
+		"keyboard focus should not add any visual treatment to a phrase",
+	)
 	_assert(
 		normal.get_viewport().gui_get_focus_owner() == first_normal_chip,
 		"the first phrase should receive keyboard focus when trimming begins",
