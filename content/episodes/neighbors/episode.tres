@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="EpisodeDefinition" format=3 uid="uid://befj17lxf4b5f"]
 
 [ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_episode"]
-[ext_resource type="PackedScene" path="res://content/episodes/neighbors/stage.tscn" id="2_stage"]
+[ext_resource type="PackedScene" uid="uid://6fhu10fibdfi" path="res://content/episodes/neighbors/stage.tscn" id="2_stage"]
 [ext_resource type="Script" uid="uid://bs48kuj21qv4o" path="res://game/domain/campaign_route.gd" id="2_vmnpw"]
 
 [resource]

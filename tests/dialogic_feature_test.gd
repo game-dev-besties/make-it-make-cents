@@ -1,6 +1,8 @@
 extends SceneTree
 
 const STYLE_PATH := "res://ui/dialogue/dialogue_style.tres"
+const TEXTBOX_LAYER_PATH := "res://ui/dialogue/dialogue_hud.tscn"
+const HISTORY_LAYER_PATH := "res://ui/dialogue/history_layer.tscn"
 
 var _failures: Array[String] = []
 
@@ -30,16 +32,16 @@ func _run() -> void:
 			"The style should retain Dialogic's advance-input layer.",
 		)
 		_check(
-			_has_path_fragment(layer_paths, "Layer_VN_Textbox"),
-			"The style should retain Dialogic's typed-text and sound layer.",
+			_has_path_fragment(layer_paths, TEXTBOX_LAYER_PATH),
+			"The style should use the project-owned, editor-editable typed-text layer.",
 		)
 		_check(
 			_has_path_fragment(layer_paths, "Layer_VN_Choices"),
 			"The style should retain Dialogic's choice layer.",
 		)
 		_check(
-			_has_path_fragment(layer_paths, "Layer_History"),
-			"The style should retain Dialogic's history layer.",
+			_has_path_fragment(layer_paths, HISTORY_LAYER_PATH),
+			"The style should use the project-owned, editor-editable history layer.",
 		)
 		_check(
 			_has_path_fragment(layer_paths, "background_state_layer"),
@@ -53,6 +55,25 @@ func _run() -> void:
 			not _has_path_fragment(layer_paths, "Layer_VN_Portraits"),
 			"The style should not duplicate StoryStage's portrait renderer.",
 		)
+
+	var textbox_scene := ResourceLoader.load(TEXTBOX_LAYER_PATH) as PackedScene
+	var textbox_layer: Node = textbox_scene.instantiate() if textbox_scene != null else null
+	_check(
+		textbox_layer is DialogicLayoutLayer,
+		"The project textbox scene should remain a valid Dialogic layout layer.",
+	)
+	if textbox_layer != null:
+		_check(
+			textbox_layer.get_node_or_null("Anchor/AnimationParent/Sizer/DialogTextPanel") != null,
+			"The project textbox scene should retain its directly editable dialog panel.",
+		)
+		_check(
+			textbox_layer.get_node_or_null(
+				"Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder/NameLabelPanel"
+			) != null,
+			"The project textbox scene should retain its directly editable speaker label.",
+		)
+		textbox_layer.free()
 
 	var dialogic := root.get_node_or_null("Dialogic") as DialogicGameHandler
 	_check(dialogic != null, "The Dialogic autoload should be available.")

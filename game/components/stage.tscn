@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://game/components/stage.gd" id="1_stage"]
 [ext_resource type="PackedScene" path="res://game/components/stage_actor_slot.tscn" id="2_slot"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title"]
-bg_color = Color(0.025, 0.04, 0.075, 0.78)
+bg_color = Color(0.168627, 0.227451, 0.180392, 0.88)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -110,13 +111,15 @@ mouse_filter = 2
 
 [node name="StageTitle" type="Label" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 0
 offset_left = 18.0
 offset_top = 16.0
 offset_right = 290.0
 offset_bottom = 48.0
-theme_override_colors/font_color = Color(0.82, 0.89, 1, 1)
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_title")
 text = "Untitled stage"

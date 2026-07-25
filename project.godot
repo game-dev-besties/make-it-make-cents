@@ -45,14 +45,15 @@ directories/dtl_directory={
 "neighbors/dialogue": "res://content/episodes/neighbors/dialogue.dtl",
 "son/dialogue": "res://content/episodes/son/dialogue.dtl"
 }
-history/simple_history_enabled=true
-layout/default_style="res://ui/dialogue/dialogue_style.tres"
 layout/style_directory={
 "": "res://ui/dialogue/dialogue_style.tres",
 "Game Dialogue": "res://ui/dialogue/dialogue_style.tres"
 }
-layout/style_list=Array[String](["res://ui/dialogue/dialogue_style.tres"])
+text/autoskip_time_per_event=0.0
 extensions_folder="res://addons/legendary_dialogic"
+history/simple_history_enabled=true
+layout/default_style="res://ui/dialogue/dialogue_style.tres"
+layout/style_list=Array[String](["res://ui/dialogue/dialogue_style.tres"])
 
 [display]
 
@@ -62,6 +63,10 @@ window/stretch/aspect="expand"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/dialogic/plugin.cfg")
+
+[gui]
+
+theme/custom="res://ui/theme/tooltip_theme.tres"
 
 [importer_defaults]
 

@@ -1,0 +1,198 @@
+[gd_scene format=3 uid="uid://cncreax7s1amp"]
+
+[ext_resource type="Script" uid="uid://bl43m5qw8pso3" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/vn_textbox_layer.gd" id="1_textbox_layer"]
+[ext_resource type="Script" uid="uid://bfc03rn8slceu" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/animations.gd" id="2_animations"]
+[ext_resource type="Script" uid="uid://drhfq6rmdeuri" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="3_dialog_text"]
+[ext_resource type="Script" uid="uid://dpv2dfiv5dhmr" path="res://addons/dialogic/Modules/Text/node_type_sound.gd" id="4_type_sound"]
+[ext_resource type="Script" uid="uid://dve1vwse2peji" path="res://addons/dialogic/Modules/Text/node_next_indicator.gd" id="5_next_indicator"]
+[ext_resource type="Script" uid="uid://bklme8oymw6h7" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/autoadvance_indicator.gd" id="6_auto_advance"]
+[ext_resource type="Script" uid="uid://bak74s0kcr0ao" path="res://addons/dialogic/Modules/Text/node_name_label.gd" id="7_name_label"]
+[ext_resource type="StyleBox" uid="uid://bvsl75ructg3d" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="8_textbox_panel"]
+[ext_resource type="StyleBox" uid="uid://8iopm1ia0k2y" path="res://ui/dialogue/dialogue_nameplate_panel.tres" id="9_nameplate_panel"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="10_font"]
+[ext_resource type="Script" path="res://ui/dialogue/fast_forward_button.gd" id="11_fast_forward"]
+
+[sub_resource type="StyleBoxFlat" id="FastForwardEmpty"]
+bg_color = Color(1, 1, 1, 0)
+
+[node name="GameDialogueTextbox" type="Control" unique_id=1854957271]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_textbox_layer")
+text_use_global_size = false
+text_size = 22
+text_use_global_color = false
+text_custom_color = Color(0.168627, 0.227451, 0.180392, 1)
+text_use_global_font = false
+normal_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+bold_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+italics_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+bold_italics_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+box_panel = "res://ui/dialogue/dialogue_textbox_panel.tres"
+box_color_use_global = false
+box_color_custom = Color(1, 1, 1, 1)
+box_size = Vector2(900, 210)
+box_margin_bottom = 34
+box_animation_in = 0
+box_animation_out = 0
+name_label_use_global_color = false
+name_label_use_character_color = false
+name_label_custom_color = Color(0.168627, 0.227451, 0.180392, 1)
+name_label_use_global_font_size = false
+name_label_custom_font_size = 20
+name_label_use_global_font = false
+name_label_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+name_label_box_panel = "res://ui/dialogue/dialogue_nameplate_panel.tres"
+name_label_box_use_global_color = false
+name_label_box_modulate = Color(1, 1, 1, 1)
+name_label_box_offset = Vector2(0, -29)
+next_indicator_size = Vector2(18, 18)
+next_indicator_position_offset = Vector2(0, 0)
+
+[node name="Animations" type="AnimationPlayer" parent="." unique_id=428057378]
+unique_name_in_owner = true
+script = ExtResource("2_animations")
+
+[node name="Anchor" type="Control" parent="." unique_id=2032172269]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="AnimationParent" type="Control" parent="Anchor" unique_id=1728822438]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Sizer" type="Control" parent="Anchor/AnimationParent" unique_id=1534103775]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -450.0
+offset_top = -244.0
+offset_right = 450.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="DialogTextPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer" unique_id=879795114]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_textbox_panel")
+
+[node name="DialogicNode_DialogText" type="RichTextLabel" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=1215337850 node_paths=PackedStringArray("textbox_root")]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.168627, 0.227451, 0.180392, 1)
+theme_override_font_sizes/normal_font_size = 22
+theme_override_font_sizes/bold_font_size = 22
+theme_override_font_sizes/bold_italics_font_size = 22
+theme_override_font_sizes/italics_font_size = 22
+bbcode_enabled = true
+visible_characters_behavior = 1
+script = ExtResource("3_dialog_text")
+textbox_root = NodePath("..")
+
+[node name="DialogicNode_TypeSounds" type="AudioStreamPlayer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/DialogicNode_DialogText" unique_id=169334726]
+unique_name_in_owner = true
+script = ExtResource("4_type_sound")
+play_every_character = 0
+
+[node name="IndicatorRow" type="HBoxContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FastForwardButton" type="Button" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/IndicatorRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("10_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("FastForwardEmpty")
+theme_override_styles/hover = SubResource("FastForwardEmpty")
+theme_override_styles/pressed = SubResource("FastForwardEmpty")
+theme_override_styles/hover_pressed = SubResource("FastForwardEmpty")
+theme_override_styles/disabled = SubResource("FastForwardEmpty")
+theme_override_styles/focus = SubResource("FastForwardEmpty")
+tooltip_text = "Skip ahead to the next phrase cut"
+text = ">>"
+script = ExtResource("11_fast_forward")
+
+[node name="NextIndicator" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/IndicatorRow" unique_id=15135124]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("5_next_indicator")
+show_on_questions = true
+
+[node name="AutoAdvanceProgressbar" type="ProgressBar" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=44324303]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.188235)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+max_value = 1.0
+step = 0.001
+value = 0.5
+show_percentage = false
+script = ExtResource("6_auto_advance")
+
+[node name="NameLabelHolder" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=684174055]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NameLabelPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder" unique_id=969236123]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = -20.0
+offset_top = -138.0
+offset_right = 220.0
+offset_bottom = -70.0
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("9_nameplate_panel")
+
+[node name="DialogicNode_NameLabel" type="Label" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder/NameLabelPanel" unique_id=184658757 node_paths=PackedStringArray("name_label_root")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.168627, 0.227451, 0.180392, 1)
+theme_override_font_sizes/font_size = 20
+text = "Speaker"
+script = ExtResource("7_name_label")
+name_label_root = NodePath("..")

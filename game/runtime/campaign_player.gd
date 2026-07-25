@@ -121,10 +121,24 @@ func advance(exit_id: StringName = &"") -> bool:
 
 
 func finish_campaign() -> void:
+	_close_campaign_state()
+	campaign_finished.emit()
+
+
+## Stops an in-progress campaign and its Dialogic timeline. This is distinct
+## from finish_campaign(), which is called after Dialogic has already ended.
+func abort_campaign() -> void:
+	_close_campaign_state()
+	var dialogic_handler := _dialogic_node as DialogicGameHandler
+	if dialogic_handler != null and dialogic_handler.current_timeline != null:
+		await dialogic_handler.end_timeline(true)
+	campaign_finished.emit()
+
+
+func _close_campaign_state() -> void:
 	if current_episode != null and game_state != null:
 		game_state.end_cutscene()
 	current_episode = null
-	campaign_finished.emit()
 
 
 func validate_campaign_definition(definition: CampaignDefinition = campaign) -> PackedStringArray:
