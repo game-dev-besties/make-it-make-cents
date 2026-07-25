@@ -2,6 +2,7 @@ extends SceneTree
 
 const STYLE_PATH := "res://ui/dialogue/dialogue_style.tres"
 const TEXTBOX_LAYER_PATH := "res://ui/dialogue/dialogue_hud.tscn"
+const HISTORY_LAYER_PATH := "res://ui/dialogue/history_layer.tscn"
 
 var _failures: Array[String] = []
 
@@ -39,8 +40,8 @@ func _run() -> void:
 			"The style should retain Dialogic's choice layer.",
 		)
 		_check(
-			_has_path_fragment(layer_paths, "Layer_History"),
-			"The style should retain Dialogic's history layer.",
+			_has_path_fragment(layer_paths, HISTORY_LAYER_PATH),
+			"The style should use the project-owned, editor-editable history layer.",
 		)
 		_check(
 			_has_path_fragment(layer_paths, "background_state_layer"),

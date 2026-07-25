@@ -467,10 +467,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="StageTitle" parent="." index="4"]
-offset_left = 873.0
-offset_top = 58.0
-offset_right = 1145.0
-offset_bottom = 93.0
 text = "Verbal Tariff checkpoint"
 
 [node name="AnimationPlayer" parent="." index="5"]

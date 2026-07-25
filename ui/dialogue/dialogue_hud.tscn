@@ -9,6 +9,11 @@
 [ext_resource type="Script" uid="uid://bak74s0kcr0ao" path="res://addons/dialogic/Modules/Text/node_name_label.gd" id="7_name_label"]
 [ext_resource type="StyleBox" uid="uid://bvsl75ructg3d" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="8_textbox_panel"]
 [ext_resource type="StyleBox" uid="uid://8iopm1ia0k2y" path="res://ui/dialogue/dialogue_nameplate_panel.tres" id="9_nameplate_panel"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="10_font"]
+[ext_resource type="Script" path="res://ui/dialogue/fast_forward_button.gd" id="11_fast_forward"]
+
+[sub_resource type="StyleBoxFlat" id="FastForwardEmpty"]
+bg_color = Color(1, 1, 1, 0)
 
 [node name="GameDialogueTextbox" type="Control" unique_id=1854957271]
 layout_mode = 3
@@ -22,7 +27,12 @@ script = ExtResource("1_textbox_layer")
 text_use_global_size = false
 text_size = 22
 text_use_global_color = false
-text_custom_color = Color(0.007843138, 0.007843138, 0.007843138, 1)
+text_custom_color = Color(0.168627, 0.227451, 0.180392, 1)
+text_use_global_font = false
+normal_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+bold_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+italics_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+bold_italics_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
 box_panel = "res://ui/dialogue/dialogue_textbox_panel.tres"
 box_color_use_global = false
 box_color_custom = Color(1, 1, 1, 1)
@@ -32,14 +42,17 @@ box_animation_in = 0
 box_animation_out = 0
 name_label_use_global_color = false
 name_label_use_character_color = false
-name_label_custom_color = Color(0.015686275, 0.015686275, 0.015686275, 1)
+name_label_custom_color = Color(0.168627, 0.227451, 0.180392, 1)
 name_label_use_global_font_size = false
 name_label_custom_font_size = 20
+name_label_use_global_font = false
+name_label_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
 name_label_box_panel = "res://ui/dialogue/dialogue_nameplate_panel.tres"
 name_label_box_use_global_color = false
 name_label_box_modulate = Color(1, 1, 1, 1)
+name_label_box_offset = Vector2(0, -29)
 next_indicator_size = Vector2(18, 18)
-next_indicator_position_offset = Vector2(-24, -22)
+next_indicator_position_offset = Vector2(0, 0)
 
 [node name="Animations" type="AnimationPlayer" parent="." unique_id=428057378]
 unique_name_in_owner = true
@@ -97,7 +110,7 @@ theme_override_styles/panel = ExtResource("8_textbox_panel")
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
-theme_override_colors/default_color = Color(0.02745098, 0.02745098, 0.02745098, 1)
+theme_override_colors/default_color = Color(0.168627, 0.227451, 0.180392, 1)
 theme_override_font_sizes/normal_font_size = 22
 theme_override_font_sizes/bold_font_size = 22
 theme_override_font_sizes/bold_italics_font_size = 22
@@ -112,11 +125,39 @@ unique_name_in_owner = true
 script = ExtResource("4_type_sound")
 play_every_character = 0
 
-[node name="NextIndicator" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=15135124]
-unique_name_in_owner = true
+[node name="IndicatorRow" type="HBoxContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel"]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FastForwardButton" type="Button" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/IndicatorRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("10_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("FastForwardEmpty")
+theme_override_styles/hover = SubResource("FastForwardEmpty")
+theme_override_styles/pressed = SubResource("FastForwardEmpty")
+theme_override_styles/hover_pressed = SubResource("FastForwardEmpty")
+theme_override_styles/disabled = SubResource("FastForwardEmpty")
+theme_override_styles/focus = SubResource("FastForwardEmpty")
+tooltip_text = "Skip ahead to the next phrase cut"
+text = ">>"
+script = ExtResource("11_fast_forward")
+
+[node name="NextIndicator" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/IndicatorRow" unique_id=15135124]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
 script = ExtResource("5_next_indicator")
 show_on_questions = true
 
@@ -140,17 +181,17 @@ mouse_filter = 2
 [node name="NameLabelPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder" unique_id=969236123]
 unique_name_in_owner = true
 layout_mode = 1
-offset_left = -24.0
-offset_top = -60.0
-offset_right = 83.0
-offset_bottom = -20.0
+offset_left = -20.0
+offset_top = -138.0
+offset_right = 220.0
+offset_bottom = -70.0
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("9_nameplate_panel")
 
 [node name="DialogicNode_NameLabel" type="Label" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder/NameLabelPanel" unique_id=184658757 node_paths=PackedStringArray("name_label_root")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.168627, 0.227451, 0.180392, 1)
 theme_override_font_sizes/font_size = 20
 text = "Speaker"
 script = ExtResource("7_name_label")

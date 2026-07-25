@@ -43,12 +43,20 @@ func _run() -> void:
 		"a kept phrase should read as part of the sentence without state or cost copy",
 	)
 	_assert(
-		first_normal_chip.tooltip_text.begins_with('Kept: "I have" will be spoken for $2.'),
+		first_normal_chip.tooltip_text.begins_with("I have costs $2."),
 		"a kept chip should explain its state, cost, and available action",
 	)
+	# The panel is ledger paper (light), so "more prominent" means higher
+	# contrast against that background, not simply higher luminance.
+	var panel_luminance := Color(0.992157, 0.984314, 0.956863).get_luminance()
+	var pressed_contrast := absf(
+		panel_luminance - first_normal_chip.get_theme_color("font_pressed_color").get_luminance()
+	)
+	var cut_contrast := absf(
+		panel_luminance - first_normal_chip.get_theme_color("font_color").get_luminance()
+	)
 	_assert(
-		first_normal_chip.get_theme_color("font_pressed_color").get_luminance()
-			> first_normal_chip.get_theme_color("font_color").get_luminance(),
+		pressed_contrast > cut_contrast,
 		"spoken text should carry stronger contrast than struck-through text",
 	)
 	_assert(
@@ -190,9 +198,7 @@ func _run() -> void:
 		"silence should receive keyboard focus when the budget is empty",
 	)
 	_assert(
-		(recovery.get_node("%Chips").get_child(0) as Button).tooltip_text.begins_with(
-			'Unavailable: "Anything" costs $1',
-		),
+		(recovery.get_node("%Chips").get_child(0) as Button).tooltip_text == "Your budget is empty.",
 		"a disabled paid phrase should explain why it is unavailable",
 	)
 	recovery.call("_on_pity")

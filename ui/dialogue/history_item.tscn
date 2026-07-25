@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://67t6pr2eatac" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.gd" id="1_item_script"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="HistoryItemBg"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.141176, 0.188235, 0.121569, 0.08)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="HistoryItem" type="PanelContainer"]
+offset_left = -37.0
+offset_top = 510.0
+offset_right = 1085.0
+offset_bottom = 555.0
+theme_override_styles/panel = SubResource("HistoryItemBg")
+script = ExtResource("1_item_script")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="NameLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("2_font")
+
+[node name="TextBox" type="RichTextLabel" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_colors/default_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/normal_font = ExtResource("2_font")
+bbcode_enabled = true
+text = "Some tex"
+fit_content = true

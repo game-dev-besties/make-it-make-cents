@@ -106,6 +106,12 @@ func _execute() -> void:
 	ui.queue_free()
 	_active_overlay = null
 
+	# Submitting a phrase cut doesn't go through Dialogic's normal advance
+	# input, so Auto-Skip's own disable_on_user_input never sees it. Without
+	# this, fast-forward would carry straight on into whatever follows.
+	if dialogic.has_subsystem("Inputs"):
+		dialogic.Inputs.auto_skip.enabled = false
+
 	_apply_delivery(game_stats, result)
 	_record_phrase_memory(segments, result)
 	var delivered_text := String(result.get("kept_text", ""))

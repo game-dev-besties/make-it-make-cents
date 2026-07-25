@@ -1,44 +1,62 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_overlay.gd" id="1_overlay"]
 [ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_word.gd" id="2_word"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
+[ext_resource type="Texture2D" path="res://ui/theme/pixel/ledger_frame.png" id="4_frame"]
 
-[sub_resource type="StyleBoxFlat" id="PanelStyle"]
-bg_color = Color(0.055, 0.055, 0.047, 0.985)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.78, 0.74, 0.62, 0.34)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 24
+[sub_resource type="StyleBoxTexture" id="PanelStyle"]
+texture = ExtResource("4_frame")
+texture_margin_left = 70.0
+texture_margin_top = 70.0
+texture_margin_right = 70.0
+texture_margin_bottom = 70.0
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
 
 [sub_resource type="StyleBoxFlat" id="WordCut"]
+bg_color = Color(1, 1, 1, 0)
 content_margin_left = 4.0
 content_margin_top = 5.0
 content_margin_right = 4.0
 content_margin_bottom = 5.0
 
 [sub_resource type="StyleBoxFlat" id="WordKept"]
+bg_color = Color(1, 1, 1, 0)
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="WordDisabled"]
+bg_color = Color(1, 1, 1, 0)
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="WordHover"]
+bg_color = Color(0.929412, 0.878431, 0.705882, 0.55)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 content_margin_left = 4.0
 content_margin_top = 5.0
 content_margin_right = 4.0
 content_margin_bottom = 5.0
 
 [sub_resource type="StyleBoxFlat" id="WordFocus"]
-border_width_bottom = 1
-border_color = Color(0.83, 0.67, 0.32, 0.85)
+bg_color = Color(1, 1, 1, 0)
 content_margin_left = 4.0
 content_margin_top = 5.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id="ConfirmNormal"]
-bg_color = Color(0.79, 0.68, 0.39, 1)
+bg_color = Color(0.231373, 0.419608, 0.290196, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -49,12 +67,12 @@ content_margin_right = 22.0
 content_margin_bottom = 12.0
 
 [sub_resource type="StyleBoxFlat" id="ConfirmDisabled"]
-bg_color = Color(0.22, 0.2, 0.17, 1)
+bg_color = Color(0.176471, 0.196078, 0.164706, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.72, 0.36, 0.28, 0.55)
+border_color = Color(0.658824, 0.25098, 0.184314, 0.7)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -65,12 +83,31 @@ content_margin_right = 22.0
 content_margin_bottom = 12.0
 
 [sub_resource type="StyleBoxFlat" id="RecoveryNormal"]
-bg_color = Color(0.13, 0.125, 0.105, 1)
+bg_color = Color(0.992157, 0.984314, 0.956863, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.78, 0.74, 0.62, 0.25)
+border_color = Color(0.361, 0.478, 0.357, 0.4)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 14.0
+content_margin_top = 9.0
+content_margin_right = 14.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="RecoveryFocusNone"]
+bg_color = Color(1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="RecoveryHover"]
+bg_color = Color(0.827451, 0.866667, 0.815686, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.361, 0.478, 0.357, 0.6)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -98,7 +135,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.012, 0.012, 0.01, 0.76)
+color = Color(0.035, 0.045, 0.036, 0.78)
 
 [node name="SafeMargin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -144,14 +181,16 @@ theme_override_constants/separation = 24
 [node name="TitleLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.69, 0.59, 1)
+theme_override_colors/font_color = Color(0.361, 0.478, 0.357, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
 [node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.79, 0.68, 0.39, 1)
+theme_override_colors/font_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 text = "AVAILABLE: $0"
 
@@ -170,7 +209,8 @@ theme_override_constants/separation = 10
 [node name="RecoveryLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.79, 0.68, 0.39, 1)
+theme_override_colors/font_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 15
 autowrap_mode = 2
 
@@ -183,35 +223,47 @@ theme_override_constants/v_separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_focus_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryNormal")
-theme_override_styles/pressed = SubResource("RecoveryNormal")
-theme_override_styles/focus = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryHover")
+theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/focus = SubResource("RecoveryFocusNone")
 text = "Say nothing  /  $0"
 
 [node name="PityButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_focus_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryNormal")
-theme_override_styles/pressed = SubResource("RecoveryNormal")
-theme_override_styles/focus = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryHover")
+theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/focus = SubResource("RecoveryFocusNone")
 
 [node name="SponsorButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_focus_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryNormal")
-theme_override_styles/pressed = SubResource("RecoveryNormal")
-theme_override_styles/focus = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryHover")
+theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/focus = SubResource("RecoveryFocusNone")
 text = "Sponsor  /  +$3"
 
 [node name="ConfirmButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
@@ -219,13 +271,17 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.09, 0.08, 0.055, 1)
-theme_override_colors/font_disabled_color = Color(0.78, 0.48, 0.4, 1)
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_disabled_color = Color(0.729412, 0.403922, 0.345098, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("ConfirmNormal")
 theme_override_styles/hover = SubResource("ConfirmNormal")
 theme_override_styles/pressed = SubResource("ConfirmNormal")
-theme_override_styles/focus = SubResource("ConfirmNormal")
+theme_override_styles/focus = SubResource("RecoveryFocusNone")
 theme_override_styles/disabled = SubResource("ConfirmDisabled")
 text = "Say it  /  $0"
 
@@ -240,10 +296,17 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 0
 toggle_mode = true
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.48, 0.45, 0.4, 1)
-theme_override_colors/font_pressed_color = Color(0.95, 0.93, 0.84, 1)
+theme_override_colors/font_color = Color(1, 0, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_disabled_color = Color(1, 0, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 29
 theme_override_styles/normal = SubResource("WordCut")
+theme_override_styles/hover = SubResource("WordHover")
 theme_override_styles/pressed = SubResource("WordKept")
+theme_override_styles/hover_pressed = SubResource("WordHover")
 theme_override_styles/focus = SubResource("WordFocus")
+theme_override_styles/disabled = SubResource("WordDisabled")
 script = ExtResource("2_word")

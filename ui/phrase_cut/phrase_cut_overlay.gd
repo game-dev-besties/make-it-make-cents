@@ -17,6 +17,9 @@ const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
 const HORIZONTAL_GUTTER := 48.0
 
+const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
+const FIXED_WORD_COLOR := Color(0.141176, 0.188235, 0.121569, 1)
+
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
 var result: Dictionary = {}
@@ -95,7 +98,8 @@ func _rebuild() -> void:
 			var fixed_word := Label.new()
 			fixed_word.text = fixed_text
 			fixed_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			fixed_word.add_theme_color_override("font_color", Color(0.95, 0.93, 0.84, 1))
+			fixed_word.add_theme_color_override("font_color", FIXED_WORD_COLOR)
+			fixed_word.add_theme_font_override("font", FIXED_WORD_FONT)
 			fixed_word.add_theme_font_size_override("font_size", 29)
 			fixed_word.add_theme_constant_override("outline_size", 0)
 			_chips.add_child(fixed_word)
@@ -221,14 +225,11 @@ func _refresh_chip_presentation() -> void:
 		var phrase_cost := _segment_cost(segment)
 		if chip.disabled:
 			chip.text = phrase_text
-			chip.tooltip_text = (
-				'Unavailable: "%s" costs $%d and your budget is empty.'
-				% [phrase_text, phrase_cost]
-			)
+			chip.tooltip_text = "Your budget is empty."
 		elif chip.button_pressed:
 			chip.text = phrase_text
 			chip.tooltip_text = (
-				'Kept: "%s" will be spoken for $%d. Click or press Space to cut it.'
+				"%s costs $%d. Click or press Space to cut."
 				% [phrase_text, phrase_cost]
 			)
 		else:

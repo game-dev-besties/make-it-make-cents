@@ -1,0 +1,109 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" uid="uid://gv8mqbjor5nu" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.gd" id="1_history_layer"]
+[ext_resource type="PackedScene" path="res://ui/dialogue/history_item.tscn" id="2_history_item"]
+[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
+[ext_resource type="StyleBox" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="4_panel"]
+[ext_resource type="StyleBox" path="res://ui/dialogue/choice_button_normal.tres" id="5_secondary_normal"]
+[ext_resource type="StyleBox" path="res://ui/dialogue/choice_button_hover.tres" id="6_secondary_hover"]
+[ext_resource type="StyleBox" path="res://ui/theme/subtle_focus.tres" id="7_focus"]
+
+[node name="HistoryLayer" type="Control"]
+layout_direction = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("1_history_layer")
+font_use_global_size = false
+font_custom_size = 16
+font_use_global_fonts = false
+font_custom_normal = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
+show_open_button = true
+HistoryItem = ExtResource("2_history_item")
+
+[node name="HistoryBox" type="ScrollContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 74.0
+offset_top = 65.0
+offset_right = -74.0
+offset_bottom = -57.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("4_panel")
+horizontal_scroll_mode = 0
+
+[node name="LogMargin" type="MarginContainer" parent="HistoryBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_top = 25
+
+[node name="HistoryLog" type="VBoxContainer" parent="HistoryBox/LogMargin"]
+unique_name_in_owner = true
+layout_direction = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ShowHistory" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -73.0
+offset_top = 7.0
+offset_right = -9.0
+offset_bottom = 38.0
+grow_horizontal = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_styles/normal = ExtResource("6_secondary_hover")
+theme_override_styles/hover = ExtResource("6_secondary_hover")
+theme_override_styles/pressed = ExtResource("6_secondary_hover")
+theme_override_styles/focus = ExtResource("7_focus")
+text = "History"
+
+[node name="HideHistory" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -313.0
+offset_top = 85.0
+offset_right = -138.0
+offset_bottom = 116.0
+grow_horizontal = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_styles/normal = ExtResource("6_secondary_hover")
+theme_override_styles/hover = ExtResource("6_secondary_hover")
+theme_override_styles/pressed = ExtResource("6_secondary_hover")
+theme_override_styles/focus = ExtResource("7_focus")
+text = "Return to Game"
+
+[connection signal="pressed" from="ShowHistory" to="." method="_on_show_history_pressed"]
+[connection signal="pressed" from="HideHistory" to="." method="_on_hide_history_pressed"]

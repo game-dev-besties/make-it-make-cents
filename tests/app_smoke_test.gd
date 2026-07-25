@@ -68,12 +68,11 @@ func _test_responsive_layout() -> void:
 	budget_label.show()
 	await process_frame
 	_check(
-		not episode_label.get_global_rect().intersects(budget_label.get_global_rect()),
-		"The episode and budget HUD labels should not overlap on narrow screens.",
+		not episode_label.visible,
+		"The chapter title should stay hidden until the history view opens.",
 	)
 	_check(
-		_rect_is_inside(viewport_rect, episode_label.get_global_rect())
-			and _rect_is_inside(viewport_rect, budget_label.get_global_rect()),
+		_rect_is_inside(viewport_rect, budget_label.get_global_rect()),
 		"The narrow HUD rows should stay inside the viewport.",
 	)
 
