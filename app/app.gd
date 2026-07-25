@@ -8,6 +8,7 @@ const TITLE_PANEL_GUTTER := 16.0
 const TITLE_COMPACT_WIDTH := 520.0
 const TITLE_COMPACT_HEIGHT := 520.0
 const HUD_STACK_WIDTH := 880.0
+const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 const DEPARTURE_MONO := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
 const INK_COLOR := Color(0.141176, 0.188235, 0.121569, 1)
 const PAPER_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
@@ -44,6 +45,7 @@ const BACK_TO_TITLE_WIDTH := 150.0
 @onready var subtitle_label: Label = $TitleScreen/Panel/Margin/VBox/Subtitle
 
 var _history_box: Control = null
+var _budget_visible_before_history := false
 
 
 func _ready() -> void:
@@ -192,29 +194,50 @@ func _on_history_box_visibility_changed() -> void:
 
 
 func _on_history_opened() -> void:
+	var frame := _story_frame_rect()
+	var compact_history := frame.size.x < 680.0 or frame.size.y < 460.0
+	if compact_history:
+		# Header space is scarce on a phone. Keep the escape action available
+		# without letting three fixed-width controls collide.
+		_budget_visible_before_history = _budget_visible_before_history or budget_label.visible
+		budget_label.hide()
+		episode_label.hide()
+		back_to_title_button.anchor_left = 0.0
+		back_to_title_button.anchor_right = 0.0
+		back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
+		back_to_title_button.offset_left = frame.position.x + 16.0
+		back_to_title_button.offset_right = frame.position.x + 166.0
+		back_to_title_button.offset_top = frame.position.y + 8.0
+		back_to_title_button.offset_bottom = frame.position.y + 39.0
+		back_to_title_button.show()
+		return
+
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
 	episode_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	episode_label.offset_left = HISTORY_MODAL_LEFT_INSET + HISTORY_MODAL_RING_CLEARANCE
+	episode_label.offset_left = frame.position.x + HISTORY_MODAL_LEFT_INSET + HISTORY_MODAL_RING_CLEARANCE
 	episode_label.offset_right = episode_label.offset_left + 320.0
-	episode_label.offset_top = HISTORY_ROW_TOP
-	episode_label.offset_bottom = HISTORY_ROW_BOTTOM
+	episode_label.offset_top = frame.position.y + HISTORY_ROW_TOP
+	episode_label.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
 	episode_label.show()
 
-	var back_to_title_right := -(HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
-	back_to_title_button.anchor_left = 1.0
-	back_to_title_button.anchor_right = 1.0
-	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	var back_to_title_right := frame.end.x - (HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
+	back_to_title_button.anchor_left = 0.0
+	back_to_title_button.anchor_right = 0.0
+	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
 	back_to_title_button.offset_right = back_to_title_right
 	back_to_title_button.offset_left = back_to_title_right - BACK_TO_TITLE_WIDTH
-	back_to_title_button.offset_top = HISTORY_ROW_TOP
-	back_to_title_button.offset_bottom = HISTORY_ROW_BOTTOM
+	back_to_title_button.offset_top = frame.position.y + HISTORY_ROW_TOP
+	back_to_title_button.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
 	back_to_title_button.show()
 
 
 func _on_history_closed() -> void:
 	episode_label.hide()
 	back_to_title_button.hide()
+	if _budget_visible_before_history:
+		budget_label.show()
+	_budget_visible_before_history = false
 
 
 func _apply_responsive_layout() -> void:
@@ -238,6 +261,8 @@ func _apply_responsive_layout() -> void:
 		_layout_stacked_hud()
 	else:
 		_layout_inline_hud()
+	if _history_box != null and is_instance_valid(_history_box) and _history_box.visible:
+		_on_history_opened()
 
 
 ## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
@@ -254,16 +279,23 @@ func _layout_inline_hud() -> void:
 
 
 func _layout_hud_status() -> void:
+	var frame := _story_frame_rect()
 	hud_status_panel.anchor_left = 0.0
 	hud_status_panel.anchor_right = 0.0
-	hud_status_panel.offset_left = 20.0
-	hud_status_panel.offset_top = 7.0
-	hud_status_panel.offset_right = 236.0
-	hud_status_panel.offset_bottom = 55.0
+	hud_status_panel.offset_left = frame.position.x + 20.0
+	hud_status_panel.offset_top = frame.position.y + 7.0
+	hud_status_panel.offset_right = frame.position.x + 236.0
+	hud_status_panel.offset_bottom = frame.position.y + 55.0
 
 	budget_label.anchor_left = 0.0
 	budget_label.anchor_right = 0.0
-	budget_label.offset_left = 28.0
-	budget_label.offset_top = 15.0
-	budget_label.offset_right = 228.0
-	budget_label.offset_bottom = 47.0
+	budget_label.offset_left = frame.position.x + 28.0
+	budget_label.offset_top = frame.position.y + 15.0
+	budget_label.offset_right = frame.position.x + 228.0
+	budget_label.offset_bottom = frame.position.y + 47.0
+
+
+func _story_frame_rect() -> Rect2:
+	var frame_scale := minf(size.x / STORY_FRAME_SIZE.x, size.y / STORY_FRAME_SIZE.y)
+	var frame_size := STORY_FRAME_SIZE * frame_scale
+	return Rect2((size - frame_size) * 0.5, frame_size)

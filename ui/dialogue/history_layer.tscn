@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://gv8mqbjor5nu" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.gd" id="1_history_layer"]
+[ext_resource type="Script" path="res://ui/dialogue/responsive_history_layer.gd" id="1_history_layer"]
 [ext_resource type="PackedScene" path="res://ui/dialogue/history_item.tscn" id="2_history_item"]
 [ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
 [ext_resource type="StyleBox" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="4_panel"]
