@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://5nwf3fpjwgkt"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://isn8ttlma4ku" path="res://content/episodes/son/park.png" id="2_park"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 bg_color = Color(0.13, 0.075, 0.17, 0.9)
@@ -29,7 +30,11 @@ stage_title = "Saturday afternoon - the park"
 [node name="Background" parent="." index="0"]
 color = Color(0.11, 0.22, 0.2, 1)
 
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_park")
+
 [node name="Grass" type="ColorRect" parent="Props" index="0" unique_id=1809885009]
+visible = false
 layout_mode = 0
 offset_top = 380.0
 offset_right = 1152.0
@@ -37,6 +42,7 @@ offset_bottom = 648.0
 color = Color(0.18, 0.39, 0.26, 1)
 
 [node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=641323101]
+visible = false
 layout_mode = 0
 offset_left = 332.0
 offset_top = 72.0
