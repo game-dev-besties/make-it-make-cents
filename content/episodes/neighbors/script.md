@@ -1,7 +1,7 @@
 # The families discover how their conversations overlap.
 
 ## door
-mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
+grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
 interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
 
 if crush.fondness >= 4:
@@ -68,18 +68,18 @@ else:
   -> mixed
 
 ## mixed
-mom (happy): What a small world! Let's all have tea.
+grandma (happy): What a small world! Let's all have tea.
 doctor (happy): There is my patient! I didn't expect to see you so soon.
 grandma (happy): [Doctor] [what a surprise]
 -> end
 
 ## good_end
-mom (happy): What a wonderful welcome. I think we're going to like it here.
+grandma (happy): What a wonderful welcome. I think we're going to like it here.
 doctor (happy): Nice to see you again! How's the back?
 grandma (happy): [Much better] [thank you doctor]
 -> end
 
 ## bad_end
-mom (sad): Well. Thank you for the cookies... reception.
+grandma (neutral): Well. Thank you for the cookies... reception.
 crush (nervous): ...Please go now.
 -> end

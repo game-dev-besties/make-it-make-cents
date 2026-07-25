@@ -27,10 +27,10 @@ func _ready() -> void:
 	toggled.connect(_on_toggled)
 
 
-func _on_toggled(pressed: bool) -> void:
+func _on_toggled(auto_skip_enabled: bool) -> void:
 	var dialogic: DialogicGameHandler = DialogicUtil.autoload()
 	if dialogic != null:
-		dialogic.Inputs.auto_skip.enabled = pressed
+		dialogic.Inputs.auto_skip.enabled = auto_skip_enabled
 
 
 func _on_auto_skip_toggled(is_enabled: bool) -> void:

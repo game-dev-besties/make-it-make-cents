@@ -3,6 +3,7 @@ extends SceneTree
 ## Dialogic's indexed timeline start, avoiding timing-sensitive mouse/key input.
 
 const APP_SCENE := preload("res://app/app.tscn")
+const FINAL_STAGE := preload("res://content/episodes/neighbors/stage.tscn")
 const INTRO_TIMELINE := "res://content/episodes/intro/dialogue.dtl"
 const FIRST_PHRASE_ID := "intro_L001"
 
@@ -30,6 +31,7 @@ func _run() -> void:
 	await _test_responsive_layout()
 	await _test_developer_launcher()
 	await _reset_runtime()
+	await _test_campaign_completion_preserves_final_stage()
 	await _test_return_to_title_stops_dialogue()
 	await _reset_runtime()
 	await _test_start_to_phrase_delivery()
@@ -165,6 +167,32 @@ func _test_return_to_title_stops_dialogue() -> void:
 	_check(
 		_dialogic.current_timeline == null,
 		"Returning to title should terminate the active Dialogic timeline.",
+	)
+
+	app.queue_free()
+	await process_frame
+
+
+func _test_campaign_completion_preserves_final_stage() -> void:
+	var app := APP_SCENE.instantiate()
+	root.add_child(app)
+	await process_frame
+
+	var title_screen := app.get_node("%TitleScreen") as Control
+	var stage_host := app.get_node("%StageHost") as StageHost
+	var campaign_player := app.get_node("%CampaignPlayer") as CampaignPlayer
+	var final_stage := stage_host.show_presentation(FINAL_STAGE)
+	title_screen.hide()
+	campaign_player.campaign_finished.emit()
+	await process_frame
+
+	_check(
+		not title_screen.visible,
+		"Natural campaign completion should not cover the final scene with the title screen.",
+	)
+	_check(
+		stage_host.current_presentation == final_stage,
+		"Natural campaign completion should preserve the final presentation.",
 	)
 
 	app.queue_free()

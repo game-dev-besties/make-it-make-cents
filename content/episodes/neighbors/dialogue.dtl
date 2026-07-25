@@ -1,6 +1,6 @@
 # Generated from content/episodes/neighbors/script.md; edit script.md, not this file.
 label door
-\mom (happy): We brought cookies! To welcome ourselves to the neighborhood.
+\grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
 \interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
 if GameStats.crush_fondness >= 4:
 	\crush (happy): Wait — you're that sweet kid from the park! Percy!
@@ -62,16 +62,16 @@ else:
 	phrase_cut dad (nervous) neighbors_L012
 	goto_label mixed
 label mixed
-\mom (happy): What a small world! Let's all have tea.
+\grandma (happy): What a small world! Let's all have tea.
 \doctor (happy): There is my patient! I didn't expect to see you so soon.
 phrase_cut grandma (happy) neighbors_L013
 [end_timeline]
 label good_end
-\mom (happy): What a wonderful welcome. I think we're going to like it here.
+\grandma (happy): What a wonderful welcome. I think we're going to like it here.
 \doctor (happy): Nice to see you again! How's the back?
 phrase_cut grandma (happy) neighbors_L014
 [end_timeline]
 label bad_end
-\mom (sad): Well. Thank you for the cookies... reception.
+\grandma (neutral): Well. Thank you for the cookies... reception.
 \crush (nervous): ...Please go now.
 [end_timeline]

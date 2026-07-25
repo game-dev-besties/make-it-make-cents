@@ -52,6 +52,7 @@ func _ready() -> void:
 	campaign_player.set_dialogic(dialogic_node)
 	campaign_player.episode_started.connect(_on_episode_started)
 	campaign_player.campaign_finished.connect(_on_campaign_finished)
+	campaign_player.campaign_aborted.connect(_on_campaign_aborted)
 	campaign_player.validation_failed.connect(_on_validation_failed)
 	campaign_player.integration_warning.connect(_on_integration_warning)
 	game_state.budget_changed.connect(_on_budget_changed)
@@ -98,6 +99,13 @@ func _on_episode_started(episode: EpisodeDefinition) -> void:
 
 func _on_campaign_finished() -> void:
 	episode_label.text = "The story is complete."
+	budget_label.hide()
+	hud_status_panel.hide()
+	title_screen.hide()
+
+
+func _on_campaign_aborted() -> void:
+	episode_label.text = ""
 	budget_label.hide()
 	hud_status_panel.hide()
 	title_screen.show()

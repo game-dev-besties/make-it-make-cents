@@ -305,7 +305,6 @@ func _test_campaign_and_stage() -> void:
 		"crush",
 		"doctor",
 		"interviewer",
-		"mom",
 		"officer",
 		"penny",
 	]:
@@ -320,7 +319,6 @@ func _test_campaign_and_stage() -> void:
 		"crush": ["happy", "nervous", "neutral"],
 		"doctor": ["happy", "neutral"],
 		"interviewer": ["confused", "happy", "nervous", "neutral"],
-		"mom": ["happy", "neutral", "sad"],
 	}
 	for character_id: String in expected_portraits:
 		var character := DialogicResourceUtil.get_character_resource(character_id)
@@ -411,6 +409,25 @@ func _test_campaign_and_stage() -> void:
 		_check(
 			(intro_stage.get_node("ActorSlots/Right") as StageActorSlot).character_id == &"grandma",
 			"The intro's right actor slot should follow Grandma's dialogue expressions.",
+		)
+		var animation_player := intro_stage.get_node("AnimationPlayer") as AnimationPlayer
+		var sponsor_blackout := intro_stage.get_node("Effects/SponsorBlackout") as Control
+		host.play_cue(&"sponsor_blackout")
+		animation_player.advance(0.15)
+		_check(
+			is_equal_approx(sponsor_blackout.modulate.a, 1.0),
+			"The sponsor cue should fully reveal the tariff message.",
+		)
+		host.play_cue(&"sponsor_return")
+		animation_player.advance(0.05)
+		_check(
+			sponsor_blackout.modulate.a > 0.0,
+			"The sponsor return cue should begin by fading the tariff message.",
+		)
+		host.play_cue(&"customs_focus")
+		_check(
+			is_zero_approx(sponsor_blackout.modulate.a),
+			"Interrupting sponsor return should still fully dismiss the tariff message.",
 		)
 	host.queue_free()
 
