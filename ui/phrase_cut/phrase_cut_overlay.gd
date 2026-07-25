@@ -62,6 +62,24 @@ func _notification(what: int) -> void:
 		_update_panel_width()
 
 
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
+	var key_event := event as InputEventKey
+	if (
+		key_event != null
+		and key_event.pressed
+		and not key_event.echo
+		and (
+			key_event.keycode == KEY_SPACE
+			or key_event.physical_keycode == KEY_SPACE
+		)
+	):
+		# Phrase chips receive focus for keyboard navigation, but Space is also
+		# Dialogic's advance key. Swallow it before BaseButton can toggle a chip.
+		get_viewport().set_input_as_handled()
+
+
 func setup(segments: Array, budget: int, speaker: String, recovery: Dictionary = {}) -> void:
 	_segments = segments
 	_budget = maxi(0, budget)
@@ -229,13 +247,13 @@ func _refresh_chip_presentation() -> void:
 		elif chip.button_pressed:
 			chip.text = phrase_text
 			chip.tooltip_text = (
-				"%s costs $%d. Click or press Space to cut."
+				"%s costs $%d. Click to cut."
 				% [phrase_text, phrase_cost]
 			)
 		else:
 			chip.text = phrase_text
 			chip.tooltip_text = (
-				'Cut: "%s" will be omitted, saving $%d. Click or press Space to restore it.'
+				'Cut: "%s" will be omitted, saving $%d. Click to restore it.'
 				% [phrase_text, phrase_cost]
 			)
 

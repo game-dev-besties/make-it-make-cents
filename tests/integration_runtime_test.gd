@@ -319,6 +319,7 @@ func _test_campaign_and_stage() -> void:
 		"crush": ["happy", "nervous", "neutral"],
 		"doctor": ["happy", "neutral"],
 		"interviewer": ["confused", "happy", "nervous", "neutral"],
+		"penny": ["neutral"],
 	}
 	for character_id: String in expected_portraits:
 		var character := DialogicResourceUtil.get_character_resource(character_id)
@@ -411,6 +412,23 @@ func _test_campaign_and_stage() -> void:
 			"The intro's right actor slot should follow Grandma's dialogue expressions.",
 		)
 		var animation_player := intro_stage.get_node("AnimationPlayer") as AnimationPlayer
+		var penny_sprite := intro_stage.get_node("Effects/PennySprite") as TextureRect
+		_check(
+			penny_sprite.texture != null,
+			"The intro should use Moneybot's illustrated sprite instead of the placeholder card.",
+		)
+		host.play_cue(&"penny_reveal")
+		animation_player.advance(0.35)
+		_check(
+			is_equal_approx(penny_sprite.modulate.a, 1.0),
+			"The Penny reveal cue should show the Moneybot sprite.",
+		)
+		host.play_cue(&"home_reveal")
+		animation_player.advance(0.25)
+		_check(
+			is_zero_approx(penny_sprite.modulate.a),
+			"The home reveal should dismiss the Moneybot sprite.",
+		)
 		var sponsor_blackout := intro_stage.get_node("Effects/SponsorBlackout") as Control
 		host.play_cue(&"sponsor_blackout")
 		animation_player.advance(0.15)

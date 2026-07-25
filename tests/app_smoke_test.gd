@@ -361,30 +361,45 @@ func _rect_is_inside(outer: Rect2, inner: Rect2) -> bool:
 
 
 func _reset_runtime() -> void:
-	for type_sound: Node in get_nodes_in_group(&"dialogic_type_sounds"):
-		if type_sound is AudioStreamPlayer:
-			var type_sound_player := type_sound as AudioStreamPlayer
-			type_sound_player.stop()
-			type_sound_player.stream = null
-		if type_sound is DialogicNode_TypeSounds:
-			var dialogic_type_sound := type_sound as DialogicNode_TypeSounds
-			dialogic_type_sound.sounds.clear()
-			dialogic_type_sound.end_sound = null
-			dialogic_type_sound.current_overwrite_data.clear()
-		for child: Node in type_sound.get_children():
-			if child is AudioStreamPlayer:
-				var child_player := child as AudioStreamPlayer
-				child_player.stop()
-				child_player.stream = null
-				child.queue_free()
+	var type_sounds: Array[Node] = []
+	type_sounds.assign(get_nodes_in_group(&"dialogic_type_sounds"))
+	for type_sound: Node in type_sounds:
+		_release_type_sound_resources(type_sound)
 	await _dialogic.clear(DialogicGameHandler.ClearFlags.FULL_CLEAR)
+	# Dialogic can detach the old layout during clear. Release the captured
+	# nodes again after that transition so no in-flight playback survives
+	# outside the scene tree until process shutdown.
+	for type_sound: Node in type_sounds:
+		if is_instance_valid(type_sound):
+			_release_type_sound_resources(type_sound)
 	if _dialogic.has_subsystem("Styles") and _dialogic.Styles.has_active_layout_node():
 		_dialogic.Styles.get_layout_node().queue_free()
 	var game_stats := root.get_node_or_null("GameStats") as GameStateStore
 	if game_stats != null:
 		game_stats.reset_for_new_game()
 	await process_frame
-	await create_timer(0.05).timeout
+	# Headless execution reaches shutdown much faster than the audio thread can
+	# retire stopped WAV playbacks. Give it a few mix intervals after releasing
+	# every node/resource reference so the leak check is deterministic.
+	await create_timer(0.25).timeout
+
+
+func _release_type_sound_resources(type_sound: Node) -> void:
+	if type_sound is AudioStreamPlayer:
+		var type_sound_player := type_sound as AudioStreamPlayer
+		type_sound_player.stop()
+		type_sound_player.stream = null
+	if type_sound is DialogicNode_TypeSounds:
+		var dialogic_type_sound := type_sound as DialogicNode_TypeSounds
+		dialogic_type_sound.sounds = []
+		dialogic_type_sound.end_sound = null
+		dialogic_type_sound.current_overwrite_data = {}
+	for child: Node in type_sound.get_children():
+		if child is AudioStreamPlayer:
+			var child_player := child as AudioStreamPlayer
+			child_player.stop()
+			child_player.stream = null
+			child.queue_free()
 
 
 func _check(condition: bool, message: String) -> void:

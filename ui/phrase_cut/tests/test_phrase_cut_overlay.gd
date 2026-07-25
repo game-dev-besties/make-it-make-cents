@@ -27,7 +27,11 @@ func _run() -> void:
 	_assert(normal_chips.size() == 2, "expected two phrase chips")
 	_assert(
 		normal.get_node("%TitleLabel").text == "DAD",
-		"the overlay should reduce its header to the speaker name",
+		"the overlay should retain its compact speaker label",
+	)
+	_assert(
+		(normal.get_node("%MoneybotIcon") as TextureRect).texture != null,
+		"the phrase selector should include a subtle Moneybot identity mark",
 	)
 	_assert(
 		normal.get_node("%BudgetLabel").text == "AVAILABLE: $5",
@@ -46,6 +50,10 @@ func _run() -> void:
 		first_normal_chip.tooltip_text.begins_with("I have costs $2."),
 		"a kept chip should explain its state, cost, and available action",
 	)
+	_assert(
+		not first_normal_chip.tooltip_text.contains("Space"),
+		"the chip tooltip should not advertise Space as an editing action",
+	)
 	# The panel is ledger paper (light), so "more prominent" means higher
 	# contrast against that background, not simply higher luminance.
 	var panel_luminance := Color(0.992157, 0.984314, 0.956863).get_luminance()
@@ -63,6 +71,20 @@ func _run() -> void:
 		normal.get_viewport().gui_get_focus_owner() == first_normal_chip,
 		"the first phrase should receive keyboard focus when trimming begins",
 	)
+	var space_press := InputEventKey.new()
+	space_press.keycode = KEY_SPACE
+	space_press.pressed = true
+	Input.parse_input_event(space_press)
+	await process_frame
+	_assert(
+		first_normal_chip.button_pressed,
+		"Space should not toggle the focused phrase chip",
+	)
+	_assert(normal.result.is_empty(), "Space should not resolve the phrase selector")
+	var space_release := InputEventKey.new()
+	space_release.keycode = KEY_SPACE
+	Input.parse_input_event(space_release)
+	await process_frame
 	first_normal_chip.set_pressed_no_signal(false)
 	first_normal_chip.toggled.emit(false)
 	_assert(
