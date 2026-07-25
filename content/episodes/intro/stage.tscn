@@ -374,7 +374,7 @@ character_id = &"dad"
 actor_name = "Dad"
 expression = "happy"
 accent_color = Color(0.68, 0.52, 0.31, 1)
-inactive_opacity = 0.9
+inactive_darkness = 0.35
 
 [node name="Center" parent="ActorSlots" index="1"]
 offset_left = 255.0
@@ -385,7 +385,7 @@ pivot_offset = Vector2(110, 165)
 character_id = &"son"
 actor_name = "Percy"
 accent_color = Color(0.34, 0.63, 0.75, 1)
-inactive_opacity = 0.9
+inactive_darkness = 0.35
 
 [node name="Right" parent="ActorSlots" index="2"]
 modulate = Color(1, 1, 1, 0.9)
@@ -396,7 +396,7 @@ offset_bottom = 756.0
 character_id = &"grandma"
 actor_name = "Grandma"
 is_active = false
-inactive_opacity = 0.9
+inactive_darkness = 0.35
 
 [node name="PennySprite" type="TextureRect" parent="Effects" index="0" unique_id=2002775538]
 modulate = Color(1, 1, 1, 0)
