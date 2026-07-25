@@ -34,6 +34,7 @@ var _is_resolved := false
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
 @onready var _title_label: Label = %TitleLabel
+@onready var _budget_label: Label = %BudgetLabel
 @onready var _chips: FlowContainer = %Chips
 @onready var _confirm_button: Button = %ConfirmButton
 @onready var _recovery_box: VBoxContainer = %RecoveryBox
@@ -78,6 +79,7 @@ func _rebuild() -> void:
 
 	_title_label.text = _speaker.to_upper()
 	_title_label.visible = not _speaker.is_empty()
+	_budget_label.text = "AVAILABLE: $%d" % _budget
 	for child: Node in _chips.get_children():
 		child.queue_free()
 	_phrase_buttons.clear()

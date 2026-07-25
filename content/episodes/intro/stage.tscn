@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b3ce61hbul4dd"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://dcaqqjt04jk6f" path="res://content/episodes/intro/airport.webp" id="2_1a3fy"]
 
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"
@@ -249,6 +250,9 @@ stage_title = "Verbal Tariff checkpoint"
 [node name="Background" parent="." index="0"]
 color = Color(0.12, 0.13, 0.14, 1)
 
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_1a3fy")
+
 [node name="CustomsWindow" type="ColorRect" parent="Props" index="0" unique_id=1951995971]
 layout_mode = 0
 offset_left = 646.0
@@ -290,9 +294,10 @@ horizontal_alignment = 1
 
 [node name="Floor" type="ColorRect" parent="Props" index="4" unique_id=2091437068]
 layout_mode = 0
-offset_top = 440.0
+offset_top = 547.0
 offset_right = 1152.0
-offset_bottom = 647.0
+offset_bottom = 754.0
+scale = Vector2(1, 4.2)
 mouse_filter = 2
 color = Color(0.16, 0.15, 0.13, 1)
 
@@ -357,6 +362,7 @@ character_id = &"dad"
 actor_name = "Dad"
 expression = "happy"
 accent_color = Color(0.68, 0.52, 0.31, 1)
+inactive_opacity = 0.9
 
 [node name="Center" parent="ActorSlots" index="1"]
 offset_left = 255.0
@@ -367,9 +373,10 @@ pivot_offset = Vector2(110, 165)
 character_id = &"son"
 actor_name = "Percy"
 accent_color = Color(0.34, 0.63, 0.75, 1)
+inactive_opacity = 0.9
 
 [node name="Right" parent="ActorSlots" index="2"]
-modulate = Color(1, 1, 1, 0.45)
+modulate = Color(1, 1, 1, 0.9)
 offset_left = 474.0
 offset_top = 24.699463
 offset_right = 936.0
@@ -377,6 +384,7 @@ offset_bottom = 756.0
 character_id = &"grandma"
 actor_name = "Grandma"
 is_active = false
+inactive_opacity = 0.9
 
 [node name="PennyCard" type="ColorRect" parent="Effects" index="0" unique_id=2002775538]
 modulate = Color(1, 1, 1, 0)

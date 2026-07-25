@@ -148,6 +148,13 @@ theme_override_colors/font_color = Color(0.72, 0.69, 0.59, 1)
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
+[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.79, 0.68, 0.39, 1)
+theme_override_font_sizes/font_size = 16
+text = "AVAILABLE: $0"
+
 [node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2

@@ -41,6 +41,13 @@ extends Control
 		is_active = value
 		_refresh()
 
+## Opacity used while another character is speaking. Set this to 1.0 to keep
+## the actor fully visible, or lower it to make inactive actors fade further.
+@export_range(0.0, 1.0, 0.01) var inactive_opacity := 0.45:
+	set(value):
+		inactive_opacity = value
+		_refresh()
+
 @onready var _name_label: Label = %NameLabel
 @onready var _expression_label: Label = %ExpressionLabel
 @onready var _frame: Panel = $Frame
@@ -77,7 +84,7 @@ func _refresh() -> void:
 	_portrait.visible = uses_placeholder
 	_portrait_image.texture = texture
 	_portrait_image.visible = not uses_placeholder
-	modulate.a = 1.0 if is_active else 0.45
+	modulate.a = 1.0 if is_active else inactive_opacity
 
 
 func _resolve_portrait_texture() -> Texture2D:

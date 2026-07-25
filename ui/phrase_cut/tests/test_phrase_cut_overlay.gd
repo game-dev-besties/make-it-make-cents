@@ -30,8 +30,12 @@ func _run() -> void:
 		"the overlay should reduce its header to the speaker name",
 	)
 	_assert(
+		normal.get_node("%BudgetLabel").text == "AVAILABLE: $5",
+		"the overlay should show the remaining spendable budget",
+	)
+	_assert(
 		(normal.get_node("%ConfirmButton") as Button).text == "Say it  /  $5",
-		"the action should carry the initial line cost without a separate budget summary",
+		"the action should carry the initial line cost",
 	)
 	var first_normal_chip := normal_chips[0] as Button
 	_assert(
