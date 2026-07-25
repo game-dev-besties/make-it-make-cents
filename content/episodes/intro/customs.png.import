@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcaqqjt04jk6f"
-path="res://.godot/imported/airport.webp-39a3234be1168219d3196d1352b65d55.ctex"
+uid="uid://b27fmeybtbkc2"
+path="res://.godot/imported/customs.png-be44caa4e0bce87b3290b8c7be2ec34c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://content/episodes/intro/airport.webp"
-dest_files=["res://.godot/imported/airport.webp-39a3234be1168219d3196d1352b65d55.ctex"]
+source_file="res://content/episodes/intro/customs.png"
+dest_files=["res://.godot/imported/customs.png-be44caa4e0bce87b3290b8c7be2ec34c.ctex"]
 
 [params]
 

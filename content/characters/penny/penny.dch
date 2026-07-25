@@ -10,12 +10,22 @@
 "style": "",
 "suffix": ""
 },
-&"default_portrait": "",
+&"default_portrait": "neutral",
 &"description": "The family's word-trimming translation robot.",
 &"display_name": "Moneybot",
 &"mirror": false,
 &"nicknames": ["Moneybot"],
 &"offset": Vector2(0, 0),
-&"portraits": {},
+&"portraits": {
+"neutral": {
+"export_overrides": {
+"image": "\"res://content/characters/penny/moneybot.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+}
+},
 &"scale": 1.0
 }

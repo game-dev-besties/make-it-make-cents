@@ -58,16 +58,20 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
-offset_left = 328.0
-offset_right = 548.0
+offset_left = 230.0
+offset_top = 40.0
+offset_right = 650.0
+offset_bottom = 640.0
 character_id = &"son"
 actor_name = "Percy"
 expression = "shy"
 accent_color = Color(0.35, 0.67, 0.86, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
-offset_left = 644.0
-offset_right = 864.0
+offset_left = 540.0
+offset_top = 40.0
+offset_right = 960.0
+offset_bottom = 640.0
 character_id = &"crush"
 actor_name = "Clementine"
 expression = "neutral"

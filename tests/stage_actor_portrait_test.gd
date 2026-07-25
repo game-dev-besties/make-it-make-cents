@@ -45,6 +45,17 @@ func _run() -> void:
 	_check(not placeholder.visible, "Portrait art should replace the color placeholder.")
 	_check(not name_label.visible, "Portrait art should hide the placeholder name label.")
 	_check(not expression_label.visible, "Portrait art should hide the placeholder expression label.")
+	slot.inactive_darkness = 0.4
+	slot.is_active = false
+	_check(is_equal_approx(slot.modulate.a, 1.0), "Inactive actors should remain fully opaque.")
+	_check(
+		is_equal_approx(slot.modulate.r, 0.6)
+		and is_equal_approx(slot.modulate.g, 0.6)
+		and is_equal_approx(slot.modulate.b, 0.6),
+		"Inactive actors should use the configured darkness filter.",
+	)
+	slot.is_active = true
+	_check(slot.modulate == Color.WHITE, "The active actor should not have a darkness filter.")
 	if portrait_image.texture != null:
 		_check(
 			portrait_image.texture.resource_path == NEUTRAL_PORTRAIT,

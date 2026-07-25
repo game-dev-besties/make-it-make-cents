@@ -16,9 +16,17 @@ const DEFAULT_SPONSOR_TEXT := "Sam's Soda: pop open freedom."
 const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
 const HORIZONTAL_GUTTER := 48.0
+const MONEYBOT_COMPANION_MIN_WIDTH := 1080.0
+const MONEYBOT_COMPANION_MIN_HEIGHT := 540.0
+const COMPACT_SAFE_MARGIN := 16
+const COMPANION_SAFE_MARGIN_RIGHT := 180
+const PANEL_CONTENT_MARGIN_RIGHT := 38
+const COMPANION_CONTENT_MARGIN_RIGHT := 128
+const COMPANION_PANEL_OVERLAP := 90.0
+const COMPANION_SIZE := Vector2(286.0, 342.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
-const FIXED_WORD_COLOR := Color(0.141176, 0.188235, 0.121569, 1)
+const FIXED_WORD_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
 
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
@@ -36,6 +44,10 @@ var _is_resolved := false
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
+@onready var _panel_margin: MarginContainer = %Margin
+@onready var _safe_margin: MarginContainer = %SafeMargin
+@onready var _moneybot_companion: TextureRect = %MoneybotCompanion
+@onready var _moneybot_icon: TextureRect = %MoneybotIcon
 @onready var _title_label: Label = %TitleLabel
 @onready var _budget_label: Label = %BudgetLabel
 @onready var _chips: FlowContainer = %Chips
@@ -62,6 +74,24 @@ func _notification(what: int) -> void:
 		_update_panel_width()
 
 
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
+	var key_event := event as InputEventKey
+	if (
+		key_event != null
+		and key_event.pressed
+		and not key_event.echo
+		and (
+			key_event.keycode == KEY_SPACE
+			or key_event.physical_keycode == KEY_SPACE
+		)
+	):
+		# Phrase chips receive focus for keyboard navigation, but Space is also
+		# Dialogic's advance key. Swallow it before BaseButton can toggle a chip.
+		get_viewport().set_input_as_handled()
+
+
 func setup(segments: Array, budget: int, speaker: String, recovery: Dictionary = {}) -> void:
 	_segments = segments
 	_budget = maxi(0, budget)
@@ -80,7 +110,7 @@ func _rebuild() -> void:
 	if not is_node_ready():
 		return
 
-	_title_label.text = _speaker.to_upper()
+	_title_label.text = "User: %s" % _speaker
 	_title_label.visible = not _speaker.is_empty()
 	_budget_label.text = "AVAILABLE: $%d" % _budget
 	for child: Node in _chips.get_children():
@@ -136,6 +166,7 @@ func _rebuild() -> void:
 	_recovery_label.text = _recovery_description()
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
+	call_deferred("_position_companion")
 
 
 func _on_chip_toggled(_pressed: bool) -> void:
@@ -229,13 +260,13 @@ func _refresh_chip_presentation() -> void:
 		elif chip.button_pressed:
 			chip.text = phrase_text
 			chip.tooltip_text = (
-				"%s costs $%d. Click or press Space to cut."
+				"%s costs $%d. Click to cut."
 				% [phrase_text, phrase_cost]
 			)
 		else:
 			chip.text = phrase_text
 			chip.tooltip_text = (
-				'Cut: "%s" will be omitted, saving $%d. Click or press Space to restore it.'
+				'Cut: "%s" will be omitted, saving $%d. Click to restore it.'
 				% [phrase_text, phrase_cost]
 			)
 
@@ -255,6 +286,32 @@ func _focus_initial_control(is_out_of_budget: bool) -> void:
 func _update_panel_width() -> void:
 	var available_width := maxf(size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
 	_panel.custom_minimum_size.x = minf(available_width, MAX_PANEL_WIDTH)
+	var show_companion := (
+		size.x >= MONEYBOT_COMPANION_MIN_WIDTH
+		and size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
+	)
+	_moneybot_companion.visible = show_companion
+	_moneybot_icon.visible = not show_companion
+	_panel_margin.add_theme_constant_override(
+		"margin_right",
+		COMPANION_CONTENT_MARGIN_RIGHT if show_companion else PANEL_CONTENT_MARGIN_RIGHT,
+	)
+	_safe_margin.add_theme_constant_override(
+		"margin_right",
+		COMPANION_SAFE_MARGIN_RIGHT if show_companion else COMPACT_SAFE_MARGIN,
+	)
+	call_deferred("_position_companion")
+
+
+func _position_companion() -> void:
+	if not _moneybot_companion.visible or not is_instance_valid(_panel):
+		return
+	var panel_rect := _panel.get_global_rect()
+	_moneybot_companion.size = COMPANION_SIZE
+	_moneybot_companion.global_position = Vector2(
+		panel_rect.end.x - COMPANION_PANEL_OVERLAP,
+		panel_rect.get_center().y - COMPANION_SIZE.y * 0.5,
+	)
 
 
 func _recovery_description() -> String:

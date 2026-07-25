@@ -209,7 +209,13 @@ func _apply_name_label_settings() -> void:
 		dialog_text_panel.get_theme_stylebox(&'panel', &'PanelContainer').content_margin_top)
 	name_label_panel.anchor_left = name_label_alignment/2.0
 	name_label_panel.anchor_right = name_label_alignment/2.0
-	name_label_panel.grow_horizontal = [1, 2, 0][name_label_alignment]
+	match name_label_alignment:
+		0:
+			name_label_panel.grow_horizontal = Control.GROW_DIRECTION_END
+		1:
+			name_label_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_:
+			name_label_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 
 
 ## Applies all text settings to the scene.

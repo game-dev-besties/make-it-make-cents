@@ -8,6 +8,7 @@ signal dialogue_finished(episode: EpisodeDefinition)
 signal exit_requested(exit_id: StringName)
 signal route_unavailable(exit_id: StringName)
 signal campaign_finished
+signal campaign_aborted
 signal validation_failed(errors: PackedStringArray)
 signal integration_warning(message: String)
 
@@ -132,7 +133,7 @@ func abort_campaign() -> void:
 	var dialogic_handler := _dialogic_node as DialogicGameHandler
 	if dialogic_handler != null and dialogic_handler.current_timeline != null:
 		await dialogic_handler.end_timeline(true)
-	campaign_finished.emit()
+	campaign_aborted.emit()
 
 
 func _close_campaign_state() -> void:

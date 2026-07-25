@@ -15,6 +15,7 @@ func _run() -> void:
 	_test_state_round_trip()
 	_test_explicit_phrase_sidecar()
 	_test_non_stacking_goto()
+	_test_type_sound_lifecycle()
 	await _test_campaign_and_stage()
 
 	if _failures.is_empty():
@@ -223,6 +224,35 @@ func _test_explicit_phrase_sidecar() -> void:
 	subsystem.free()
 
 
+func _test_type_sound_lifecycle() -> void:
+	var type_sound := DialogicNode_TypeSounds.new()
+	var authored_sound := AudioStreamWAV.new()
+	type_sound.sounds = [authored_sound]
+	type_sound.end_sound = authored_sound
+	root.add_child(type_sound)
+	root.remove_child(type_sound)
+	_check(
+		type_sound.sounds == [authored_sound] and type_sound.end_sound == authored_sound,
+		"Removing a type-sound node from the tree should preserve its authored sounds.",
+	)
+	root.add_child(type_sound)
+
+	var mood_sound := AudioStreamWAV.new()
+	var shared_mood := {
+		"sounds": [mood_sound],
+		"mode": DialogicNode_TypeSounds.Modes.AWAIT,
+	}
+	type_sound.load_overwrite(shared_mood)
+	type_sound.current_overwrite_data["mode"] = DialogicNode_TypeSounds.Modes.INTERRUPT
+	(type_sound.current_overwrite_data["sounds"] as Array).clear()
+	_check(
+		shared_mood["mode"] == DialogicNode_TypeSounds.Modes.AWAIT
+		and shared_mood["sounds"] == [mood_sound],
+		"Type-sound overrides should not mutate shared character mood data.",
+	)
+	type_sound.free()
+
+
 func _test_non_stacking_goto() -> void:
 	var goto_event := DialogicGotoLabelEvent.new()
 	goto_event.from_text("goto_label retry")
@@ -275,7 +305,6 @@ func _test_campaign_and_stage() -> void:
 		"crush",
 		"doctor",
 		"interviewer",
-		"mom",
 		"officer",
 		"penny",
 	]:
@@ -290,7 +319,7 @@ func _test_campaign_and_stage() -> void:
 		"crush": ["happy", "nervous", "neutral"],
 		"doctor": ["happy", "neutral"],
 		"interviewer": ["confused", "happy", "nervous", "neutral"],
-		"mom": ["happy", "neutral", "sad"],
+		"penny": ["neutral"],
 	}
 	for character_id: String in expected_portraits:
 		var character := DialogicResourceUtil.get_character_resource(character_id)
@@ -381,6 +410,53 @@ func _test_campaign_and_stage() -> void:
 		_check(
 			(intro_stage.get_node("ActorSlots/Right") as StageActorSlot).character_id == &"grandma",
 			"The intro's right actor slot should follow Grandma's dialogue expressions.",
+		)
+		var animation_player := intro_stage.get_node("AnimationPlayer") as AnimationPlayer
+		var penny_sprite := intro_stage.get_node("Effects/PennySprite") as TextureRect
+		_check(
+			penny_sprite.texture != null,
+			"The intro should use Moneybot's illustrated sprite instead of the placeholder card.",
+		)
+		host.play_cue(&"penny_reveal")
+		animation_player.advance(0.35)
+		_check(
+			is_equal_approx(penny_sprite.modulate.a, 1.0),
+			"The Penny reveal cue should show the Moneybot sprite.",
+		)
+		host.play_cue(&"home_reveal")
+		animation_player.advance(0.25)
+		_check(
+			is_zero_approx(penny_sprite.modulate.a),
+			"The home reveal should dismiss the Moneybot sprite.",
+		)
+		var clementine_sprite := intro_stage.get_node("Effects/ClementineSprite") as TextureRect
+		_check(
+			clementine_sprite.texture != null,
+			"The intro's home scene should use Clementine's finished portrait.",
+		)
+		host.play_cue(&"clementine_reveal")
+		animation_player.advance(0.35)
+		_check(
+			is_equal_approx(clementine_sprite.modulate.a, 1.0),
+			"The Clementine reveal should show her portrait instead of a placeholder card.",
+		)
+		var sponsor_blackout := intro_stage.get_node("Effects/SponsorBlackout") as Control
+		host.play_cue(&"sponsor_blackout")
+		animation_player.advance(0.15)
+		_check(
+			is_equal_approx(sponsor_blackout.modulate.a, 1.0),
+			"The sponsor cue should fully reveal the tariff message.",
+		)
+		host.play_cue(&"sponsor_return")
+		animation_player.advance(0.05)
+		_check(
+			sponsor_blackout.modulate.a > 0.0,
+			"The sponsor return cue should begin by fading the tariff message.",
+		)
+		host.play_cue(&"customs_focus")
+		_check(
+			is_zero_approx(sponsor_blackout.modulate.a),
+			"Interrupting sponsor return should still fully dismiss the tariff message.",
 		)
 	host.queue_free()
 

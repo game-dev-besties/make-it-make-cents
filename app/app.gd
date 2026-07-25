@@ -52,6 +52,7 @@ func _ready() -> void:
 	campaign_player.set_dialogic(dialogic_node)
 	campaign_player.episode_started.connect(_on_episode_started)
 	campaign_player.campaign_finished.connect(_on_campaign_finished)
+	campaign_player.campaign_aborted.connect(_on_campaign_aborted)
 	campaign_player.validation_failed.connect(_on_validation_failed)
 	campaign_player.integration_warning.connect(_on_integration_warning)
 	game_state.budget_changed.connect(_on_budget_changed)
@@ -100,6 +101,13 @@ func _on_campaign_finished() -> void:
 	episode_label.text = "The story is complete."
 	budget_label.hide()
 	hud_status_panel.hide()
+	title_screen.hide()
+
+
+func _on_campaign_aborted() -> void:
+	episode_label.text = ""
+	budget_label.hide()
+	hud_status_panel.hide()
 	title_screen.show()
 	start_button.text = "Play again"
 	start_button.grab_focus()
@@ -121,7 +129,7 @@ func _on_integration_warning(message: String) -> void:
 
 
 func _on_budget_changed(current_budget: int, _previous_budget: int) -> void:
-	budget_label.text = "Words left: $%d" % current_budget
+	budget_label.text = "Money Left: $%d" % current_budget
 
 
 func _configure_developer_tools() -> void:
@@ -186,7 +194,7 @@ func _on_history_box_visibility_changed() -> void:
 func _on_history_opened() -> void:
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
-	episode_label.grow_horizontal = 2
+	episode_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	episode_label.offset_left = HISTORY_MODAL_LEFT_INSET + HISTORY_MODAL_RING_CLEARANCE
 	episode_label.offset_right = episode_label.offset_left + 320.0
 	episode_label.offset_top = HISTORY_ROW_TOP
@@ -196,7 +204,7 @@ func _on_history_opened() -> void:
 	var back_to_title_right := -(HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
 	back_to_title_button.anchor_left = 1.0
 	back_to_title_button.anchor_right = 1.0
-	back_to_title_button.grow_horizontal = 0
+	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	back_to_title_button.offset_right = back_to_title_right
 	back_to_title_button.offset_left = back_to_title_right - BACK_TO_TITLE_WIDTH
 	back_to_title_button.offset_top = HISTORY_ROW_TOP
@@ -232,7 +240,7 @@ func _apply_responsive_layout() -> void:
 		_layout_inline_hud()
 
 
-## Fixed-size chip, not proportional to window width: "Words left: $NNN" only
+## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
 ## ever needs ~183px (DepartureMono, size 18), so a stretchy box just left a
 ## huge dead gap after the left-aligned text. The top offset (7) matches the
 ## History layer's ShowHistory button (ui/dialogue/history_layer.tscn) so the

@@ -45,6 +45,7 @@ func play_cue(cue_name: StringName, custom_blend := -1.0) -> bool:
 		push_warning("Stage cue '%s' does not exist on %s." % [cue_name, name])
 		return false
 
+	_finish_active_cue()
 	animation_player.play(cue_name, custom_blend)
 	cue_started.emit(cue_name)
 	return true
@@ -52,6 +53,18 @@ func play_cue(cue_name: StringName, custom_blend := -1.0) -> bool:
 
 func stop_cue() -> void:
 	animation_player.stop()
+
+
+## A new presentation cue supersedes the previous one. Apply the interrupted
+## cue's final keys first so short fades cannot be stranded halfway when the
+## player advances quickly or enables auto-skip.
+func _finish_active_cue() -> void:
+	if not animation_player.is_playing():
+		return
+	var active_cue := StringName(animation_player.current_animation)
+	animation_player.seek(animation_player.current_animation_length, true)
+	animation_player.stop(true)
+	cue_finished.emit(active_cue)
 
 
 func set_actor(slot_name: StringName, actor_name: String, expression := "neutral") -> void:

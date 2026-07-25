@@ -26,8 +26,48 @@ func _run() -> void:
 	var normal_chips: Array[Node] = normal.get_node("%Chips").get_children()
 	_assert(normal_chips.size() == 2, "expected two phrase chips")
 	_assert(
-		normal.get_node("%TitleLabel").text == "DAD",
-		"the overlay should reduce its header to the speaker name",
+		normal.get_node("%TitleLabel").text == "User: Dad",
+		"the overlay should identify the active user by name",
+	)
+	_assert(
+		(normal.get_node("%MoneybotIcon") as TextureRect).texture != null,
+		"the phrase selector should include a subtle Moneybot identity mark",
+	)
+	_assert(
+		(normal.get_node("%MoneybotCompanion") as TextureRect).texture != null,
+		"the phrase selector should have a full-size Moneybot companion",
+	)
+	_assert(
+		normal.get_node("%MoneybotCompanion").z_index
+		> normal.get_node("%Panel").z_index,
+		"Moneybot should render above the phrase panel as the active speaker",
+	)
+	normal.call("_position_companion")
+	var companion_rect := (normal.get_node("%MoneybotCompanion") as TextureRect).get_global_rect()
+	var phrase_content_rect := (normal.get_node("%VBox") as VBoxContainer).get_global_rect()
+	_assert(
+		companion_rect.position.x >= phrase_content_rect.end.x,
+		"Moneybot may overlap the frame but should never enter the phrase text area",
+	)
+	_assert(
+		(normal.get_node("Dim") as ColorRect).color.is_equal_approx(
+			Color(0.019608, 0.015686, 0.019608, 0.82),
+		),
+		"the phrase selector should use Moneybot's near-black as its backdrop",
+	)
+	var panel_style := (
+		(normal.get_node("%Panel") as PanelContainer).get_theme_stylebox("panel")
+		as StyleBoxFlat
+	)
+	_assert(
+		panel_style != null
+		and panel_style.bg_color.is_equal_approx(
+			Color(0.258824, 0.243137, 0.266667, 1),
+		)
+		and panel_style.border_color.is_equal_approx(
+			Color(0.917647, 0.498039, 0.345098, 1),
+		),
+		"the phrase panel should use Moneybot's charcoal face and coral-orange frame",
 	)
 	_assert(
 		normal.get_node("%BudgetLabel").text == "AVAILABLE: $5",
@@ -46,23 +86,52 @@ func _run() -> void:
 		first_normal_chip.tooltip_text.begins_with("I have costs $2."),
 		"a kept chip should explain its state, cost, and available action",
 	)
-	# The panel is ledger paper (light), so "more prominent" means higher
-	# contrast against that background, not simply higher luminance.
-	var panel_luminance := Color(0.992157, 0.984314, 0.956863).get_luminance()
+	_assert(
+		not first_normal_chip.tooltip_text.contains("Space"),
+		"the chip tooltip should not advertise Space as an editing action",
+	)
+	# "More prominent" means higher contrast against the charcoal panel,
+	# not simply higher luminance.
+	var panel_luminance := Color(0.258824, 0.243137, 0.266667).get_luminance()
 	var pressed_contrast := absf(
 		panel_luminance - first_normal_chip.get_theme_color("font_pressed_color").get_luminance()
 	)
 	var cut_contrast := absf(
 		panel_luminance - first_normal_chip.get_theme_color("font_color").get_luminance()
 	)
+	var cut_color := first_normal_chip.get_theme_color("font_color")
 	_assert(
 		pressed_contrast > cut_contrast,
 		"spoken text should carry stronger contrast than struck-through text",
 	)
 	_assert(
+		cut_color.r > cut_color.g
+		and is_equal_approx(cut_color.g, cut_color.b),
+		"struck-through text should use a muted red distinct from the orange chrome",
+	)
+	var hover_style := first_normal_chip.get_theme_stylebox("hover") as StyleBoxFlat
+	_assert(
+		hover_style != null and hover_style.bg_color.a >= 0.12,
+		"the neutral hover should remain visibly distinct from the charcoal panel",
+	)
+	_assert(
 		normal.get_viewport().gui_get_focus_owner() == first_normal_chip,
 		"the first phrase should receive keyboard focus when trimming begins",
 	)
+	var space_press := InputEventKey.new()
+	space_press.keycode = KEY_SPACE
+	space_press.pressed = true
+	Input.parse_input_event(space_press)
+	await process_frame
+	_assert(
+		first_normal_chip.button_pressed,
+		"Space should not toggle the focused phrase chip",
+	)
+	_assert(normal.result.is_empty(), "Space should not resolve the phrase selector")
+	var space_release := InputEventKey.new()
+	space_release.keycode = KEY_SPACE
+	Input.parse_input_event(space_release)
+	await process_frame
 	first_normal_chip.set_pressed_no_signal(false)
 	first_normal_chip.toggled.emit(false)
 	_assert(
@@ -117,6 +186,11 @@ func _run() -> void:
 		),
 		"the phrase panel should shrink with a narrow viewport and preserve its gutter",
 	)
+	_assert(
+		not responsive.get_node("%MoneybotCompanion").visible
+		and responsive.get_node("%MoneybotIcon").visible,
+		"a narrow viewport should use the compact Moneybot badge",
+	)
 	responsive.size = Vector2(1600, 900)
 	responsive.call("_update_panel_width")
 	_assert(
@@ -125,6 +199,11 @@ func _run() -> void:
 			780.0,
 		),
 		"the phrase panel should stop growing at its readable maximum width",
+	)
+	_assert(
+		responsive.get_node("%MoneybotCompanion").visible
+		and not responsive.get_node("%MoneybotIcon").visible,
+		"a wide viewport should show Moneybot as a full-size companion",
 	)
 	responsive.queue_free()
 

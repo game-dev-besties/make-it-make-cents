@@ -41,11 +41,11 @@ extends Control
 		is_active = value
 		_refresh()
 
-## Opacity used while another character is speaking. Set this to 1.0 to keep
-## the actor fully visible, or lower it to make inactive actors fade further.
-@export_range(0.0, 1.0, 0.01) var inactive_opacity := 0.45:
+## Darkness filter strength while another character is speaking. Set this to
+## 0.0 to leave inactive actors unchanged, or raise it to darken them further.
+@export_range(0.0, 1.0, 0.01) var inactive_darkness := 0.35:
 	set(value):
-		inactive_opacity = value
+		inactive_darkness = value
 		_refresh()
 
 @onready var _name_label: Label = %NameLabel
@@ -84,7 +84,10 @@ func _refresh() -> void:
 	_portrait.visible = uses_placeholder
 	_portrait_image.texture = texture
 	_portrait_image.visible = not uses_placeholder
-	modulate.a = 1.0 if is_active else inactive_opacity
+	# Keep actors opaque: RGB modulation darkens rendered pixels while retaining
+	# their alpha, so transparent areas around a portrait stay transparent.
+	var brightness := 1.0 if is_active else 1.0 - inactive_darkness
+	modulate = Color(brightness, brightness, brightness, 1.0)
 
 
 func _resolve_portrait_texture() -> Texture2D:

@@ -3,6 +3,7 @@ extends SceneTree
 ## Dialogic's indexed timeline start, avoiding timing-sensitive mouse/key input.
 
 const APP_SCENE := preload("res://app/app.tscn")
+const FINAL_STAGE := preload("res://content/episodes/neighbors/stage.tscn")
 const INTRO_TIMELINE := "res://content/episodes/intro/dialogue.dtl"
 const FIRST_PHRASE_ID := "intro_L001"
 
@@ -30,6 +31,7 @@ func _run() -> void:
 	await _test_responsive_layout()
 	await _test_developer_launcher()
 	await _reset_runtime()
+	await _test_campaign_completion_preserves_final_stage()
 	await _test_return_to_title_stops_dialogue()
 	await _reset_runtime()
 	await _test_start_to_phrase_delivery()
@@ -171,6 +173,32 @@ func _test_return_to_title_stops_dialogue() -> void:
 	await process_frame
 
 
+func _test_campaign_completion_preserves_final_stage() -> void:
+	var app := APP_SCENE.instantiate()
+	root.add_child(app)
+	await process_frame
+
+	var title_screen := app.get_node("%TitleScreen") as Control
+	var stage_host := app.get_node("%StageHost") as StageHost
+	var campaign_player := app.get_node("%CampaignPlayer") as CampaignPlayer
+	var final_stage := stage_host.show_presentation(FINAL_STAGE)
+	title_screen.hide()
+	campaign_player.campaign_finished.emit()
+	await process_frame
+
+	_check(
+		not title_screen.visible,
+		"Natural campaign completion should not cover the final scene with the title screen.",
+	)
+	_check(
+		stage_host.current_presentation == final_stage,
+		"Natural campaign completion should preserve the final presentation.",
+	)
+
+	app.queue_free()
+	await process_frame
+
+
 func _test_start_to_phrase_delivery() -> void:
 	var app := APP_SCENE.instantiate()
 	root.add_child(app)
@@ -237,7 +265,7 @@ func _test_start_to_phrase_delivery() -> void:
 		"The production overlay should carry the live line cost in its primary action.",
 	)
 	_check(
-		(overlay.get_node("%TitleLabel") as Label).text == "PERCY",
+		(overlay.get_node("%TitleLabel") as Label).text == "User: Percy",
 		"The phrase overlay should show the character's display name in its minimal header.",
 	)
 	var intro_stage := stage_host.current_presentation as StoryStage
@@ -333,20 +361,45 @@ func _rect_is_inside(outer: Rect2, inner: Rect2) -> bool:
 
 
 func _reset_runtime() -> void:
-	for type_sound: Node in get_nodes_in_group(&"dialogic_type_sounds"):
-		if type_sound is AudioStreamPlayer:
-			(type_sound as AudioStreamPlayer).stop()
-		for child: Node in type_sound.get_children():
-			if child is AudioStreamPlayer:
-				(child as AudioStreamPlayer).stop()
-				child.queue_free()
+	var type_sounds: Array[Node] = []
+	type_sounds.assign(get_nodes_in_group(&"dialogic_type_sounds"))
+	for type_sound: Node in type_sounds:
+		_release_type_sound_resources(type_sound)
 	await _dialogic.clear(DialogicGameHandler.ClearFlags.FULL_CLEAR)
+	# Dialogic can detach the old layout during clear. Release the captured
+	# nodes again after that transition so no in-flight playback survives
+	# outside the scene tree until process shutdown.
+	for type_sound: Node in type_sounds:
+		if is_instance_valid(type_sound):
+			_release_type_sound_resources(type_sound)
 	if _dialogic.has_subsystem("Styles") and _dialogic.Styles.has_active_layout_node():
 		_dialogic.Styles.get_layout_node().queue_free()
 	var game_stats := root.get_node_or_null("GameStats") as GameStateStore
 	if game_stats != null:
 		game_stats.reset_for_new_game()
 	await process_frame
+	# Headless execution reaches shutdown much faster than the audio thread can
+	# retire stopped WAV playbacks. Give it a few mix intervals after releasing
+	# every node/resource reference so the leak check is deterministic.
+	await create_timer(0.25).timeout
+
+
+func _release_type_sound_resources(type_sound: Node) -> void:
+	if type_sound is AudioStreamPlayer:
+		var type_sound_player := type_sound as AudioStreamPlayer
+		type_sound_player.stop()
+		type_sound_player.stream = null
+	if type_sound is DialogicNode_TypeSounds:
+		var dialogic_type_sound := type_sound as DialogicNode_TypeSounds
+		dialogic_type_sound.sounds = []
+		dialogic_type_sound.end_sound = null
+		dialogic_type_sound.current_overwrite_data = {}
+	for child: Node in type_sound.get_children():
+		if child is AudioStreamPlayer:
+			var child_player := child as AudioStreamPlayer
+			child_player.stop()
+			child_player.stream = null
+			child.queue_free()
 
 
 func _check(condition: bool, message: String) -> void:
