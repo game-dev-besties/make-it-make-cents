@@ -35,6 +35,15 @@ stage. The project style omits those two layers. `CampaignPlayer` bridges
 Dialogic text and background signals into the active `StoryStage`, so writers
 still use native Dialogic events while artists retain a normal Godot scene.
 
+## Editing dialogue presentation
+
+Open `ui/dialogue/dialogue_hud.tscn` in Godot to edit the live
+dialogue textbox. It is the scene referenced by the active Dialogic style;
+every dialogue node is local and can be selected directly in the scene tree.
+The local panel resources
+`dialogue_textbox_panel.tres` and `dialogue_nameplate_panel.tres` control the
+default box and speaker-label styling.
+
 Generated `.dtl` timelines are inspection output, not a second authoring
 surface. Compiler-only custom events are hidden from Dialogic's add-event menu
 because editing them there would be overwritten and phrase lines also require

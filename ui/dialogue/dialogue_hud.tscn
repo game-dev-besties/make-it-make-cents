@@ -1,92 +1,157 @@
-[gd_scene format=3 uid="uid://cie8mil4kq8pk"]
+[gd_scene format=3 uid="uid://cncreax7s1amp"]
 
-[ext_resource type="Script" path="res://ui/dialogue/dialogue_hud.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bl43m5qw8pso3" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/vn_textbox_layer.gd" id="1_textbox_layer"]
+[ext_resource type="Script" uid="uid://bfc03rn8slceu" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/animations.gd" id="2_animations"]
+[ext_resource type="Script" uid="uid://drhfq6rmdeuri" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="3_dialog_text"]
+[ext_resource type="Script" uid="uid://dpv2dfiv5dhmr" path="res://addons/dialogic/Modules/Text/node_type_sound.gd" id="4_type_sound"]
+[ext_resource type="Script" uid="uid://dve1vwse2peji" path="res://addons/dialogic/Modules/Text/node_next_indicator.gd" id="5_next_indicator"]
+[ext_resource type="Script" uid="uid://bklme8oymw6h7" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/autoadvance_indicator.gd" id="6_auto_advance"]
+[ext_resource type="Script" uid="uid://bak74s0kcr0ao" path="res://addons/dialogic/Modules/Text/node_name_label.gd" id="7_name_label"]
+[ext_resource type="StyleBox" uid="uid://bvsl75ructg3d" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="8_textbox_panel"]
+[ext_resource type="StyleBox" uid="uid://8iopm1ia0k2y" path="res://ui/dialogue/dialogue_nameplate_panel.tres" id="9_nameplate_panel"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
-content_margin_left = 28.0
-content_margin_top = 20.0
-content_margin_right = 28.0
-content_margin_bottom = 18.0
-bg_color = Color(0.025, 0.035, 0.07, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.41, 0.66, 0.94, 0.75)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[node name="DialogueHud" type="Control" unique_id=1349034547]
+[node name="GameDialogueTextbox" type="Control" unique_id=1854957271]
 layout_mode = 3
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 64.0
-offset_top = -216.0
-offset_right = -64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_textbox_layer")
+text_use_global_size = false
+text_size = 22
+text_use_global_color = false
+text_custom_color = Color(0.007843138, 0.007843138, 0.007843138, 1)
+box_panel = "res://ui/dialogue/dialogue_textbox_panel.tres"
+box_color_use_global = false
+box_color_custom = Color(1, 1, 1, 1)
+box_size = Vector2(900, 210)
+box_margin_bottom = 34
+box_animation_in = 0
+box_animation_out = 0
+name_label_use_global_color = false
+name_label_use_character_color = false
+name_label_custom_color = Color(0.015686275, 0.015686275, 0.015686275, 1)
+name_label_use_global_font_size = false
+name_label_custom_font_size = 20
+name_label_box_panel = "res://ui/dialogue/dialogue_nameplate_panel.tres"
+name_label_box_use_global_color = false
+name_label_box_modulate = Color(1, 1, 1, 1)
+next_indicator_size = Vector2(18, 18)
+next_indicator_position_offset = Vector2(-24, -22)
+
+[node name="Animations" type="AnimationPlayer" parent="." unique_id=428057378]
+unique_name_in_owner = true
+script = ExtResource("2_animations")
+
+[node name="Anchor" type="Control" parent="." unique_id=2032172269]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="AnimationParent" type="Control" parent="Anchor" unique_id=1728822438]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Sizer" type="Control" parent="Anchor/AnimationParent" unique_id=1534103775]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -450.0
+offset_top = -244.0
+offset_right = 450.0
 offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-script = ExtResource("1_script")
 
-[node name="Panel" type="Panel" parent="." unique_id=1730200809]
+[node name="DialogTextPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer" unique_id=879795114]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_hud")
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_textbox_panel")
 
-[node name="Speaker" type="Label" parent="." unique_id=818920011]
+[node name="DialogicNode_DialogText" type="RichTextLabel" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=1215337850 node_paths=PackedStringArray("textbox_root")]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 28.0
-offset_top = 20.0
-offset_right = -28.0
-offset_bottom = 48.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(0.58, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Narrator"
-
-[node name="Line" type="RichTextLabel" parent="." unique_id=1537922547]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = 54.0
-offset_right = -28.0
-offset_bottom = -40.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/default_color = Color(0.93, 0.95, 1, 1)
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.02745098, 0.02745098, 0.02745098, 1)
 theme_override_font_sizes/normal_font_size = 22
+theme_override_font_sizes/bold_font_size = 22
+theme_override_font_sizes/bold_italics_font_size = 22
+theme_override_font_sizes/italics_font_size = 22
 bbcode_enabled = true
-text = "The evening is waiting."
+visible_characters_behavior = 1
+script = ExtResource("3_dialog_text")
+textbox_root = NodePath("..")
 
-[node name="AdvanceHint" type="Label" parent="." unique_id=1790471454]
+[node name="DialogicNode_TypeSounds" type="AudioStreamPlayer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/DialogicNode_DialogText" unique_id=169334726]
+unique_name_in_owner = true
+script = ExtResource("4_type_sound")
+play_every_character = 0
+
+[node name="NextIndicator" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=15135124]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+script = ExtResource("5_next_indicator")
+show_on_questions = true
+
+[node name="AutoAdvanceProgressbar" type="ProgressBar" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=44324303]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.188235)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+max_value = 1.0
+step = 0.001
+value = 0.5
+show_percentage = false
+script = ExtResource("6_auto_advance")
+
+[node name="NameLabelHolder" type="Control" parent="Anchor/AnimationParent/Sizer/DialogTextPanel" unique_id=684174055]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NameLabelPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder" unique_id=969236123]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = -30.0
-offset_right = -28.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.56, 0.66, 0.78, 1)
-theme_override_font_sizes/font_size = 13
-text = "Click or press Space"
-horizontal_alignment = 2
+offset_left = -24.0
+offset_top = -60.0
+offset_right = 83.0
+offset_bottom = -20.0
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("9_nameplate_panel")
+
+[node name="DialogicNode_NameLabel" type="Label" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder/NameLabelPanel" unique_id=184658757 node_paths=PackedStringArray("name_label_root")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 20
+text = "Speaker"
+script = ExtResource("7_name_label")
+name_label_root = NodePath("..")
