@@ -26,27 +26,26 @@ func _run() -> void:
 	var normal_chips: Array[Node] = normal.get_node("%Chips").get_children()
 	_assert(normal_chips.size() == 2, "expected two phrase chips")
 	_assert(
-		normal.get_node("%BudgetLabel").text == "This line: $5   |   Budget after: $0",
-		"the overlay should preview the budget remaining after the line",
+		normal.get_node("%TitleLabel").text == "DAD",
+		"the overlay should reduce its header to the speaker name",
 	)
 	_assert(
-		normal.get_node("%StatusLabel").text == "2 of 2 phrases kept.",
-		"an affordable selection should summarize how many phrases remain",
+		(normal.get_node("%ConfirmButton") as Button).text == "Say it  /  $5",
+		"the action should carry the initial line cost without a separate budget summary",
 	)
 	var first_normal_chip := normal_chips[0] as Button
 	_assert(
-		first_normal_chip.text.begins_with("[KEEP] I have"),
-		"a kept chip should state KEEP in visible text instead of relying on color",
+		first_normal_chip.text == "I have",
+		"a kept phrase should read as part of the sentence without state or cost copy",
 	)
 	_assert(
 		first_normal_chip.tooltip_text.begins_with('Kept: "I have" will be spoken for $2.'),
 		"a kept chip should explain its state, cost, and available action",
 	)
-	var cut_style := first_normal_chip.get_theme_stylebox("normal") as StyleBoxFlat
-	var keep_style := first_normal_chip.get_theme_stylebox("pressed") as StyleBoxFlat
 	_assert(
-		keep_style.bg_color.get_luminance() > cut_style.bg_color.get_luminance(),
-		"the kept state should use the stronger selected style",
+		first_normal_chip.get_theme_color("font_pressed_color").get_luminance()
+			> first_normal_chip.get_theme_color("font_color").get_luminance(),
+		"spoken text should carry stronger contrast than struck-through text",
 	)
 	_assert(
 		normal.get_viewport().gui_get_focus_owner() == first_normal_chip,
@@ -55,16 +54,16 @@ func _run() -> void:
 	first_normal_chip.set_pressed_no_signal(false)
 	first_normal_chip.toggled.emit(false)
 	_assert(
-		first_normal_chip.text.begins_with("[CUT] I have"),
-		"a cut chip should state CUT in visible text instead of relying on color",
+		first_normal_chip.text == "I have",
+		"cutting a phrase should preserve the sentence text for the strike-through treatment",
 	)
 	_assert(
 		first_normal_chip.tooltip_text.begins_with('Cut: "I have" will be omitted, saving $2.'),
 		"a cut chip should explain its savings and how to restore it",
 	)
 	_assert(
-		normal.get_node("%BudgetLabel").text == "This line: $3   |   Budget after: $2",
-		"the budget-after preview should update as phrases are cut",
+		(normal.get_node("%ConfirmButton") as Button).text == "Say it  /  $3",
+		"the action should carry the live cost after a phrase is cut",
 	)
 	normal.call("_on_confirm")
 	_assert(normal.result.delivery_mode == &"normal", "kept text should be a normal delivery")
@@ -85,12 +84,8 @@ func _run() -> void:
 	)
 	await process_frame
 	_assert(
-		over_budget.get_node("%BudgetLabel").text == "This line: $7   |   Budget after: -$2",
-		"an unaffordable selection should show its negative budget-after amount",
-	)
-	_assert(
-		over_budget.get_node("%StatusLabel").text == "Cut at least $2 more to afford this line.",
-		"an unaffordable selection should say exactly how much more must be cut",
+		(over_budget.get_node("%ConfirmButton") as Button).text == "Cut $2 more  /  $7",
+		"an unaffordable action should carry the exact remaining cut and its price",
 	)
 	_assert(
 		(over_budget.get_node("%ConfirmButton") as Button).disabled,
@@ -183,8 +178,8 @@ func _run() -> void:
 	_assert(recovery.get_node("%PityButton").visible, "available pity choice should be visible")
 	_assert(not recovery.get_node("%SponsorButton").visible, "unavailable sponsor choice should be hidden")
 	_assert(
-		(recovery.get_node("%PityButton") as Button).text == 'Pity word: "oof" ($0)',
-		"the pity button should show the exact custom word it will deliver",
+		(recovery.get_node("%PityButton") as Button).text == '"oof"  /  $0',
+		"the pity action should show the exact custom word it will deliver and its cost",
 	)
 	_assert(
 		recovery.get_viewport().gui_get_focus_owner() == recovery.get_node("%SilenceButton"),

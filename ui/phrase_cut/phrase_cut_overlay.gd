@@ -34,10 +34,7 @@ var _is_resolved := false
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
 @onready var _title_label: Label = %TitleLabel
-@onready var _sentence_label: Label = %SentenceLabel
 @onready var _chips: FlowContainer = %Chips
-@onready var _budget_label: Label = %BudgetLabel
-@onready var _status_label: Label = %StatusLabel
 @onready var _confirm_button: Button = %ConfirmButton
 @onready var _recovery_box: VBoxContainer = %RecoveryBox
 @onready var _recovery_label: Label = %RecoveryLabel
@@ -79,20 +76,33 @@ func _rebuild() -> void:
 	if not is_node_ready():
 		return
 
-	_title_label.text = "Trim what %s will say (toggle phrases to keep or cut them):" % (
-		_speaker if not _speaker.is_empty() else "they"
-	)
+	_title_label.text = _speaker.to_upper()
+	_title_label.visible = not _speaker.is_empty()
 	for child: Node in _chips.get_children():
 		child.queue_free()
 	_phrase_buttons.clear()
 
 	for segment_index: int in _segments.size():
 		var segment: Variant = _segments[segment_index]
-		if not segment is Dictionary or String(segment.get("type", "phrase")) != "phrase":
+		if not segment is Dictionary:
+			continue
+		if String(segment.get("type", "phrase")) == "fixed":
+			var fixed_text := String(segment.get("text", ""))
+			if fixed_text.is_empty():
+				continue
+			var fixed_word := Label.new()
+			fixed_word.text = fixed_text
+			fixed_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			fixed_word.add_theme_color_override("font_color", Color(0.95, 0.93, 0.84, 1))
+			fixed_word.add_theme_font_size_override("font_size", 29)
+			fixed_word.add_theme_constant_override("outline_size", 0)
+			_chips.add_child(fixed_word)
+			continue
+		if String(segment.get("type", "phrase")) != "phrase":
 			continue
 		var chip: Button = _phrase_button_template.duplicate() as Button
 		chip.visible = true
-		chip.text = "%s  ($%d)" % [String(segment.get("text", "")), _segment_cost(segment)]
+		chip.text = String(segment.get("text", ""))
 		chip.button_pressed = true
 		chip.set_meta("segment_index", segment_index)
 		chip.toggled.connect(_on_chip_toggled)
@@ -114,8 +124,9 @@ func _rebuild() -> void:
 	)
 	_pity_button.visible = _can_use_pity
 	_sponsor_button.visible = _can_use_sponsor
-	_pity_button.text = 'Pity word: "%s" ($0)' % _pity_text
+	_pity_button.text = '"%s"  /  $0' % _pity_text
 	_pity_button.tooltip_text = 'Deliver the one free pity word: "%s".' % _pity_text
+	_sponsor_button.tooltip_text = "Read the sponsor message for +$3, at a score cost."
 	_recovery_label.text = _recovery_description()
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
@@ -171,14 +182,6 @@ func _chip_for_segment(segment_index: int) -> Button:
 	return null
 
 
-func _kept_count() -> int:
-	var total := 0
-	for chip: Button in _phrase_buttons:
-		if chip.button_pressed:
-			total += 1
-	return total
-
-
 func _kept_ids() -> Array[String]:
 	var kept_ids: Array[String] = []
 	for chip: Button in _phrase_buttons:
@@ -195,36 +198,16 @@ func _kept_ids() -> Array[String]:
 
 func _recompute() -> void:
 	var cost := _cost()
-	var kept_count := _kept_count()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
-	var budget_after := _budget - cost
-	_sentence_label.text = "\"%s\"" % kept_text if not kept_text.is_empty() else "(say nothing)"
-	_budget_label.text = "This line: $%d   |   Budget after: %s" % [
-		cost,
-		_format_dollars(budget_after),
-	]
-	_budget_label.modulate = Color(1.0, 0.42, 0.42) if over_budget else Color.WHITE
-	if over_budget:
-		_status_label.text = "Cut at least $%d more to afford this line." % (cost - _budget)
-		_status_label.modulate = Color(1.0, 0.42, 0.42)
-	elif kept_text.is_empty():
-		_status_label.text = "Silence is free."
-		_status_label.modulate = Color(0.65, 0.82, 0.7)
-	else:
-		_status_label.text = "%d of %d phrases kept." % [
-			kept_count,
-			_phrase_buttons.size(),
-		]
-		_status_label.modulate = Color.WHITE
 	_confirm_button.disabled = over_budget
-	_confirm_button.text = "Say nothing ($0)" if kept_text.is_empty() else "Say it ($%d)" % cost
+	if over_budget:
+		_confirm_button.text = "Cut $%d more  /  $%d" % [cost - _budget, cost]
+	elif kept_text.is_empty():
+		_confirm_button.text = "Say nothing  /  $0"
+	else:
+		_confirm_button.text = "Say it  /  $%d" % cost
 	_refresh_chip_presentation()
-
-
-func _format_dollars(amount: int) -> String:
-	return "-$%d" % -amount if amount < 0 else "$%d" % amount
-
 
 func _refresh_chip_presentation() -> void:
 	for chip: Button in _phrase_buttons:
@@ -235,19 +218,19 @@ func _refresh_chip_presentation() -> void:
 		var phrase_text := String(segment.get("text", ""))
 		var phrase_cost := _segment_cost(segment)
 		if chip.disabled:
-			chip.text = "[UNAVAILABLE] %s  ($%d)" % [phrase_text, phrase_cost]
+			chip.text = phrase_text
 			chip.tooltip_text = (
 				'Unavailable: "%s" costs $%d and your budget is empty.'
 				% [phrase_text, phrase_cost]
 			)
 		elif chip.button_pressed:
-			chip.text = "[KEEP] %s  ($%d)" % [phrase_text, phrase_cost]
+			chip.text = phrase_text
 			chip.tooltip_text = (
 				'Kept: "%s" will be spoken for $%d. Click or press Space to cut it.'
 				% [phrase_text, phrase_cost]
 			)
 		else:
-			chip.text = "[CUT] %s  (save $%d)" % [phrase_text, phrase_cost]
+			chip.text = phrase_text
 			chip.tooltip_text = (
 				'Cut: "%s" will be omitted, saving $%d. Click or press Space to restore it.'
 				% [phrase_text, phrase_cost]
@@ -277,7 +260,7 @@ func _recovery_description() -> String:
 		choices.append("use your one pity grunt")
 	if _can_use_sponsor:
 		choices.append("read a sponsor message for $3")
-	return "You are out of words. You can %s." % ", ".join(choices)
+	return "No budget. %s." % ", ".join(choices)
 
 
 func _on_confirm() -> void:

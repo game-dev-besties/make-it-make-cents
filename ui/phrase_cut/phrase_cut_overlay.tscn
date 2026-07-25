@@ -1,56 +1,84 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_overlay.gd" id="1_script"]
+[ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_overlay.gd" id="1_overlay"]
+[ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_word.gd" id="2_word"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
-bg_color = Color(0.045, 0.06, 0.12, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.38, 0.7, 1, 0.9)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="ChipNormal"]
-bg_color = Color(0.13, 0.15, 0.2, 1)
+bg_color = Color(0.055, 0.055, 0.047, 0.985)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.5, 0.62, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 14.0
-content_margin_top = 9.0
-content_margin_right = 14.0
-content_margin_bottom = 9.0
+border_color = Color(0.78, 0.74, 0.62, 0.34)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 24
 
-[sub_resource type="StyleBoxFlat" id="ChipPressed"]
-bg_color = Color(0.14, 0.38, 0.64, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 14.0
-content_margin_top = 9.0
-content_margin_right = 14.0
-content_margin_bottom = 9.0
+[sub_resource type="StyleBoxFlat" id="WordCut"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="WordKept"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="WordFocus"]
+border_width_bottom = 1
+border_color = Color(0.83, 0.67, 0.32, 0.85)
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id="ConfirmNormal"]
-bg_color = Color(0.21, 0.57, 0.88, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
+bg_color = Color(0.79, 0.68, 0.39, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="ConfirmDisabled"]
+bg_color = Color(0.22, 0.2, 0.17, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.36, 0.28, 0.55)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="RecoveryNormal"]
+bg_color = Color(0.13, 0.125, 0.105, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.74, 0.62, 0.25)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 14.0
+content_margin_top = 9.0
+content_margin_right = 14.0
+content_margin_bottom = 9.0
 
 [node name="PhraseCutOverlay" type="Control"]
 layout_mode = 3
@@ -60,7 +88,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-script = ExtResource("1_script")
+script = ExtResource("1_overlay")
 
 [node name="Dim" type="ColorRect" parent="."]
 layout_mode = 1
@@ -70,7 +98,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.62)
+color = Color(0.012, 0.012, 0.01, 0.76)
 
 [node name="SafeMargin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -104,58 +132,28 @@ theme_override_styles/panel = SubResource("PanelStyle")
 
 [node name="Margin" type="MarginContainer" parent="SafeMargin/PanelScroll/Center/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_left = 38
+theme_override_constants/margin_top = 34
+theme_override_constants/margin_right = 38
+theme_override_constants/margin_bottom = 34
 
 [node name="VBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 
 [node name="TitleLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.86, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.72, 0.69, 0.59, 1)
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
-[node name="SentenceLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 64)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
-theme_override_font_sizes/font_size = 24
-autowrap_mode = 2
-
-[node name="ChipScroll" type="ScrollContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 110)
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/ChipScroll"]
+[node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-
-[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 17
-autowrap_mode = 2
-
-[node name="StatusLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.78, 0.84, 1)
-theme_override_font_sizes/font_size = 15
-text = "3 of 5 phrases kept."
-autowrap_mode = 2
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 6
 
 [node name="RecoveryBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
@@ -164,47 +162,65 @@ theme_override_constants/separation = 10
 
 [node name="RecoveryLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.79, 0.68, 0.39, 1)
+theme_override_font_sizes/font_size = 15
 autowrap_mode = 2
 
 [node name="RecoveryButtons" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox"]
 layout_mode = 2
-alignment = 1
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 
 [node name="SilenceButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Say nothing ($0)"
+theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryNormal")
+theme_override_styles/pressed = SubResource("RecoveryNormal")
+theme_override_styles/focus = SubResource("RecoveryNormal")
+text = "Say nothing  /  $0"
 
 [node name="PityButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Pity grunt: \"hnf\" ($0)"
+theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryNormal")
+theme_override_styles/pressed = SubResource("RecoveryNormal")
+theme_override_styles/focus = SubResource("RecoveryNormal")
 
 [node name="SponsorButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Shill sponsor (+$3, score hit)"
+theme_override_colors/font_color = Color(0.86, 0.84, 0.77, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("RecoveryNormal")
+theme_override_styles/hover = SubResource("RecoveryNormal")
+theme_override_styles/pressed = SubResource("RecoveryNormal")
+theme_override_styles/focus = SubResource("RecoveryNormal")
+text = "Sponsor  /  +$3"
 
 [node name="ConfirmButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(0.09, 0.08, 0.055, 1)
+theme_override_colors/font_disabled_color = Color(0.78, 0.48, 0.4, 1)
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("ConfirmNormal")
-text = "Confirm"
+theme_override_styles/hover = SubResource("ConfirmNormal")
+theme_override_styles/pressed = SubResource("ConfirmNormal")
+theme_override_styles/focus = SubResource("ConfirmNormal")
+theme_override_styles/disabled = SubResource("ConfirmDisabled")
+text = "Say it  /  $0"
 
 [node name="Templates" type="Control" parent="."]
 visible = false
@@ -213,12 +229,14 @@ layout_mode = 1
 [node name="PhraseButtonTemplate" type="Button" parent="Templates"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 0
 toggle_mode = true
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.72, 0.75, 0.82, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("ChipNormal")
-theme_override_styles/pressed = SubResource("ChipPressed")
+theme_override_colors/font_color = Color(0.48, 0.45, 0.4, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.93, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("WordCut")
+theme_override_styles/pressed = SubResource("WordKept")
+theme_override_styles/focus = SubResource("WordFocus")
+script = ExtResource("2_word")
