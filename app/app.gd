@@ -129,7 +129,7 @@ func _on_integration_warning(message: String) -> void:
 
 
 func _on_budget_changed(current_budget: int, _previous_budget: int) -> void:
-	budget_label.text = "Words left: $%d" % current_budget
+	budget_label.text = "Money Left: $%d" % current_budget
 
 
 func _configure_developer_tools() -> void:
@@ -240,7 +240,7 @@ func _apply_responsive_layout() -> void:
 		_layout_inline_hud()
 
 
-## Fixed-size chip, not proportional to window width: "Words left: $NNN" only
+## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
 ## ever needs ~183px (DepartureMono, size 18), so a stretchy box just left a
 ## huge dead gap after the left-aligned text. The top offset (7) matches the
 ## History layer's ShowHistory button (ui/dialogue/history_layer.tscn) so the
