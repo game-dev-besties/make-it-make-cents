@@ -20,6 +20,10 @@ const MONEYBOT_COMPANION_MIN_WIDTH := 1080.0
 const MONEYBOT_COMPANION_MIN_HEIGHT := 540.0
 const COMPACT_SAFE_MARGIN := 16
 const COMPANION_SAFE_MARGIN_RIGHT := 180
+const PANEL_CONTENT_MARGIN_RIGHT := 38
+const COMPANION_CONTENT_MARGIN_RIGHT := 128
+const COMPANION_PANEL_OVERLAP := 90.0
+const COMPANION_SIZE := Vector2(286.0, 342.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
 const FIXED_WORD_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
@@ -40,6 +44,7 @@ var _is_resolved := false
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
+@onready var _panel_margin: MarginContainer = %Margin
 @onready var _safe_margin: MarginContainer = %SafeMargin
 @onready var _moneybot_companion: TextureRect = %MoneybotCompanion
 @onready var _moneybot_icon: TextureRect = %MoneybotIcon
@@ -161,6 +166,7 @@ func _rebuild() -> void:
 	_recovery_label.text = _recovery_description()
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
+	call_deferred("_position_companion")
 
 
 func _on_chip_toggled(_pressed: bool) -> void:
@@ -286,9 +292,25 @@ func _update_panel_width() -> void:
 	)
 	_moneybot_companion.visible = show_companion
 	_moneybot_icon.visible = not show_companion
+	_panel_margin.add_theme_constant_override(
+		"margin_right",
+		COMPANION_CONTENT_MARGIN_RIGHT if show_companion else PANEL_CONTENT_MARGIN_RIGHT,
+	)
 	_safe_margin.add_theme_constant_override(
 		"margin_right",
 		COMPANION_SAFE_MARGIN_RIGHT if show_companion else COMPACT_SAFE_MARGIN,
+	)
+	call_deferred("_position_companion")
+
+
+func _position_companion() -> void:
+	if not _moneybot_companion.visible or not is_instance_valid(_panel):
+		return
+	var panel_rect := _panel.get_global_rect()
+	_moneybot_companion.size = COMPANION_SIZE
+	_moneybot_companion.global_position = Vector2(
+		panel_rect.end.x - COMPANION_PANEL_OVERLAP,
+		panel_rect.get_center().y - COMPANION_SIZE.y * 0.5,
 	)
 
 

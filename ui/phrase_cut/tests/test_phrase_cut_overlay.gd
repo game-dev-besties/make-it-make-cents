@@ -42,6 +42,13 @@ func _run() -> void:
 		> normal.get_node("%Panel").z_index,
 		"Moneybot should render above the phrase panel as the active speaker",
 	)
+	normal.call("_position_companion")
+	var companion_rect := (normal.get_node("%MoneybotCompanion") as TextureRect).get_global_rect()
+	var phrase_content_rect := (normal.get_node("%VBox") as VBoxContainer).get_global_rect()
+	_assert(
+		companion_rect.position.x >= phrase_content_rect.end.x,
+		"Moneybot may overlap the frame but should never enter the phrase text area",
+	)
 	_assert(
 		(normal.get_node("Dim") as ColorRect).color.is_equal_approx(
 			Color(0.019608, 0.015686, 0.019608, 0.82),
@@ -83,8 +90,8 @@ func _run() -> void:
 		not first_normal_chip.tooltip_text.contains("Space"),
 		"the chip tooltip should not advertise Space as an editing action",
 	)
-	# The panel is ledger paper (light), so "more prominent" means higher
-	# contrast against that background, not simply higher luminance.
+	# "More prominent" means higher contrast against the charcoal panel,
+	# not simply higher luminance.
 	var panel_luminance := Color(0.258824, 0.243137, 0.266667).get_luminance()
 	var pressed_contrast := absf(
 		panel_luminance - first_normal_chip.get_theme_color("font_pressed_color").get_luminance()
@@ -92,9 +99,20 @@ func _run() -> void:
 	var cut_contrast := absf(
 		panel_luminance - first_normal_chip.get_theme_color("font_color").get_luminance()
 	)
+	var cut_color := first_normal_chip.get_theme_color("font_color")
 	_assert(
 		pressed_contrast > cut_contrast,
 		"spoken text should carry stronger contrast than struck-through text",
+	)
+	_assert(
+		cut_color.r > cut_color.g
+		and is_equal_approx(cut_color.g, cut_color.b),
+		"struck-through text should use a muted red distinct from the orange chrome",
+	)
+	var hover_style := first_normal_chip.get_theme_stylebox("hover") as StyleBoxFlat
+	_assert(
+		hover_style != null and hover_style.bg_color.a >= 0.12,
+		"the neutral hover should remain visibly distinct from the charcoal panel",
 	)
 	_assert(
 		normal.get_viewport().gui_get_focus_owner() == first_normal_chip,
