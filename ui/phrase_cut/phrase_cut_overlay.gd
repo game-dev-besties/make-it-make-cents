@@ -24,6 +24,7 @@ const PANEL_CONTENT_MARGIN_RIGHT := 38
 const COMPANION_CONTENT_MARGIN_RIGHT := 128
 const COMPANION_PANEL_OVERLAP := 90.0
 const COMPANION_SIZE := Vector2(286.0, 342.0)
+const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
 const FIXED_WORD_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
@@ -284,11 +285,15 @@ func _focus_initial_control(is_out_of_budget: bool) -> void:
 
 
 func _update_panel_width() -> void:
-	var available_width := maxf(size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
+	var frame := _story_frame_rect()
+	_safe_margin.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	_safe_margin.position = frame.position
+	_safe_margin.size = frame.size
+	var available_width := maxf(frame.size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
 	_panel.custom_minimum_size.x = minf(available_width, MAX_PANEL_WIDTH)
 	var show_companion := (
-		size.x >= MONEYBOT_COMPANION_MIN_WIDTH
-		and size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
+		frame.size.x >= MONEYBOT_COMPANION_MIN_WIDTH
+		and frame.size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
 	)
 	_moneybot_companion.visible = show_companion
 	_moneybot_icon.visible = not show_companion
@@ -301,6 +306,12 @@ func _update_panel_width() -> void:
 		COMPANION_SAFE_MARGIN_RIGHT if show_companion else COMPACT_SAFE_MARGIN,
 	)
 	call_deferred("_position_companion")
+
+
+func _story_frame_rect() -> Rect2:
+	var frame_scale := minf(size.x / STORY_FRAME_SIZE.x, size.y / STORY_FRAME_SIZE.y)
+	var frame_size := STORY_FRAME_SIZE * frame_scale
+	return Rect2((size - frame_size) * 0.5, frame_size)
 
 
 func _position_companion() -> void:
