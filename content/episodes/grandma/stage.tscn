@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://hevs8800v4gq"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://dqu4mnltidwgr" path="res://content/episodes/grandma/doctor_office.jpg" id="2_doctor_office"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 bg_color = Color(0.08, 0.2, 0.2, 0.9)
@@ -28,6 +29,12 @@ stage_title = "Tuesday morning - neighborhood clinic"
 
 [node name="Background" parent="." index="0"]
 color = Color(0.08, 0.19, 0.2, 1)
+
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_doctor_office")
+
+[node name="Props" parent="." index="1"]
+visible = false
 
 [node name="ExamTable" type="ColorRect" parent="Props" index="0" unique_id=2065134856]
 layout_mode = 0
