@@ -1,9 +1,13 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://d3f6l37r1plri"]
 
-[ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_overlay.gd" id="1_overlay"]
-[ext_resource type="Script" path="res://ui/phrase_cut/phrase_cut_word.gd" id="2_word"]
-[ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
+[ext_resource type="Script" uid="uid://cwlyv45y8eyf1" path="res://ui/phrase_cut/phrase_cut_overlay.gd" id="1_overlay"]
+[ext_resource type="Script" uid="uid://dbkl0nwkecuyy" path="res://ui/phrase_cut/phrase_cut_word.gd" id="2_word"]
+[ext_resource type="FontFile" uid="uid://cdx5wtmod06bs" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
 [ext_resource type="Texture2D" uid="uid://8xkkcni4b74t" path="res://content/characters/penny/moneybot.png" id="5_moneybot"]
+
+[sub_resource type="AtlasTexture" id="MoneybotCrop"]
+atlas = ExtResource("5_moneybot")
+region = Rect2(381, 270, 343, 411)
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 content_margin_left = 8.0
@@ -24,77 +28,11 @@ shadow_color = Color(0.019608, 0.015686, 0.019608, 0.55)
 shadow_size = 10
 anti_aliasing = false
 
-[sub_resource type="AtlasTexture" id="MoneybotCrop"]
-atlas = ExtResource("5_moneybot")
-region = Rect2(381, 270, 343, 411)
-
-[sub_resource type="StyleBoxFlat" id="WordCut"]
-bg_color = Color(1, 1, 1, 0)
-content_margin_left = 4.0
-content_margin_top = 5.0
-content_margin_right = 4.0
-content_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxFlat" id="WordKept"]
-bg_color = Color(1, 1, 1, 0)
-content_margin_left = 4.0
-content_margin_top = 5.0
-content_margin_right = 4.0
-content_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxFlat" id="WordDisabled"]
-bg_color = Color(1, 1, 1, 0)
-content_margin_left = 4.0
-content_margin_top = 5.0
-content_margin_right = 4.0
-content_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxFlat" id="WordHover"]
-bg_color = Color(0.992157, 0.984314, 0.956863, 0.14)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-content_margin_left = 4.0
-content_margin_top = 5.0
-content_margin_right = 4.0
-content_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxFlat" id="WordFocus"]
-bg_color = Color(1, 1, 1, 0)
-content_margin_left = 4.0
-content_margin_top = 5.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxFlat" id="ConfirmNormal"]
-bg_color = Color(0.286275, 0.501961, 0.352941, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-content_margin_left = 22.0
-content_margin_top = 12.0
-content_margin_right = 22.0
-content_margin_bottom = 12.0
-
-[sub_resource type="StyleBoxFlat" id="ConfirmDisabled"]
-bg_color = Color(0.196078, 0.172549, 0.192157, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.917647, 0.498039, 0.345098, 0.6)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-content_margin_left = 22.0
-content_margin_top = 12.0
-content_margin_right = 22.0
-content_margin_bottom = 12.0
-
 [sub_resource type="StyleBoxFlat" id="RecoveryNormal"]
+content_margin_left = 14.0
+content_margin_top = 9.0
+content_margin_right = 14.0
+content_margin_bottom = 9.0
 bg_color = Color(0.196078, 0.172549, 0.192157, 1)
 border_width_left = 1
 border_width_top = 1
@@ -105,15 +43,12 @@ corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="RecoveryHover"]
 content_margin_left = 14.0
 content_margin_top = 9.0
 content_margin_right = 14.0
 content_margin_bottom = 9.0
-
-[sub_resource type="StyleBoxFlat" id="RecoveryFocusNone"]
-bg_color = Color(1, 1, 1, 0)
-
-[sub_resource type="StyleBoxFlat" id="RecoveryHover"]
 bg_color = Color(0.294118, 0.27451, 0.294118, 1)
 border_width_left = 1
 border_width_top = 1
@@ -124,22 +59,88 @@ corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
-content_margin_left = 14.0
-content_margin_top = 9.0
-content_margin_right = 14.0
-content_margin_bottom = 9.0
 
-[node name="PhraseCutOverlay" type="Control"]
+[sub_resource type="StyleBoxFlat" id="RecoveryFocusNone"]
+bg_color = Color(1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="ConfirmNormal"]
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.501961, 0.352941, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="ConfirmDisabled"]
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+bg_color = Color(0.196078, 0.172549, 0.192157, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.917647, 0.498039, 0.345098, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="WordCut"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="WordKept"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="WordHover"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(0.992157, 0.984314, 0.956863, 0.14)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="WordDisabled"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="WordFocus"]
+content_margin_left = 4.0
+content_margin_top = 5.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0)
+border_width_bottom = 1
+border_color = Color(0.83, 0.67, 0.32, 0.85)
+
+[node name="PhraseCutOverlay" type="Control" unique_id=768179911]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 script = ExtResource("1_overlay")
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=690413441]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -149,7 +150,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.019608, 0.015686, 0.019608, 0.82)
 
-[node name="MoneybotCompanion" type="TextureRect" parent="."]
+[node name="MoneybotCompanion" type="TextureRect" parent="." unique_id=1437319973]
 unique_name_in_owner = true
 z_index = 2
 layout_mode = 1
@@ -169,7 +170,7 @@ texture = SubResource("MoneybotCrop")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SafeMargin" type="MarginContainer" parent="."]
+[node name="SafeMargin" type="MarginContainer" parent="." unique_id=1893686200]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -182,25 +183,25 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="PanelScroll" type="ScrollContainer" parent="SafeMargin"]
+[node name="PanelScroll" type="ScrollContainer" parent="SafeMargin" unique_id=116460518]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Center" type="CenterContainer" parent="SafeMargin/PanelScroll"]
+[node name="Center" type="CenterContainer" parent="SafeMargin/PanelScroll" unique_id=1748033988]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Panel" type="PanelContainer" parent="SafeMargin/PanelScroll/Center"]
+[node name="Panel" type="PanelContainer" parent="SafeMargin/PanelScroll/Center" unique_id=1566191636]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(780, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 
-[node name="Margin" type="MarginContainer" parent="SafeMargin/PanelScroll/Center/Panel"]
+[node name="Margin" type="MarginContainer" parent="SafeMargin/PanelScroll/Center/Panel" unique_id=2038737149]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/margin_left = 38
@@ -208,16 +209,16 @@ theme_override_constants/margin_top = 34
 theme_override_constants/margin_right = 38
 theme_override_constants/margin_bottom = 34
 
-[node name="VBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin" unique_id=2124416538]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="Header" type="HBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1589029966]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MoneybotIcon" type="TextureRect" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header"]
+[node name="MoneybotIcon" type="TextureRect" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header" unique_id=1423676024]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 38)
 layout_mode = 2
@@ -226,16 +227,14 @@ texture = SubResource("MoneybotCrop")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header"]
+[node name="TitleLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header" unique_id=1615888194]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.917647, 0.498039, 0.345098, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
 
-[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1610737398]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
@@ -243,19 +242,19 @@ theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 text = "AVAILABLE: $0"
 
-[node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+[node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1079332742]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 3
 theme_override_constants/v_separation = 6
 
-[node name="RecoveryBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+[node name="RecoveryBox" type="VBoxContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1883085484]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="RecoveryLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox"]
+[node name="RecoveryLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox" unique_id=324937813]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
@@ -263,99 +262,100 @@ theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 15
 autowrap_mode = 2
 
-[node name="RecoveryButtons" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox"]
+[node name="RecoveryButtons" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox" unique_id=1538399047]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 
-[node name="SilenceButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
+[node name="SilenceButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons" unique_id=259367953]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/focus = SubResource("RecoveryFocusNone")
 text = "Say nothing  /  $0"
 
-[node name="PityButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
+[node name="PityButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons" unique_id=1996207804]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/focus = SubResource("RecoveryFocusNone")
 
-[node name="SponsorButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons"]
+[node name="SponsorButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons" unique_id=877095405]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("RecoveryNormal")
-theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/pressed = SubResource("RecoveryHover")
+theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/focus = SubResource("RecoveryFocusNone")
 text = "Sponsor  /  +$3"
 
-[node name="ConfirmButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox"]
+[node name="ConfirmButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1805189759]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_disabled_color = Color(0.721569, 0.545098, 0.435294, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("ConfirmNormal")
-theme_override_styles/hover = SubResource("ConfirmNormal")
 theme_override_styles/pressed = SubResource("ConfirmNormal")
-theme_override_styles/focus = SubResource("RecoveryFocusNone")
+theme_override_styles/hover = SubResource("ConfirmNormal")
 theme_override_styles/disabled = SubResource("ConfirmDisabled")
+theme_override_styles/focus = SubResource("RecoveryFocusNone")
 text = "Say it  /  $0"
 
-[node name="Templates" type="Control" parent="."]
+[node name="Templates" type="Control" parent="." unique_id=454320156]
 visible = false
 layout_mode = 1
+anchors_preset = 0
 
-[node name="PhraseButtonTemplate" type="Button" parent="Templates"]
+[node name="PhraseButtonTemplate" type="Button" parent="Templates" unique_id=1485660699]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 0
-toggle_mode = true
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.823529, 0.556863, 0.556863, 1)
-theme_override_colors/font_hover_color = Color(0.823529, 0.556863, 0.556863, 1)
 theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.823529, 0.556863, 0.556863, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_disabled_color = Color(0.478431, 0.462745, 0.482353, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 29
 theme_override_styles/normal = SubResource("WordCut")
-theme_override_styles/hover = SubResource("WordHover")
 theme_override_styles/pressed = SubResource("WordKept")
+theme_override_styles/hover = SubResource("WordHover")
 theme_override_styles/hover_pressed = SubResource("WordHover")
-theme_override_styles/focus = SubResource("WordFocus")
 theme_override_styles/disabled = SubResource("WordDisabled")
+theme_override_styles/focus = SubResource("WordFocus")
+toggle_mode = true
 script = ExtResource("2_word")

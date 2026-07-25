@@ -26,8 +26,8 @@ func _run() -> void:
 	var normal_chips: Array[Node] = normal.get_node("%Chips").get_children()
 	_assert(normal_chips.size() == 2, "expected two phrase chips")
 	_assert(
-		normal.get_node("%TitleLabel").text == "DAD",
-		"the overlay should retain its compact speaker label",
+		normal.get_node("%TitleLabel").text == "User: Dad",
+		"the overlay should identify the active user by name",
 	)
 	_assert(
 		(normal.get_node("%MoneybotIcon") as TextureRect).texture != null,

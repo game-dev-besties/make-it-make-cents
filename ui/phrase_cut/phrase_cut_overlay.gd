@@ -110,7 +110,7 @@ func _rebuild() -> void:
 	if not is_node_ready():
 		return
 
-	_title_label.text = _speaker.to_upper()
+	_title_label.text = "User: %s" % _speaker
 	_title_label.visible = not _speaker.is_empty()
 	_budget_label.text = "AVAILABLE: $%d" % _budget
 	for child: Node in _chips.get_children():
