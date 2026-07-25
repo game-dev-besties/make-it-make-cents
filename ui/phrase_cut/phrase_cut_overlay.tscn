@@ -126,10 +126,8 @@ bg_color = Color(1, 1, 1, 0)
 content_margin_left = 4.0
 content_margin_top = 5.0
 content_margin_right = 4.0
-content_margin_bottom = 4.0
+content_margin_bottom = 5.0
 bg_color = Color(1, 1, 1, 0)
-border_width_bottom = 1
-border_color = Color(0.83, 0.67, 0.32, 0.85)
 
 [node name="PhraseCutOverlay" type="Control" unique_id=768179911]
 layout_mode = 3
