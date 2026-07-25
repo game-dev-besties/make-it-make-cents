@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" uid="uid://dx1ylc6tuuy4q" path="res://game/domain/campaign_definition.gd" id="1_campaign"]
 [ext_resource type="Script" uid="uid://r7qrb6p6jrik" path="res://game/domain/episode_definition.gd" id="1_jdu1k"]
-[ext_resource type="Resource" path="res://content/episodes/intro/episode.tres" id="2_intro"]
-[ext_resource type="Resource" path="res://content/episodes/son/episode.tres" id="3_son"]
-[ext_resource type="Resource" path="res://content/episodes/dad/episode.tres" id="4_dad"]
-[ext_resource type="Resource" path="res://content/episodes/grandma/episode.tres" id="5_grandma"]
-[ext_resource type="Resource" path="res://content/episodes/neighbors/episode.tres" id="6_neighbors"]
+[ext_resource type="Resource" uid="uid://boia4vxt4ud1y" path="res://content/episodes/intro/episode.tres" id="2_intro"]
+[ext_resource type="Resource" uid="uid://d4cd2fuqhdogn" path="res://content/episodes/son/episode.tres" id="3_son"]
+[ext_resource type="Resource" uid="uid://tjsooa7dbvlc" path="res://content/episodes/dad/episode.tres" id="4_dad"]
+[ext_resource type="Resource" uid="uid://dbq7u44rm8523" path="res://content/episodes/grandma/episode.tres" id="5_grandma"]
+[ext_resource type="Resource" uid="uid://befj17lxf4b5f" path="res://content/episodes/neighbors/episode.tres" id="6_neighbors"]
 
 [resource]
 resource_name = "LegendaryDiscoCampaign"

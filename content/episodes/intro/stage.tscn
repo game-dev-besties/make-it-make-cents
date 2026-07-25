@@ -82,6 +82,78 @@ tracks/0/keys = {
 "values": [Vector2(1, 1), Vector2(1.05, 1.05)]
 }
 
+[sub_resource type="Animation" id="Animation_clementine_reveal"]
+resource_name = "clementine_reveal"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/ClementineCard:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_customs_focus"]
+resource_name = "customs_focus"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Props/CheckpointSign:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 0.78, 0.35, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_home_reveal"]
+resource_name = "home_reveal"
+length = 0.45
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Props/HomeBackdrop:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.45),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Effects/PennyCard:modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StageTitle:text")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["New home"]
+}
+
 [sub_resource type="Animation" id="Animation_intro_reveal"]
 resource_name = "intro_reveal"
 length = 1.2
@@ -126,22 +198,6 @@ tracks/0/keys = {
 "values": [0.0, 1.0]
 }
 
-[sub_resource type="Animation" id="Animation_customs_focus"]
-resource_name = "customs_focus"
-length = 0.3
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Props/CheckpointSign:modulate")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 0.78, 0.35, 1), Color(1, 1, 1, 1)]
-}
-
 [sub_resource type="Animation" id="Animation_sponsor_blackout"]
 resource_name = "sponsor_blackout"
 length = 0.15
@@ -174,70 +230,14 @@ tracks/0/keys = {
 "values": [1.0, 0.0]
 }
 
-[sub_resource type="Animation" id="Animation_home_reveal"]
-resource_name = "home_reveal"
-length = 0.45
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Props/HomeBackdrop:modulate:a")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.45),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 1.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Effects/PennyCard:modulate:a")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.25),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [1.0, 0.0]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("StageTitle:text")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": ["New home"]
-}
-
-[sub_resource type="Animation" id="Animation_clementine_reveal"]
-resource_name = "clementine_reveal"
-length = 0.35
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Effects/ClementineCard:modulate:a")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.35),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 1.0]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_intro"]
 _data = {
 &"RESET": SubResource("Animation_RESET"),
 &"center_focus": SubResource("Animation_center_focus"),
+&"clementine_reveal": SubResource("Animation_clementine_reveal"),
 &"customs_focus": SubResource("Animation_customs_focus"),
 &"home_reveal": SubResource("Animation_home_reveal"),
 &"intro_reveal": SubResource("Animation_intro_reveal"),
-&"clementine_reveal": SubResource("Animation_clementine_reveal"),
 &"penny_reveal": SubResource("Animation_penny_reveal"),
 &"sponsor_blackout": SubResource("Animation_sponsor_blackout"),
 &"sponsor_return": SubResource("Animation_sponsor_return")
@@ -284,7 +284,8 @@ offset_right = 860.0
 offset_bottom = 151.0
 theme_override_colors/font_color = Color(0.86, 0.84, 0.68, 0.9)
 theme_override_font_sizes/font_size = 16
-text = "VERBAL TARIFF\nCHECKPOINT"
+text = "VERBAL TARIFF
+CHECKPOINT"
 horizontal_alignment = 1
 
 [node name="Floor" type="ColorRect" parent="Props" index="4" unique_id=2091437068]
@@ -295,7 +296,7 @@ offset_bottom = 647.0
 mouse_filter = 2
 color = Color(0.16, 0.15, 0.13, 1)
 
-[node name="HomeBackdrop" type="ColorRect" parent="Props" index="5"]
+[node name="HomeBackdrop" type="ColorRect" parent="Props" index="5" unique_id=857637138]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
@@ -306,7 +307,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.76, 0.71, 0.61, 1)
 
-[node name="Lawn" type="ColorRect" parent="Props/HomeBackdrop"]
+[node name="Lawn" type="ColorRect" parent="Props/HomeBackdrop" index="0" unique_id=2050787041]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -318,7 +319,7 @@ grow_vertical = 0
 mouse_filter = 2
 color = Color(0.55, 0.55, 0.42, 1)
 
-[node name="House" type="ColorRect" parent="Props/HomeBackdrop"]
+[node name="House" type="ColorRect" parent="Props/HomeBackdrop" index="1" unique_id=1468450984]
 layout_mode = 0
 offset_left = 330.0
 offset_top = 95.0
@@ -327,7 +328,7 @@ offset_bottom = 475.0
 mouse_filter = 2
 color = Color(0.84, 0.8, 0.7, 1)
 
-[node name="HouseLabel" type="Label" parent="Props/HomeBackdrop/House"]
+[node name="HouseLabel" type="Label" parent="Props/HomeBackdrop/House" index="0" unique_id=1899243170]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -348,30 +349,36 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
+offset_left = 34.0
+offset_top = -72.0
+offset_right = 554.0
+offset_bottom = 708.0
 character_id = &"dad"
 actor_name = "Dad"
 expression = "happy"
 accent_color = Color(0.68, 0.52, 0.31, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
-offset_left = 370.0
-offset_top = 160.0
-offset_right = 590.0
-offset_bottom = 490.0
+offset_left = 255.0
+offset_top = 105.152985
+offset_right = 750.0
+offset_bottom = 602.0
 pivot_offset = Vector2(110, 165)
 character_id = &"son"
 actor_name = "Percy"
-expression = "neutral"
 accent_color = Color(0.34, 0.63, 0.75, 1)
 
 [node name="Right" parent="ActorSlots" index="2"]
 modulate = Color(1, 1, 1, 0.45)
+offset_left = 474.0
+offset_top = 24.699463
+offset_right = 936.0
+offset_bottom = 756.0
 character_id = &"grandma"
 actor_name = "Grandma"
-expression = "neutral"
 is_active = false
 
-[node name="PennyCard" type="ColorRect" parent="Effects" index="0"]
+[node name="PennyCard" type="ColorRect" parent="Effects" index="0" unique_id=2002775538]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 0
 offset_left = 475.0
@@ -381,7 +388,7 @@ offset_bottom = 152.0
 mouse_filter = 2
 color = Color(0.92, 0.73, 0.2, 0.96)
 
-[node name="Label" type="Label" parent="Effects/PennyCard"]
+[node name="Label" type="Label" parent="Effects/PennyCard" index="0" unique_id=1746137888]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -395,7 +402,7 @@ speech assistant"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ClementineCard" type="ColorRect" parent="Effects" index="1"]
+[node name="ClementineCard" type="ColorRect" parent="Effects" index="1" unique_id=1458912915]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 0
 offset_left = 895.0
@@ -405,7 +412,7 @@ offset_bottom = 475.0
 mouse_filter = 2
 color = Color(0.055, 0.045, 0.075, 0.98)
 
-[node name="Label" type="Label" parent="Effects/ClementineCard"]
+[node name="Label" type="Label" parent="Effects/ClementineCard" index="0" unique_id=1547055618]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -426,7 +433,7 @@ thing in sight)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SponsorBlackout" type="ColorRect" parent="Effects" index="2"]
+[node name="SponsorBlackout" type="ColorRect" parent="Effects" index="2" unique_id=499350083]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
@@ -437,7 +444,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.015, 0.012, 0.02, 1)
 
-[node name="Label" type="Label" parent="Effects/SponsorBlackout"]
+[node name="Label" type="Label" parent="Effects/SponsorBlackout" index="0" unique_id=1362840275]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
