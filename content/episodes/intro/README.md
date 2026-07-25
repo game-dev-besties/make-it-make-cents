@@ -22,7 +22,8 @@ The remaining work is deliberately content production rather than plumbing:
 - decide whether the optional pills interaction stays in Chapter 1;
 - replace the placeholder Sam's Soda blackout with the final jingle/SFX;
 - confirm Clementine's final accent color instead of the draft black-and-violet line;
-- replace prototype color-card scenery and non-Son portraits as art arrives;
+- replace prototype color-card scenery and the remaining Mom, Officer, and
+  Penny portraits as art arrives;
 - add final background music and checkpoint/home sound cues; and
 - revise draft dialogue without changing the stable IDs, flags, or tutorial
   directives unless the mechanic itself changes.

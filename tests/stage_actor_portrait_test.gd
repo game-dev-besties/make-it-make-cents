@@ -1,7 +1,13 @@
 extends SceneTree
 
 const ACTOR_SLOT_SCENE := preload("res://game/components/stage_actor_slot.tscn")
+const CRUSH_NEUTRAL_PORTRAIT := "res://content/characters/crush/neutral.png"
+const DAD_NEUTRAL_PORTRAIT := "res://content/characters/dad/neutral.png"
+const DAD_TALKING_PORTRAIT := "res://content/characters/dad/talking.png"
+const DOCTOR_NEUTRAL_PORTRAIT := "res://content/characters/doctor/neutral.png"
+const GRANDMA_NEUTRAL_PORTRAIT := "res://content/characters/grandma/neutral.png"
 const INTRO_STAGE_SCENE := preload("res://content/episodes/intro/stage.tscn")
+const INTERVIEWER_NEUTRAL_PORTRAIT := "res://content/characters/interviewer/neutral.png"
 const NEUTRAL_PORTRAIT := "res://content/characters/son/neutral.png"
 const SHY_PORTRAIT := "res://content/characters/son/shy.png"
 const SON_STAGE_SCENE := preload("res://content/episodes/son/stage.tscn")
@@ -61,13 +67,30 @@ func _run() -> void:
 			"An unknown expression should fall back to Percy's neutral portrait.",
 		)
 
-	slot.character_id = &"crush"
-	slot.expression = "neutral"
-	_check(portrait_image.texture == null, "A character without portrait art should not show stale art.")
-	_check(not portrait_image.visible, "A character without portrait art should hide the image node.")
-	_check(placeholder.visible, "A character without portrait art should show the color placeholder.")
-	_check(name_label.visible, "A character without portrait art should show the name label.")
-	_check(expression_label.visible, "A character without portrait art should show the expression label.")
+	var portrait_cases: Array[Array] = [
+		[&"crush", "happy", CRUSH_NEUTRAL_PORTRAIT],
+		[&"crush", "nervous", CRUSH_NEUTRAL_PORTRAIT],
+		[&"crush", "neutral", CRUSH_NEUTRAL_PORTRAIT],
+		[&"dad", "happy", DAD_TALKING_PORTRAIT],
+		[&"dad", "nervous", DAD_NEUTRAL_PORTRAIT],
+		[&"dad", "neutral", DAD_NEUTRAL_PORTRAIT],
+		[&"dad", "sad", DAD_NEUTRAL_PORTRAIT],
+		[&"doctor", "happy", DOCTOR_NEUTRAL_PORTRAIT],
+		[&"doctor", "neutral", DOCTOR_NEUTRAL_PORTRAIT],
+		[&"grandma", "happy", GRANDMA_NEUTRAL_PORTRAIT],
+		[&"grandma", "neutral", GRANDMA_NEUTRAL_PORTRAIT],
+		[&"interviewer", "confused", INTERVIEWER_NEUTRAL_PORTRAIT],
+		[&"interviewer", "happy", INTERVIEWER_NEUTRAL_PORTRAIT],
+		[&"interviewer", "nervous", INTERVIEWER_NEUTRAL_PORTRAIT],
+		[&"interviewer", "neutral", INTERVIEWER_NEUTRAL_PORTRAIT],
+	]
+	for portrait_case: Array in portrait_cases:
+		_check_registered_portrait(
+			slot,
+			StringName(portrait_case[0]),
+			String(portrait_case[1]),
+			String(portrait_case[2]),
+		)
 
 	var manual_texture := load(SHY_PORTRAIT) as Texture2D
 	slot.character_id = &"unregistered-character"
@@ -129,6 +152,34 @@ func _check_authored_stage_preview(
 
 	stage.queue_free()
 	await process_frame
+
+
+func _check_registered_portrait(
+	slot: StageActorSlot,
+	character_id: StringName,
+	expression: String,
+	expected_portrait: String,
+) -> void:
+	slot.character_id = character_id
+	slot.expression = expression
+
+	var portrait_image := slot.get_node("%PortraitImage") as TextureRect
+	var placeholder := slot.get_node("%Portrait") as ColorRect
+	_check(
+		portrait_image.texture != null,
+		"%s's %s portrait should load." % [character_id, expression],
+	)
+	if portrait_image.texture != null:
+		_check(
+			portrait_image.texture.resource_path == expected_portrait,
+			"%s's %s expression should use %s."
+			% [character_id, expression, expected_portrait],
+		)
+	_check(
+		portrait_image.visible and not placeholder.visible,
+		"%s's %s art should replace the color placeholder."
+		% [character_id, expression],
+	)
 
 
 func _check(condition: bool, message: String) -> void:

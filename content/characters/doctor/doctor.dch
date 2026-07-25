@@ -18,9 +18,23 @@
 &"offset": Vector2(0, 0),
 &"portraits": {
 "happy": {
-"offset": Vector2(0, 0)
+"export_overrides": {
+"image": "\"res://content/characters/doctor/neutral.png\""
 },
-"neutral": {}
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
 },
-&"scale": 1.0
+"neutral": {
+"export_overrides": {
+"image": "\"res://content/characters/doctor/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+}
+},
+&"scale": 0.45
 }

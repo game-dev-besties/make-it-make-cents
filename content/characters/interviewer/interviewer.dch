@@ -18,11 +18,41 @@
 &"offset": Vector2(0, 0),
 &"portraits": {
 "confused": {
-"offset": Vector2(0, 0)
+"export_overrides": {
+"image": "\"res://content/characters/interviewer/neutral.png\""
 },
-"happy": {},
-"nervous": {},
-"neutral": {}
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
 },
-&"scale": 1.0
+"happy": {
+"export_overrides": {
+"image": "\"res://content/characters/interviewer/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+},
+"nervous": {
+"export_overrides": {
+"image": "\"res://content/characters/interviewer/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+},
+"neutral": {
+"export_overrides": {
+"image": "\"res://content/characters/interviewer/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+}
+},
+&"scale": 0.45
 }

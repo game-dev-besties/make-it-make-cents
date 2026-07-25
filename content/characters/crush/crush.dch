@@ -18,10 +18,32 @@
 &"offset": Vector2(0, 0),
 &"portraits": {
 "happy": {
-"offset": Vector2(0, 0)
+"export_overrides": {
+"image": "\"res://content/characters/crush/neutral.png\""
 },
-"nervous": {},
-"neutral": {}
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
 },
-&"scale": 1.0
+"nervous": {
+"export_overrides": {
+"image": "\"res://content/characters/crush/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+},
+"neutral": {
+"export_overrides": {
+"image": "\"res://content/characters/crush/neutral.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+}
+},
+&"scale": 0.45
 }
