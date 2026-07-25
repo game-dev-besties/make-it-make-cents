@@ -265,7 +265,7 @@ func _test_start_to_phrase_delivery() -> void:
 		"The production overlay should carry the live line cost in its primary action.",
 	)
 	_check(
-		(overlay.get_node("%TitleLabel") as Label).text == "PERCY",
+		(overlay.get_node("%TitleLabel") as Label).text == "User: Percy",
 		"The phrase overlay should show the character's display name in its minimal header.",
 	)
 	var intro_stage := stage_host.current_presentation as StoryStage
