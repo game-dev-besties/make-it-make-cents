@@ -186,13 +186,12 @@ func _test_start_to_phrase_delivery() -> void:
 		return
 
 	_check(
-		(overlay.get_node("%BudgetLabel") as Label).text
-			== "This line: $15   |   Budget after: $15",
-		"The production overlay should receive intro phrase data and the live budget.",
+		(overlay.get_node("%ConfirmButton") as Button).text == "Say it  /  $15",
+		"The production overlay should carry the live line cost in its primary action.",
 	)
 	_check(
-		(overlay.get_node("%TitleLabel") as Label).text.begins_with("Trim what Percy will say"),
-		"The phrase overlay should show the character's display name, not its technical ID.",
+		(overlay.get_node("%TitleLabel") as Label).text == "PERCY",
+		"The phrase overlay should show the character's display name in its minimal header.",
 	)
 	var intro_stage := stage_host.current_presentation as StoryStage
 	if intro_stage != null:
