@@ -12,7 +12,7 @@
 },
 &"default_portrait": "neutral",
 &"description": "Percy's father and the family's determined job seeker.",
-&"display_name": "Marco",
+&"display_name": "Dad",
 &"mirror": false,
 &"nicknames": ["Dad"],
 &"offset": Vector2(0, 0),

@@ -155,12 +155,12 @@ dad: [This is deletable.]
 
     def test_text_lines_cannot_be_misparsed_as_dialogic_calls(self) -> None:
         artifact = self.compile(
-            "doctor (happy): Rosa, nice to see you again!\n"
+            "doctor (happy): Grandma, nice to see you again!\n"
             "doorways can also begin narration.\n"
         )
 
         self.assertIn(
-            "\\doctor (happy): Rosa, nice to see you again!",
+            "\\doctor (happy): Grandma, nice to see you again!",
             artifact.timeline,
         )
         self.assertIn("\\doorways can also begin narration.", artifact.timeline)

@@ -63,8 +63,8 @@
       },
       {
         "type": "phrase",
-        "text": "Mr Reed",
-        "cost": 2
+        "text": "sir",
+        "cost": 1
       },
       {
         "type": "phrase",
@@ -185,8 +185,8 @@
       },
       {
         "type": "phrase",
-        "text": "Mr Reed",
-        "cost": 2
+        "text": "indeed",
+        "cost": 1
       }
     ]
   },
@@ -201,8 +201,8 @@
       },
       {
         "type": "phrase",
-        "text": "Mr Reed",
-        "cost": 2
+        "text": "sir",
+        "cost": 1
       }
     ]
   },
@@ -212,8 +212,8 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "Dr Park",
-        "cost": 2
+        "text": "Doctor",
+        "cost": 1
       },
       {
         "type": "phrase",

@@ -58,7 +58,7 @@ func _run() -> void:
 		"about_to_show_text",
 		{"character": dad, "portrait": "happy", "text": "Hello.", "append": false},
 	)
-	_check(dad_slot.actor_name == "Marco", "The active slot should use Dialogic's display name.")
+	_check(dad_slot.actor_name == "Dad", "The active slot should use Dialogic's display name.")
 	_check(dad_slot.expression == "happy", "The active slot should use the line's portrait expression.")
 	_check(dad_slot.is_active, "The speaking character should be emphasized.")
 	_check(not interviewer_slot.is_active, "A non-speaking character should be de-emphasized.")
@@ -71,7 +71,7 @@ func _run() -> void:
 	_check(not dad_slot.is_active, "Emphasis should move away from the previous speaker.")
 	_check(interviewer_slot.is_active, "Emphasis should move to the new speaker.")
 	_check(
-		interviewer_slot.actor_name == "Mr. Reed",
+		interviewer_slot.actor_name == "Interviewer",
 		"The matching slot should use the new speaker's display name.",
 	)
 	_check(

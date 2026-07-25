@@ -11,8 +11,8 @@
 "suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "Mr. Reed, Marco's interviewer and one of the family's new neighbors.",
-&"display_name": "Mr. Reed",
+&"description": "Dad's interviewer and one of the family's new neighbors.",
+&"display_name": "Interviewer",
 &"mirror": false,
 &"nicknames": ["Interviewer"],
 &"offset": Vector2(0, 0),

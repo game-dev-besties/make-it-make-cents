@@ -54,13 +54,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.84, 1, 0.94, 1)
 theme_override_font_sizes/font_size = 22
-text = "Rosa visits the doctor"
+text = "Grandma visits the doctor"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
 character_id = &"grandma"
-actor_name = "Rosa"
+actor_name = "Grandma"
 expression = "neutral"
 accent_color = Color(0.75, 0.48, 0.74, 1)
 

@@ -11,8 +11,8 @@
 "suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "The family's grandmother and Dr. Park's patient.",
-&"display_name": "Rosa",
+&"description": "The family's grandmother and the Doctor's patient.",
+&"display_name": "Grandma",
 &"mirror": false,
 &"nicknames": ["Grandma"],
 &"offset": Vector2(0, 0),

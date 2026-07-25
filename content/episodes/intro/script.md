@@ -31,15 +31,15 @@ dad (happy): “I love you” is three dollars. That speech was twenty-five and 
 dad (happy): Good thing you got it out on the American side, bud. Cheapest therapy in the hemisphere.
 
 @cue penny_reveal
-dad (happy): We cannot do things the Ohio way anymore, so I got us a Pennybot3000 to assist with speech.
+dad (happy): We cannot do things the Ohio way anymore, so I got us a Moneybot to assist with speech.
 son (surprised): You brought a robot to the border? Are you sure this thing works?
 dad (happy): We’re about to find out.
 son (nervous): This stupid robot is going to ruin my life. I can feel it in my BODY!
 
 # Tutorial 1 — basic phrase deletion.
 dad (neutral): Okay, here’s how she works.
-dad (happy): Good morning, Pennybot3000.
-dad (happy): Pennybot3000, say hi to my son.
+dad (happy): Good morning, Moneybot.
+dad (happy): Moneybot, say hi to my son.
 penny: Hi, son of Dad.
 son (shy): [Hello,]{id=hello} [my name is Percy.]{id=name} [I am]{id=i_am} [pleased to be]{id=pleased} [here]{id=here} [in your beautiful country.]{id=beautiful}
 
@@ -55,7 +55,7 @@ else:
 
 dad (neutral): See those chunks? Every word has a price. You can sink fifteen dollars just being polite.
 dad (neutral): So you CUT. Cut until it is cheap and still means the thing.
-son (nervous): So Pennybot3000 just deletes chunks of what I say?
+son (nervous): So Moneybot just deletes chunks of what I say?
 dad (neutral): You can yell and scream all you want. Everybody else only hears the part we paid for.
 son (nervous): S-scary…
 
@@ -89,7 +89,7 @@ son (neutral): Okay, what if we run out of money?
 dad (neutral): Then you have three options, and you are not going to like two of them.
 dad (neutral): One, say nothing. Sweet, sweet nothing. Always free, always available.
 dad (neutral): Two, the Tariff Office extends one complimentary grunt to accounts in desperation.
-dad (neutral): Pennybot3000, switch us to the zero-dollar practice balance.
+dad (neutral): Moneybot, switch us to the zero-dollar practice balance.
 @budget 0
 
 ## try_pity_grunt

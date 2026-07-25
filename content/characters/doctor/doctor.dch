@@ -11,8 +11,8 @@
 "suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "Dr. Park, Rosa's doctor and one of the family's new neighbors.",
-&"display_name": "Dr. Park",
+&"description": "Grandma's doctor and one of the family's new neighbors.",
+&"display_name": "Doctor",
 &"mirror": false,
 &"nicknames": ["Doctor"],
 &"offset": Vector2(0, 0),

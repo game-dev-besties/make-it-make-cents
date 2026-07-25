@@ -12,7 +12,7 @@
 },
 &"default_portrait": "neutral",
 &"description": "Percy's mother.",
-&"display_name": "Elena",
+&"display_name": "Mom",
 &"mirror": false,
 &"nicknames": ["Mom"],
 &"offset": Vector2(0, 0),
