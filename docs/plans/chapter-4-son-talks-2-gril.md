@@ -214,8 +214,8 @@ Arrival and prior-chapter checks
   -> first jingle
        empathy + Dad soda/butts/none reaction
        girl_heard_jingle = true
-  -> establish the three-word budget
-  -> force balance back to $0 after "Pretty much"
+  -> establish that each jingle adds three words
+  -> preserve any unspent balance throughout the scene
   -> react to silence/grunt/jingle
   -> ask remembered-topic follow-ups
   -> zero-cost yes/no protocol
@@ -300,11 +300,11 @@ reaction rather than routing the sponsor through dialogue written for silence.
 
 ### Post-jingle
 
-- The sponsor grants `$3`.
-- The `[One][two][three]` prompt naturally demonstrates that cap.
+- The sponsor adds `$3` to Percy's current balance.
+- The `[One][two][three]` prompt naturally demonstrates that increment.
 - Let `[Pretty much.]` spend what remains if affordable.
-- Immediately use `@budget 0` after that response so all paths reach the next
-  three-option panel at zero, as required by "REGARDLESS".
+- Never overwrite the balance after a jingle; any positive remainder carries
+  into the next prompt.
 - Use the normal repeatable recovery responses for the reaction and all three
   questions.
 - One silence on the third question is Percy's explicit no and sets

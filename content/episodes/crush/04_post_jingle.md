@@ -1,4 +1,4 @@
-# Clem now understands that every jingle buys Percy only three words.
+# Clem now understands that every jingle buys Percy three more words.
 
 crush (neutral): So you dance for Big Sam, you sing about how you’re a sucker for their Soda, la la la, great.
 crush (neutral): How many words does that give you?
@@ -14,14 +14,14 @@ elif delivery("pity"):
   crush (nervous): Huh? How many?
   -> word_count
 elif kept_count() == 1 or kept_count() == 3:
-  crush (neutral): So basically, every sentence, you go bankrupt again.
+  crush (neutral): So basically, you keep risking bankruptcy just to finish a sentence.
 
   @sponsor_score 0
   @sponsor_text "BOP TO THE TOP WITH SAM’S SODA POP!"
   son (neutral): [Pretty much.]{id=pretty_much}
 
   if kept("pretty_much"):
-    crush (nervous): Wow. So that means you’re down to nothing again?
+    crush (nervous): Wow. So that means you’re almost broke again?
   elif delivery("silence"):
     crush (nervous): …you just said a whole lot of nothing and somehow… that’s a lot.
     crush (neutral): Cool. Cool cool cool.
@@ -30,12 +30,11 @@ elif kept_count() == 1 or kept_count() == 3:
     crush (neutral): Ahem, …nothing. Forget it. It was a good hnf. MOVING ON.
   elif delivery("sponsor"):
     crush (happy): Pffft, you didn’t have to—
-    crush (neutral): Must mean you’re zeroed out again, right?
+    crush (neutral): Must mean you were running low again, right?
 else:
   crush (nervous): Huh? How many?
   -> word_count
 
-@budget 0
 crush (neutral): That’s a bummer… I really wanted to ask you about a lot of things.
 
 if flag("son_mentioned_uprooted"):
@@ -58,7 +57,6 @@ crush (happy): Okay, new rule! I talk, and you don’t spend a thing if you don�
 crush (neutral): Saying nothing means no, grunting means yes.
 crush (neutral): Question one, do you hate it here?
 
-@budget 0
 @recovery pity,sponsor
 @sponsor_score 0
 @sponsor_text "YOU! CAN’T! STOP! SAM’S SODA POP!"
@@ -79,7 +77,6 @@ elif delivery("sponsor"):
 
 crush (neutral): Question two… was any of the stuff you said back there stuff that you told anyone before?
 
-@budget 0
 @recovery pity,sponsor
 @sponsor_score 0
 @sponsor_text "PRICES BE DROPPIN’ WHILE SAM’S SODA POPPIN’!"
@@ -97,7 +94,6 @@ elif delivery("sponsor"):
 crush (neutral): Question three, last one.
 crush (nervous): Do you want to keep talking to me? Even if it’s three words at a time?
 
-@budget 0
 @recovery pity,sponsor
 @sponsor_score 0
 @sponsor_text "EVERY SINGLE DROP OF SAM’S SODA POP IS THE CREAM OF THE CROP!"
@@ -118,7 +114,6 @@ elif delivery("silence"):
 elif delivery("sponsor"):
   crush (nervous): You– that wasn’t a yes or no! What does that even mean??
 
-@budget 3
 @sponsor_score 0
 @sponsor_text "OH MAN, I GOTTA COP THAT SAM’S SODA POP!"
 son (shy): [Yes.]{id=yes} [Three words at a time]{id=three_words} [for]{id=for} [as long as]{id=as_long} [you’ll let me.]{id=let_me} [Please don’t make me jingle for that too...]{id=please}

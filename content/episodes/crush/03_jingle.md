@@ -1,6 +1,5 @@
 ## first_jingle
 SET girl_heard_jingle = true
-@budget 3
 
 crush (nervous): Wait a second, that soda pop jingle sounds familiar…
 crush (nervous): You’re an immigrant?!
@@ -36,8 +35,6 @@ CHECK son_showed_tariff_empathy == true as clem_realizes_percy_defended_another_
     crush (happy): Don’t let it go to your head, soda guy.
 
 CHECK son_showed_tariff_empathy == false as clem_learns_percy_is_an_immigrant:
-  crush (neutral): They only make you do the soda jingle when you’re down to nothing.
+  crush (neutral): They only make you do the soda jingle when you’re too broke to say anything.
   crush (neutral): You didn’t have to let me see that. Most people would’ve clammed up and gone home. (I’ve seen many such cases...)
   crush (happy): …Okay, I get it now.
-
-@budget 3

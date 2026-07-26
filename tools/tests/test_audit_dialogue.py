@@ -332,20 +332,9 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 if finding["severity"] == "high"
                 and finding["kind"] == "exact"
             },
-            {
-                (
-                    "UNREACHABLE_RESPONSE_BRANCH",
-                    "crush_L017",
-                    'Response branch is never selected: kept("did_at_first")',
-                ),
-                (
-                    "UNREACHABLE_RESPONSE_BRANCH",
-                    "crush_L018",
-                    'Response branch is never selected: kept("sorry_overshare")',
-                ),
-            },
-            "Only the two intentionally unaffordable post-jingle full-sentence "
-            "responses should be structurally unreachable.",
+            set(),
+            "Carried sponsor credit should keep every post-jingle response "
+            "structurally reachable.",
         )
         forced_jingle = next(
             question
@@ -582,6 +571,9 @@ class ChapterAuditSmokeTests(unittest.TestCase):
         post_jingle = (crush_dir / "04_post_jingle.md").read_text(
             encoding="utf-8"
         )
+        jingle = (crush_dir / "03_jingle.md").read_text(encoding="utf-8")
+        self.assertNotIn("@budget", jingle)
+        self.assertNotIn("@budget", post_jingle)
         self.assertIn(
             'if delivery("pity"):\n'
             '  crush (nervous): ...yes? That’s a yeah, right?\n'
