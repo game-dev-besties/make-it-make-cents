@@ -41,6 +41,7 @@ directories/dch_directory={
 "son": "res://content/characters/son/son.dch"
 }
 directories/dtl_directory={
+"crush/dialogue": "res://content/episodes/crush/dialogue.dtl",
 "dad/dialogue": "res://content/episodes/dad/dialogue.dtl",
 "dialogue": "res://content/episodes/intro/dialogue.dtl",
 "grandma/dialogue": "res://content/episodes/grandma/dialogue.dtl",

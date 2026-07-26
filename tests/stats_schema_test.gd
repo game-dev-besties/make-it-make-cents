@@ -8,8 +8,6 @@ const RUNTIME_SERIALIZED_KEYS := [
 	"cutscene_reserved_savings",
 	"cutscene_sponsor_credit",
 	"cutscene_open",
-	"pity_used",
-	"sponsor_used",
 	"values",
 	"story_flags",
 ]

@@ -26,13 +26,8 @@
       },
       {
         "type": "phrase",
-        "text": "I didn't mean",
-        "cost": 3
-      },
-      {
-        "type": "phrase",
-        "text": "to be strange",
-        "cost": 3
+        "text": "I panicked",
+        "cost": 2
       }
     ]
   },
@@ -53,6 +48,59 @@
     ]
   },
   "neighbors_L004": {
+    "speaker": "son",
+    "expr": "surprised",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Clementine",
+        "cost": 1
+      },
+      {
+        "type": "phrase",
+        "text": "you live here",
+        "cost": 3
+      }
+    ]
+  },
+  "neighbors_L005": {
+    "speaker": "son",
+    "expr": "sad",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I'm sorry",
+        "cost": 2
+      },
+      {
+        "type": "phrase",
+        "text": "I didn't mean",
+        "cost": 3
+      },
+      {
+        "type": "phrase",
+        "text": "to be strange",
+        "cost": 3
+      }
+    ]
+  },
+  "neighbors_L006": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Maybe",
+        "cost": 1
+      },
+      {
+        "type": "phrase",
+        "text": "at the park",
+        "cost": 3
+      }
+    ]
+  },
+  "neighbors_L007": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -73,7 +121,7 @@
       }
     ]
   },
-  "neighbors_L005": {
+  "neighbors_L008": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -89,7 +137,7 @@
       }
     ]
   },
-  "neighbors_L006": {
+  "neighbors_L009": {
     "speaker": "dad",
     "expr": "sad",
     "segments": [
@@ -115,7 +163,7 @@
       }
     ]
   },
-  "neighbors_L007": {
+  "neighbors_L010": {
     "speaker": "dad",
     "expr": "sad",
     "segments": [
@@ -131,7 +179,7 @@
       }
     ]
   },
-  "neighbors_L008": {
+  "neighbors_L011": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -147,7 +195,7 @@
       }
     ]
   },
-  "neighbors_L009": {
+  "neighbors_L012": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -158,7 +206,7 @@
       }
     ]
   },
-  "neighbors_L010": {
+  "neighbors_L013": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -174,7 +222,7 @@
       }
     ]
   },
-  "neighbors_L011": {
+  "neighbors_L014": {
     "speaker": "dad",
     "expr": "happy",
     "segments": [
@@ -190,7 +238,7 @@
       }
     ]
   },
-  "neighbors_L012": {
+  "neighbors_L015": {
     "speaker": "dad",
     "expr": "nervous",
     "segments": [
@@ -206,7 +254,7 @@
       }
     ]
   },
-  "neighbors_L013": {
+  "neighbors_L016": {
     "speaker": "grandma",
     "expr": "happy",
     "segments": [
@@ -222,7 +270,7 @@
       }
     ]
   },
-  "neighbors_L014": {
+  "neighbors_L017": {
     "speaker": "grandma",
     "expr": "happy",
     "segments": [

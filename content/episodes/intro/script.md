@@ -89,7 +89,7 @@ dad (happy): You got it. Even your grandma has been doing it since the airport!
 son (neutral): Okay, what if we run out of money?
 dad (neutral): Then you have three options, and you are not going to like two of them.
 dad (neutral): One, say nothing. Sweet, sweet nothing. Always free, always available.
-dad (neutral): Two, the Tariff Office extends one complimentary grunt to accounts in desperation.
+dad (neutral): Two, you can grunt for free when words cost too much.
 dad (neutral): Moneybot, switch us to the zero-dollar practice balance.
 @budget 0
 
@@ -99,7 +99,7 @@ son (nervous): [I need]{id=need} [to answer.]{id=answer}
 
 if delivery("pity"):
   dad (neutral): Hnf, yeah. It means “I acknowledge you, and I’m broke.”
-  dad (neutral): You only get one. After that, it is silence or the sponsor.
+  dad (neutral): You only get one in this practice step. After that, it is silence or the sponsor.
 else:
   dad (happy): Sweet nothing is the cheapest option, but don’t be shy. Try the complimentary grunt once.
   -> try_pity_grunt
@@ -141,6 +141,7 @@ son (nervous): They are appalled, but nobody says anything because that would co
 officer: Are these prescription medications declared?
 dad (nervous): They belong to my mother.
 officer: Then declare them clearly.
+@recovery none
 son (nervous): [They are]{id=they_are} [Grandma’s]{id=grandmas} [prescription]{id=prescription} [pills.]{id=pills}
 
 if kept("prescription") and kept("pills"):

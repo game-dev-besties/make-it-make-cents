@@ -135,8 +135,6 @@ class SimState:
     budget: int
     stats: tuple[tuple[str, object], ...]
     flags: tuple[tuple[str, object], ...]
-    pity_used: bool = False
-    sponsor_used: bool = False
     phrase: PhraseMemory | None = None
     halted: bool = False
 
@@ -151,8 +149,6 @@ class SimState:
             self.budget,
             self.stats,
             self.flags,
-            self.pity_used,
-            self.sponsor_used,
             self.halted,
         )
 
@@ -354,6 +350,8 @@ class ConditionEvaluator:
             argument = self._visit(node.args[0]) if node.args else None
             if function == "flag":
                 return self.flags[str(argument)]
+            if function == "budget":
+                return self.state.budget
             if self.phrase is None:
                 if function == "kept_count":
                     return 0
@@ -380,7 +378,7 @@ def _condition_is_phrase_local(expression: str) -> bool:
         if (
             isinstance(node, ast.Call)
             and isinstance(node.func, ast.Name)
-            and node.func.id == "flag"
+            and node.func.id in {"flag", "budget"}
         ):
             return False
     return True
@@ -631,6 +629,22 @@ class EpisodeAuditor:
     ) -> Frontier:
         frontier = _clear_phrase_and_collapse(frontier)
         phrases = tuple(statement["phrases"])
+        normalized_frontier: Frontier = {}
+        cheapest_delivery = min(
+            (int(phrase["cost"]) for phrase in phrases),
+            default=-1,
+        )
+        for state, reach in frontier.items():
+            normalized_state = (
+                replace(state, budget=0)
+                if (
+                    state.budget > 0
+                    and cheapest_delivery > state.budget
+                )
+                else state
+            )
+            _add(normalized_frontier, normalized_state, reach)
+        frontier = normalized_frontier
         line = statement["line"]
         line_id = self._phrase_ids[id(statement)]
         question = self.questions.get(line_id)
@@ -736,9 +750,9 @@ class EpisodeAuditor:
                 yield CaseKey("silence", (), 0)
             else:
                 yield CaseKey("normal", kept, cost)
-        if "pity" in recovery and not state.pity_used:
+        if "pity" in recovery:
             yield CaseKey("pity", (), 0)
-        if "sponsor" in recovery and not state.sponsor_used:
+        if "sponsor" in recovery:
             yield CaseKey("sponsor", (), 0)
 
     def _apply_delivery(
@@ -751,14 +765,13 @@ class EpisodeAuditor:
         if case.delivery == "normal":
             return replace(state, budget=state.budget - case.cost)
         if case.delivery == "pity":
-            return replace(state, pity_used=True)
+            return state
         if case.delivery != "sponsor":
             return state
 
         next_state = replace(
             state,
             budget=state.budget + SPONSOR_CREDIT,
-            sponsor_used=True,
         )
         score_group = {
             "percy": "son",
@@ -1727,13 +1740,11 @@ class EpisodeAuditor:
         mechanics: tuple[object, ...],
         reach: Reach,
     ) -> dict:
-        budget, stats, flags, pity_used, sponsor_used, halted = mechanics
+        budget, stats, flags, halted = mechanics
         return {
             "budget": budget,
             "stats": dict(stats),
             "flags": dict(flags),
-            "pity_used": pity_used,
-            "sponsor_used": sponsor_used,
             "halted": halted,
             "raw_paths": reach.paths,
             "example": list(reach.example),
@@ -1962,8 +1973,8 @@ def _format_markdown(report: dict, *, include_states: bool) -> str:
                         "mechanical states after this response</summary>"
                     ),
                     "",
-                    "| Budget | Stats | Flags | Pity | Sponsor | Raw paths | Example |",
-                    "|---:|---|---|---|---|---:|---|",
+                    "| Budget | Stats | Flags | Raw paths | Example |",
+                    "|---:|---|---|---:|---|",
                 ]
             )
             for state in question["post_states"]:
@@ -1976,7 +1987,6 @@ def _format_markdown(report: dict, *, include_states: bool) -> str:
                 example = " → ".join(state["example"]).replace("|", "\\|")
                 lines.append(
                     f"| ${state['budget']} | {stats} | {flags} | "
-                    f"{state['pity_used']} | {state['sponsor_used']} | "
                     f"{state['raw_paths']:,} | {example} |"
                 )
             lines.extend(["", "</details>"])

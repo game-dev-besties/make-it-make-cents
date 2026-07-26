@@ -72,7 +72,7 @@ else:
 \son (neutral): Okay, what if we run out of money?
 \dad (neutral): Then you have three options, and you are not going to like two of them.
 \dad (neutral): One, say nothing. Sweet, sweet nothing. Always free, always available.
-\dad (neutral): Two, the Tariff Office extends one complimentary grunt to accounts in desperation.
+\dad (neutral): Two, you can grunt for free when words cost too much.
 \dad (neutral): Moneybot, switch us to the zero-dollar practice balance.
 budget_set 0
 label try_pity_grunt
@@ -80,7 +80,7 @@ recovery_policy pity
 phrase_cut son (nervous) intro_L003
 if PhraseMemory.delivery_is("pity"):
 	\dad (neutral): Hnf, yeah. It means “I acknowledge you, and I’m broke.”
-	\dad (neutral): You only get one. After that, it is silence or the sponsor.
+	\dad (neutral): You only get one in this practice step. After that, it is silence or the sponsor.
 else:
 	\dad (happy): Sweet nothing is the cheapest option, but don’t be shy. Try the complimentary grunt once.
 	goto_label try_pity_grunt
@@ -115,6 +115,7 @@ presentation_cue customs_focus
 \officer: Are these prescription medications declared?
 \dad (nervous): They belong to my mother.
 \officer: Then declare them clearly.
+recovery_policy none
 phrase_cut son (nervous) intro_L005
 if PhraseMemory.kept("prescription") and PhraseMemory.kept("pills"):
 	set {GameStats.intro_pills_confiscated} = false

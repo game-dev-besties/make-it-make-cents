@@ -4,7 +4,21 @@
 grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
 interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
 
-if son.success > 5:
+if flag("got_the_girl") == "yes":
+  crush (happy): Wait — you’re that sweet kid from the park! Percy!
+  son (surprised): [Clementine] [you live here]
+  crush (happy): I told you I’d see you around. Guess it’s today!
+  -> warm
+elif flag("got_the_girl") == "baited":
+  crush (nervous): ...You.
+  crush (nervous): You’re the one who didn’t want to keep talking.
+  son (sad): [I'm sorry] [I panicked]
+  -> chilly
+elif flag("got_the_girl") == "no":
+  crush (neutral): ...Huh. You look familiar. Have we met?
+  son (nervous): [Maybe] [at the park]
+  -> neutral_end
+elif son.success > 5:
   crush (happy): Wait — you're that sweet kid from the park! Percy!
   son (surprised): [Clementine] [you live here]
   crush (happy): I told you I'd see you tomorrow. Guess it's today!

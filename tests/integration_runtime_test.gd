@@ -15,6 +15,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_test_budget_and_recovery()
+	_test_effective_zero_affordability()
 	_test_state_round_trip()
 	_test_story_flags_and_history()
 	_test_phrase_recovery_policy()
@@ -35,13 +36,14 @@ func _test_budget_and_recovery() -> void:
 	_check(state.remaining_budget() == 5, "A cutscene should start with its episode budget.")
 	_check(state.can_use_pity(), "HNF should be available while budget remains.")
 	_check(state.can_use_sponsor(), "Sponsor should be available while budget remains.")
-	_check(state.use_pity(), "HNF should be usable once.")
-	_check(not state.use_pity(), "HNF should not be reusable in one cutscene.")
-	_check(state.use_sponsor(3), "Sponsor should be usable once.")
+	_check(state.use_pity(), "HNF should be usable.")
+	_check(state.use_pity(), "HNF should remain available in the same cutscene.")
+	_check(state.use_sponsor(3), "Sponsor should be usable.")
 	_check(state.remaining_budget() == 8, "Sponsor should add three dollars.")
-	_check(state.spend(10) == 8, "Spending should not overdraw the budget.")
+	_check(state.use_sponsor(3), "Sponsor should remain available in the same cutscene.")
+	_check(state.remaining_budget() == 11, "Repeated sponsor use should add three more dollars.")
+	_check(state.spend(20) == 11, "Spending should not overdraw the budget.")
 	_check(state.remaining_budget() == 0, "Spending should reach zero exactly.")
-	_check(not state.use_sponsor(3), "Sponsor should not be reusable in one cutscene.")
 	state.end_cutscene()
 	_check(
 		state.money_total_saved == 0,
@@ -49,7 +51,45 @@ func _test_budget_and_recovery() -> void:
 	)
 
 	state.begin_cutscene(2)
-	_check(not state.pity_used and not state.sponsor_used, "Recovery use should reset.")
+	_check(state.can_use_pity() and state.can_use_sponsor(), "Recovery should be available.")
+	state.free()
+
+
+func _test_effective_zero_affordability() -> void:
+	var state: GameStateStore = GAME_STATE_SCRIPT.new()
+	var phrase_event := DialogicPhraseCutEvent.new()
+	state.begin_cutscene(1)
+	var budget: int = phrase_event.call(
+		"_reserve_unaffordable_remainder",
+		state,
+		[{"type": "phrase", "text": "Two words", "cost": 2}],
+		1,
+	)
+	_check(budget == 0, "An unaffordable positive remainder should become zero.")
+	_check(state.remaining_budget() == 0, "Effective zero should update the real budget.")
+	_check(
+		state.cutscene_reserved_savings == 1,
+		"An unaffordable cash remainder should be reserved as savings.",
+	)
+	_check(state.use_sponsor(3), "Sponsor should remain available after effective zero.")
+	_check(
+		state.remaining_budget() == 3,
+		"Sponsor should provide exactly three words after effective zero.",
+	)
+	state.end_cutscene()
+	_check(
+		state.money_total_saved == 1,
+		"Sponsor credit should not be saved with the reserved cash remainder.",
+	)
+
+	state.begin_cutscene(1)
+	budget = phrase_event.call(
+		"_reserve_unaffordable_remainder",
+		state,
+		[{"type": "phrase", "text": "Free", "cost": 0}],
+		1,
+	)
+	_check(budget == 1, "A zero-cost spoken phrase should prevent effective zero.")
 	state.free()
 
 

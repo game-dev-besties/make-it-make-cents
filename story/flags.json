@@ -73,6 +73,126 @@
           "description": "Percy successfully defended himself from the bully."
         }
       ]
+    },
+    {
+      "name": "son_showed_tariff_empathy",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not explain the interview candidate's tariffed speech."
+        },
+        {
+          "value": true,
+          "description": "Percy recognized that the interview candidate was another immigrant being tariffed."
+        }
+      ]
+    },
+    {
+      "name": "girl_heard_jingle",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Clementine has not heard Percy perform the Sam's Soda jingle."
+        },
+        {
+          "value": true,
+          "description": "Clementine heard Percy perform the Sam's Soda jingle."
+        }
+      ]
+    },
+    {
+      "name": "percy_opened_up",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not open up to Clementine."
+        },
+        {
+          "value": true,
+          "description": "Percy shared something sincere with Clementine."
+        }
+      ]
+    },
+    {
+      "name": "son_mentioned_uprooted",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not explain that his old life was uprooted."
+        },
+        {
+          "value": true,
+          "description": "Percy told Clementine that his family uprooted their old life."
+        }
+      ]
+    },
+    {
+      "name": "son_mentioned_sold_everything",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not mention everything his family sold."
+        },
+        {
+          "value": true,
+          "description": "Percy told Clementine that his family sold everything."
+        }
+      ]
+    },
+    {
+      "name": "son_mentioned_grandma_sick",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not tell Clementine that Grandma is sick."
+        },
+        {
+          "value": true,
+          "description": "Percy told Clementine about Grandma's illness."
+        }
+      ]
+    },
+    {
+      "name": "son_mentioned_mixed_feelings",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not explain his tangled feelings about moving."
+        },
+        {
+          "value": true,
+          "description": "Percy admitted that he feels angry, sad, and grateful at once."
+        }
+      ]
+    },
+    {
+      "name": "got_the_girl",
+      "default": "unresolved",
+      "values": [
+        {
+          "value": "unresolved",
+          "description": "Percy and Clementine have not had their park conversation yet."
+        },
+        {
+          "value": "no",
+          "description": "Percy did not connect with Clementine in the park."
+        },
+        {
+          "value": "baited",
+          "description": "Percy opened up, then broke Clementine's heart by rejecting her."
+        },
+        {
+          "value": "yes",
+          "description": "Percy and Clementine want to keep talking."
+        }
+      ]
     }
   ]
 }
