@@ -11,14 +11,20 @@ if PhraseMemory.delivery_is("sponsor"):
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: Nothing? You have nothing to say about yourself? Not a good start, sir.
 	set {GameStats.dad_success} -= 3
-elif PhraseMemory.kept_count() == 5:
+elif PhraseMemory.kept("best") and (PhraseMemory.kept("iam") or PhraseMemory.kept("candidate")):
 	\interviewer: Right. Straight to the point, I see. I like it.
 	set {GameStats.dad_success} += 1
-elif PhraseMemory.kept("iam") and PhraseMemory.kept("best") and PhraseMemory.removed("ever"):
-	\interviewer: Right. Straight to the point, I see. I like it.
-	set {GameStats.dad_success} += 1
-elif PhraseMemory.kept("iam") and PhraseMemory.removed("best") and PhraseMemory.removed("ever") and PhraseMemory.removed("guaranteed"):
+elif PhraseMemory.kept("candidate"):
 	\interviewer: You…certainly are.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("best"):
+	\interviewer: Right. Straight to the point, I see. I like it.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("iam") and PhraseMemory.removed("ever"):
+	\interviewer: You…certainly are.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("guaranteed"):
+	\interviewer: Right. Straight to the point, I see. I like it.
 	set {GameStats.dad_silly} += 1
 else:
 	\interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
@@ -34,19 +40,26 @@ if PhraseMemory.delivery_is("sponsor"):
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: You really can’t think of a reason? Hmph, not very professional.
 	set {GameStats.dad_success} -= 3
-elif PhraseMemory.kept("money") and PhraseMemory.removed("but") and PhraseMemory.removed("contribute"):
+elif PhraseMemory.kept("money") and PhraseMemory.kept("contribute"):
+	\interviewer: Hmm, yes, your resume seems to agree.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("money"):
 	\interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("contribute") and PhraseMemory.removed("money") and PhraseMemory.removed("but"):
+elif PhraseMemory.kept("contribute"):
 	\interviewer: Hmm, yes, your resume seems to agree.
 	set {GameStats.dad_success} += 2
-elif PhraseMemory.kept("but") and PhraseMemory.kept_count() == 1:
+elif PhraseMemory.kept("but"):
 	\interviewer: Sir, I suggest you focus less on behinds and more on business.
 	set {GameStats.dad_success} -= 2
 	set {GameStats.dad_silly} += 2
 	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
 		story_flag_set {"name":"dad_offended_interviewer","value":"butts"}
+elif PhraseMemory.kept("honestly"):
+	\interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
 else:
 	\interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
 	set {GameStats.dad_success} -= 3
@@ -61,21 +74,25 @@ elif PhraseMemory.delivery_is("silence"):
 	\interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
 	set {GameStats.dad_success} += 1
 	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("family") and PhraseMemory.removed("wanted") and PhraseMemory.removed("balance") and PhraseMemory.removed("and") and PhraseMemory.removed("career") and PhraseMemory.removed("workload"):
+elif PhraseMemory.kept("workload"):
+	\interviewer: Happens to the best of us.
+	set {GameStats.dad_success} += 2
+elif PhraseMemory.kept("balance") and (PhraseMemory.kept("family") or PhraseMemory.kept("career")):
+	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
+	set {GameStats.dad_success} += 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("balance"):
+	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("family"):
 	\interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
 	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
 		story_flag_set {"name":"dad_offended_interviewer","value":"family"}
-elif PhraseMemory.kept("wanted") and PhraseMemory.kept_count() == 1:
+elif PhraseMemory.kept("wanted"):
 	\interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
 	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("balance") and PhraseMemory.removed("and") and PhraseMemory.removed("career") and PhraseMemory.removed("unfortunately") and PhraseMemory.removed("workload"):
-	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
-	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("workload") and PhraseMemory.removed("wanted") and PhraseMemory.removed("balance") and PhraseMemory.removed("family") and PhraseMemory.removed("and") and PhraseMemory.removed("career"):
-	\interviewer: Happens to the best of us.
-	set {GameStats.dad_success} += 2
 else:
 	\interviewer: Hmm. Not sure I understand what you mean. Think your meaning got a little jumbled there.
 	set {GameStats.dad_success} -= 3
@@ -88,24 +105,30 @@ if PhraseMemory.delivery_is("sponsor"):
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: No weaknesses!? Very impressive.
 	set {GameStats.dad_success} += 1
-elif PhraseMemory.kept("have") and PhraseMemory.kept("no") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3:
+elif PhraseMemory.kept("no") and PhraseMemory.kept("experience"):
 	\interviewer: Tsk, tsk. Not what we’re looking for.
 	set {GameStats.dad_success} -= 1
-elif PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 2:
+elif PhraseMemory.kept("experience") and PhraseMemory.kept("fast"):
+	\interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("experience"):
 	\interviewer: That’s…a weakness? What kind of experience are you talking about? Ah… nevermind.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("fast") and PhraseMemory.removed("no") and PhraseMemory.removed("but") and (PhraseMemory.kept_count() == 1 or (PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3)):
+elif PhraseMemory.kept("fast"):
 	\interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
-	set {GameStats.dad_success} -= 2
-elif PhraseMemory.kept("but") and PhraseMemory.removed("experience") and PhraseMemory.removed("fast") and PhraseMemory.kept_count() >= 2:
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("but"):
 	\interviewer: Sir!? That’s-that’s not something I need to know. Please don’t continue talking about your butt…
 	set {GameStats.dad_success} -= 2
 	set {GameStats.dad_silly} += 2
 	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
 		story_flag_set {"name":"dad_offended_interviewer","value":"butts"}
-elif PhraseMemory.kept("no") and PhraseMemory.kept_count() == 1:
+elif PhraseMemory.kept("no"):
 	\interviewer: No weaknesses!? Very impressive.
+	set {GameStats.dad_success} += 1
 else:
 	\interviewer: Hmm. Not sure I understand what you mean.
 	set {GameStats.dad_success} -= 3

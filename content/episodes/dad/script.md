@@ -19,14 +19,20 @@ if delivery("sponsor"):
 elif delivery("silence"):
   interviewer: Nothing? You have nothing to say about yourself? Not a good start, sir.
   dad.success -= 3
-elif kept_count() == 5:
+elif kept("best") and (kept("iam") or kept("candidate")):
   interviewer: Right. Straight to the point, I see. I like it.
   dad.success += 1
-elif kept("iam") and kept("best") and removed("ever"):
-  interviewer: Right. Straight to the point, I see. I like it.
-  dad.success += 1
-elif kept("iam") and removed("best") and removed("ever") and removed("guaranteed"):
+elif kept("candidate"):
   interviewer: You…certainly are.
+  dad.silly += 1
+elif kept("best"):
+  interviewer: Right. Straight to the point, I see. I like it.
+  dad.silly += 1
+elif kept("iam") and removed("ever"):
+  interviewer: You…certainly are.
+  dad.silly += 1
+elif kept("guaranteed"):
+  interviewer: Right. Straight to the point, I see. I like it.
   dad.silly += 1
 else:
   interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
@@ -46,19 +52,26 @@ if delivery("sponsor"):
 elif delivery("silence"):
   interviewer: You really can’t think of a reason? Hmph, not very professional.
   dad.success -= 3
-elif kept("money") and removed("but") and removed("contribute"):
+elif kept("money") and kept("contribute"):
+  interviewer: Hmm, yes, your resume seems to agree.
+  dad.success += 1
+elif kept("money"):
   interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
   dad.success -= 1
   dad.silly += 1
-elif kept("contribute") and removed("money") and removed("but"):
+elif kept("contribute"):
   interviewer: Hmm, yes, your resume seems to agree.
   dad.success += 2
-elif kept("but") and kept_count() == 1:
+elif kept("but"):
   interviewer: Sir, I suggest you focus less on behinds and more on business.
   dad.success -= 2
   dad.silly += 2
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "butts"
+elif kept("honestly"):
+  interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
+  dad.success -= 1
+  dad.silly += 1
 else:
   interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
   dad.success -= 3
@@ -77,21 +90,25 @@ elif delivery("silence"):
   interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
   dad.success += 1
   dad.silly += 1
-elif kept("family") and removed("wanted") and removed("balance") and removed("and") and removed("career") and removed("workload"):
+elif kept("workload"):
+  interviewer: Happens to the best of us.
+  dad.success += 2
+elif kept("balance") and (kept("family") or kept("career")):
+  interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
+  dad.success += 1
+  dad.silly += 1
+elif kept("balance"):
+  interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
+  dad.silly += 1
+elif kept("family"):
   interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
   dad.success -= 1
   dad.silly += 1
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "family"
-elif kept("wanted") and kept_count() == 1:
+elif kept("wanted"):
   interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
   dad.silly += 1
-elif kept("balance") and removed("and") and removed("career") and removed("unfortunately") and removed("workload"):
-  interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
-  dad.silly += 1
-elif kept("workload") and removed("wanted") and removed("balance") and removed("family") and removed("and") and removed("career"):
-  interviewer: Happens to the best of us.
-  dad.success += 2
 else:
   interviewer: Hmm. Not sure I understand what you mean. Think your meaning got a little jumbled there.
   dad.success -= 3
@@ -108,24 +125,30 @@ if delivery("sponsor"):
 elif delivery("silence"):
   interviewer: No weaknesses!? Very impressive.
   dad.success += 1
-elif kept("have") and kept("no") and kept("experience") and kept_count() == 3:
+elif kept("no") and kept("experience"):
   interviewer: Tsk, tsk. Not what we’re looking for.
   dad.success -= 1
-elif kept("have") and kept("experience") and kept_count() == 2:
+elif kept("experience") and kept("fast"):
+  interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+  dad.success -= 1
+  dad.silly += 1
+elif kept("experience"):
   interviewer: That’s…a weakness? What kind of experience are you talking about? Ah… nevermind.
   dad.success -= 1
   dad.silly += 1
-elif kept("fast") and removed("no") and removed("but") and (kept_count() == 1 or (kept("have") and kept("experience") and kept_count() == 3)):
+elif kept("fast"):
   interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
-  dad.success -= 2
-elif kept("but") and removed("experience") and removed("fast") and kept_count() >= 2:
+  dad.success -= 1
+  dad.silly += 1
+elif kept("but"):
   interviewer: Sir!? That’s-that’s not something I need to know. Please don’t continue talking about your butt…
   dad.success -= 2
   dad.silly += 2
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "butts"
-elif kept("no") and kept_count() == 1:
+elif kept("no"):
   interviewer: No weaknesses!? Very impressive.
+  dad.success += 1
 else:
   interviewer: Hmm. Not sure I understand what you mean.
   dad.success -= 3

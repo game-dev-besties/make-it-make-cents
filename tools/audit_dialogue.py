@@ -138,6 +138,7 @@ class IfAudit:
     selected_paths: Counter[int] = field(default_factory=Counter)
     independently_true_paths: Counter[int] = field(default_factory=Counter)
     overlap_paths: int = 0
+    overlap_cases: set[CaseKey] = field(default_factory=set)
     overlap_examples: list[str] = field(default_factory=list)
 
 
@@ -657,6 +658,14 @@ class EpisodeAuditor:
                 audit.independently_true_paths[index] += reach.paths
             if len(true_indices) > 1:
                 audit.overlap_paths += reach.paths
+                if state.phrase is not None:
+                    audit.overlap_cases.add(
+                        CaseKey(
+                            state.phrase.delivery,
+                            state.phrase.kept_indices,
+                            state.phrase.cost,
+                        )
+                    )
                 if len(audit.overlap_examples) < 3:
                     audit.overlap_examples.append(_state_summary(state))
 
@@ -1072,6 +1081,12 @@ class EpisodeAuditor:
                             }
                         )
                 if if_audit.overlap_paths:
+                    unique_case_count = len(if_audit.overlap_cases)
+                    unique_case_summary = (
+                        f"{unique_case_count} unique selection(s), "
+                        if unique_case_count
+                        else ""
+                    )
                     findings.append(
                         {
                             "severity": "low",
@@ -1079,9 +1094,10 @@ class EpisodeAuditor:
                             "kind": "heuristic",
                             "line_id": question.line_id,
                             "message": (
-                                f"{if_audit.overlap_paths} enumerated path(s) "
-                                "make multiple response conditions true; "
-                                "first match wins."
+                                f"{unique_case_summary}"
+                                f"{if_audit.overlap_paths} raw history path(s) "
+                                "make multiple response conditions true; first "
+                                "match wins."
                             ),
                         }
                     )

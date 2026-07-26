@@ -28,24 +28,48 @@ class DialogueAuditTests(unittest.TestCase):
             ["normal", "silence"],
         )
 
-    def test_surfaces_known_dad_interview_blind_spots(self) -> None:
+    def test_surfaces_remaining_dad_interview_risks(self) -> None:
         findings = {
             (finding["code"], finding.get("line_id"))
             for finding in self.report["findings"]
         }
         self.assertIn(("PHRASE_LINE_COUNT", None), findings)
-        self.assertIn(("DEFAULT_FALLS_THROUGH", "dad_L002"), findings)
-        self.assertIn(("DEFAULT_FALLS_THROUGH", "dad_L003"), findings)
-        self.assertIn(("DEFAULT_FALLS_THROUGH", "dad_L004"), findings)
+        for line_id in ("dad_L001", "dad_L002", "dad_L003", "dad_L004"):
+            self.assertNotIn(("DEFAULT_FALLS_THROUGH", line_id), findings)
         self.assertIn(("UNREACHABLE_DELIVERY", "dad_L001"), findings)
         self.assertNotIn(("POSITIVE_OUTCOME_LOW_SUCCESS", None), findings)
         self.assertIn(("NEGATIVE_OUTCOME_HIGH_SUCCESS", None), findings)
+        q4_overlap = next(
+            finding
+            for finding in self.report["findings"]
+            if finding["code"] == "OVERLAPPING_CONDITIONS"
+            and finding.get("line_id") == "dad_L004"
+        )
+        self.assertIn("unique selection(s)", q4_overlap["message"])
+        self.assertIn("raw history path(s)", q4_overlap["message"])
         got_job = next(
             check
             for check in self.report["checks"]
             if check["branch"] == "dad_got_the_job"
         )
         self.assertEqual(got_job["success_range"]["min"], 5)
+
+    def test_full_answers_reach_authored_responses(self) -> None:
+        for question in self.report["questions"]:
+            full_case = next(
+                case
+                for case in question["cases"]
+                if case["delivery"] == "normal"
+                and len(case["kept"]) == len(question["phrases"])
+            )
+            selected_branches = [
+                question["branches"][index]
+                for index in full_case["branches"]
+            ]
+            self.assertTrue(
+                all(branch["condition"] != "else" for branch in selected_branches),
+                question["line_id"],
+            )
 
     def test_reports_word_budget_pressure(self) -> None:
         pressure = self.report["budget_pressure"]
