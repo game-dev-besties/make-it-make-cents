@@ -24,13 +24,33 @@ func _run() -> void:
 	var dad_face := screen.get_node_or_null("%DadFace") as TextureRect
 	var grandma_face := screen.get_node_or_null("%GrandmaFace") as TextureRect
 	var son_face := screen.get_node_or_null("%SonFace") as TextureRect
+	var family_house := screen.get_node_or_null("%FamilyHouse") as TextureRect
+	var pennybot_ending := (
+		screen.get_node_or_null("%PennybotEnding") as MoneybotCompanion
+	)
 	var main_menu_button := screen.get_node_or_null("%MainMenuButton") as Button
 	_check(
 		dad_face != null
 		and grandma_face != null
 		and son_face != null
+		and family_house != null
+		and pennybot_ending != null
 		and main_menu_button != null,
-		"The results panel should expose its face row and Main Menu action.",
+		(
+			"The results panel should expose its house, ending prop, face row, "
+			+ "and Main Menu action."
+		),
+	)
+	_check(
+		family_house.texture != null
+		and family_house.texture.resource_path.ends_with("family_house.png")
+		and family_house.modulate.v < 0.8,
+		"The results screen should use a dimmed family-house background.",
+	)
+	_check(
+		pennybot_ending.size.x >= 220.0
+		and pennybot_ending.size.y >= 260.0,
+		"The ending Pennybot should be substantially larger than its stage companion.",
 	)
 	_check(
 		screen.find_children("*", "Button", true, false).size() == 1
@@ -69,19 +89,38 @@ func _run() -> void:
 			% outcome_mask,
 		)
 		var family_stays := good_count >= 2
-		var expected_summary := "It did not quite go to plan this time."
-		if good_count == 3:
-			expected_summary = "You made everyone happy. Wow, congrats!"
-		elif family_stays:
-			expected_summary = "A little chaos, but they are making it work."
+		var expected_summary := (
+			(
+				"Good job, little robot! "
+				+ "Looks like they’re here to stay because of you."
+			)
+			if family_stays
+			else (
+				"That robot is going straight to the garbage. "
+				+ "You couldn’t even do better than Ohio."
+			)
+		)
 		_check(
 			(screen.get_node("%EndingTitle") as Label).text
 			== ("PENNYBOT 4000" if family_stays else "SCRAP PARTS"),
 			"Outcome mask %d should show the final ending name." % outcome_mask,
 		)
 		_check(
+			screen.family_stays_outcome == family_stays
+			and pennybot_ending.visible == family_stays,
+			(
+				"Outcome mask %d should show the corner Pennybot only when "
+				+ "the family stays."
+			)
+			% outcome_mask,
+		)
+		_check(
 			(screen.get_node("%SummaryLabel") as Label).text == expected_summary,
-			"Outcome mask %d should show one overall summary." % outcome_mask,
+			(
+				"Outcome mask %d should move the matching Chapter 6 ending "
+				+ "description into the results card."
+			)
+			% outcome_mask,
 		)
 
 	var all_label_text := ""

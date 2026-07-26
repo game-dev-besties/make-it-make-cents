@@ -23,6 +23,7 @@ const SON_SILLY_REGION := Rect2(44.0, 46.0, 206.0, 202.0)
 @onready var dad_face: TextureRect = %DadFace
 @onready var grandma_face: TextureRect = %GrandmaFace
 @onready var son_face: TextureRect = %SonFace
+@onready var pennybot_ending: MoneybotCompanion = %PennybotEnding
 @onready var money_spent_value: Label = %MoneySpentValue
 @onready var jingles_sung_value: Label = %JinglesSungValue
 @onready var grunts_said_value: Label = %GruntsSaidValue
@@ -32,10 +33,14 @@ const SON_SILLY_REGION := Rect2(44.0, 46.0, 206.0, 202.0)
 var dad_good_outcome := false
 var grandma_good_outcome := false
 var son_good_outcome := false
+var family_stays_outcome := false
 var _entrance_tween: Tween
+var _pennybot_entrance_tween: Tween
+var _pennybot_rest_position := Vector2.ZERO
 
 
 func _ready() -> void:
+	_pennybot_rest_position = pennybot_ending.position
 	main_menu_button.pressed.connect(title_requested.emit)
 	resized.connect(_apply_responsive_layout)
 	_apply_responsive_layout()
@@ -68,19 +73,19 @@ func present(game_state: GameStateStore) -> void:
 		SON_GOOD_REGION if son_good_outcome else SON_SILLY_REGION,
 	)
 
-	var happy_count := (
-		int(dad_good_outcome)
-		+ int(grandma_good_outcome)
-		+ int(son_good_outcome)
+	family_stays_outcome = game_state.story_flag_equals(&"family_stays", true)
+	pennybot_ending.visible = family_stays_outcome
+	ending_title.text = (
+		"PENNYBOT 4000" if family_stays_outcome else "SCRAP PARTS"
 	)
-	var family_stays := game_state.story_flag_equals(&"family_stays", true)
-	ending_title.text = "PENNYBOT 4000" if family_stays else "SCRAP PARTS"
-	if happy_count == 3:
-		summary_label.text = "You made everyone happy. Wow, congrats!"
-	elif family_stays:
-		summary_label.text = "A little chaos, but they are making it work."
-	else:
-		summary_label.text = "It did not quite go to plan this time."
+	summary_label.text = (
+		"Good job, little robot! Looks like they’re here to stay because of you."
+		if family_stays_outcome
+		else (
+			"That robot is going straight to the garbage. "
+			+ "You couldn’t even do better than Ohio."
+		)
+	)
 
 	money_spent_value.text = "$%d" % game_state.money_total_spent
 	jingles_sung_value.text = str(game_state.delivery_jingles_sung)
@@ -93,6 +98,8 @@ func present(game_state: GameStateStore) -> void:
 func dismiss() -> void:
 	if is_instance_valid(_entrance_tween):
 		_entrance_tween.kill()
+	if is_instance_valid(_pennybot_entrance_tween):
+		_pennybot_entrance_tween.kill()
 	hide()
 
 
@@ -109,6 +116,8 @@ func _cropped_portrait(
 func _play_entrance() -> void:
 	if is_instance_valid(_entrance_tween):
 		_entrance_tween.kill()
+	if is_instance_valid(_pennybot_entrance_tween):
+		_pennybot_entrance_tween.kill()
 	results_canvas.modulate.a = 0.0
 	_entrance_tween = create_tween()
 	_entrance_tween.set_trans(Tween.TRANS_QUAD)
@@ -116,10 +125,40 @@ func _play_entrance() -> void:
 	_entrance_tween.tween_property(results_canvas, "modulate:a", 1.0, 0.22)
 	_entrance_tween.finished.connect(_on_entrance_finished)
 
+	pennybot_ending.position = _pennybot_rest_position
+	pennybot_ending.modulate.a = 1.0
+	if not family_stays_outcome:
+		return
+
+	pennybot_ending.position += Vector2(90.0, -42.0)
+	pennybot_ending.modulate.a = 0.0
+	_pennybot_entrance_tween = create_tween()
+	_pennybot_entrance_tween.set_trans(Tween.TRANS_BACK)
+	_pennybot_entrance_tween.set_ease(Tween.EASE_OUT)
+	_pennybot_entrance_tween.tween_property(
+		pennybot_ending,
+		"position",
+		_pennybot_rest_position,
+		0.46,
+	)
+	_pennybot_entrance_tween.parallel().tween_property(
+		pennybot_ending,
+		"modulate:a",
+		1.0,
+		0.2,
+	)
+	_pennybot_entrance_tween.finished.connect(
+		_on_pennybot_entrance_finished,
+	)
+
 
 func _on_entrance_finished() -> void:
 	_entrance_tween = null
 	main_menu_button.grab_focus()
+
+
+func _on_pennybot_entrance_finished() -> void:
+	_pennybot_entrance_tween = null
 
 
 func _apply_responsive_layout() -> void:

@@ -143,10 +143,6 @@ CHECK got_the_girl != "yes" as percy_is_unhappy_about_staying:
 CHECK got_prescription == false as grandma_is_unhappy_about_staying:
   grandma (neutral): WITH THAT INCOMPETENT DOCTOR LADY? GUESS I’LL JUST DIE THEN…
 
-@speaker_name penny "Pennybot 4000"
-@cue pennybot_reveal
-@wait 0.4
-penny: Good job, little robot! Looks like they’re here to stay because of you.
 -> end
 
 ## ohio_ending
@@ -161,8 +157,4 @@ CHECK got_the_girl == "yes" as percy_is_unhappy_about_leaving:
 CHECK got_prescription == true as grandma_is_unhappy_about_leaving:
   grandma (neutral): BUT…MY MEDICATION! GUESS I’LL JUST DIE THEN…
 
-@speaker_name penny "Scrap Parts"
-@cue pennybot_reveal
-@wait 0.4
-penny: That robot is going straight to the garbage. You couldn’t even do better than Ohio.
 -> end

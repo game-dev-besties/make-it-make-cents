@@ -129,10 +129,6 @@ if not GameStats.story_flag_equals("got_the_girl", "yes"):
 if GameStats.story_flag_equals("got_prescription", false):
 	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_is_unhappy_about_staying"}
 	\grandma (neutral): WITH THAT INCOMPETENT DOCTOR LADY? GUESS I’LL JUST DIE THEN…
-speaker_name penny "Pennybot 4000"
-presentation_cue pennybot_reveal
-[wait time="0.4"]
-\penny: Good job, little robot! Looks like they’re here to stay because of you.
 [end_timeline]
 label ohio_ending
 story_flag_set {"name":"family_stays","value":false}
@@ -145,8 +141,4 @@ if GameStats.story_flag_equals("got_the_girl", "yes"):
 if GameStats.story_flag_equals("got_prescription", true):
 	story_flag_check {"name":"got_prescription","operator":"==","expected":true,"branch":"grandma_is_unhappy_about_leaving"}
 	\grandma (neutral): BUT…MY MEDICATION! GUESS I’LL JUST DIE THEN…
-speaker_name penny "Scrap Parts"
-presentation_cue pennybot_reveal
-[wait time="0.4"]
-\penny: That robot is going straight to the garbage. You couldn’t even do better than Ohio.
 [end_timeline]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://ui/results/results_screen.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://cdx5wtmod06bs" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="2_body_font"]
@@ -6,9 +6,11 @@
 [ext_resource type="StyleBox" path="res://ui/theme/primary_button.tres" id="4_primary_button"]
 [ext_resource type="StyleBox" path="res://ui/theme/primary_button_hover.tres" id="5_primary_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/subtle_focus.tres" id="6_focus"]
+[ext_resource type="Texture2D" uid="uid://dd7ijs665dsk5" path="res://content/episodes/neighbors/family_house.png" id="7_family_house"]
+[ext_resource type="PackedScene" path="res://game/components/moneybot_companion.tscn" id="8_moneybot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_results_panel"]
-bg_color = Color(0.992157, 0.984314, 0.956863, 1)
+bg_color = Color(0.992157, 0.984314, 0.956863, 0.97)
 border_width_left = 4
 border_width_top = 4
 border_width_right = 4
@@ -61,13 +63,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.945098, 0.929412, 0.87451, 1)
+color = Color(0.0352941, 0.0470588, 0.0352941, 1)
 
 [node name="ResultsCanvas" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
+
+[node name="FamilyHouse" type="TextureRect" parent="ResultsCanvas"]
+unique_name_in_owner = true
+modulate = Color(0.72, 0.72, 0.68, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_family_house")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="HouseDim" type="ColorRect" parent="ResultsCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0352941, 0.0470588, 0.0352941, 0.54)
+
+[node name="PennybotEnding" parent="ResultsCanvas" instance=ExtResource("8_moneybot")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 868.0
+offset_top = 44.0
+offset_right = 1108.0
+offset_bottom = 332.0
+bob_distance = 5.0
+cycle_duration = 2.8
+breathe_amount = 0.008
+tilt_amount = 0.01
 
 [node name="ResultsPanel" type="PanelContainer" parent="ResultsCanvas"]
 layout_mode = 0
@@ -177,7 +216,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 0.9)
 theme_override_fonts/font = ExtResource("2_body_font")
 theme_override_font_sizes/font_size = 16
-text = "You made everyone happy. Wow, congrats!"
+text = "Good job, little robot! Looks like they’re here to stay because of you."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

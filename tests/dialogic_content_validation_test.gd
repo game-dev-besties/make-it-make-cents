@@ -322,6 +322,8 @@ func _validate_timeline(
 
 	if episode != null and String(episode.id) == "son":
 		_validate_son_bully_entrance_order(timeline.events, timeline_path)
+	if episode != null and String(episode.id) == "neighbors":
+		_validate_neighbors_results_handoff(timeline.events, timeline_path)
 
 	if stage != null:
 		stage.free()
@@ -360,6 +362,43 @@ func _validate_son_bully_entrance_order(
 		(
 			"%s must place `bully_enters` immediately before the bully’s first "
 			+ "line."
+		)
+		% timeline_path,
+	)
+
+
+func _validate_neighbors_results_handoff(
+	events: Array,
+	timeline_path: String,
+) -> void:
+	var ending_dialogue_lines := [
+		"Good job, little robot!",
+		"That robot is going straight to the garbage.",
+	]
+	var has_pennybot_reveal := false
+	for event: Variant in events:
+		if event is DialogicTextEvent:
+			var dialogue_text := (event as DialogicTextEvent).text
+			for ending_line: String in ending_dialogue_lines:
+				_check(
+					not dialogue_text.contains(ending_line),
+					(
+						"%s should leave `%s` for the results card instead of "
+						+ "showing it in the dialogue box."
+					)
+					% [timeline_path, ending_line],
+				)
+		elif event is DialogicPresentationCueEvent:
+			var cue := event as DialogicPresentationCueEvent
+			has_pennybot_reveal = (
+				has_pennybot_reveal or cue.cue_id == "pennybot_reveal"
+			)
+
+	_check(
+		not has_pennybot_reveal,
+		(
+			"%s should finish directly into the results card instead of showing "
+			+ "the old Pennybot ending dialogue beat."
 		)
 		% timeline_path,
 	)
