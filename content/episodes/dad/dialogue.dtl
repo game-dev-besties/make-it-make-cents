@@ -2,6 +2,7 @@
 label intro
 presentation_cue dad_enters
 story_flag_set {"name":"dad_offended_interviewer","value":"none"}
+story_flag_set {"name":"dad_mentioned_family","value":false}
 \interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 label question_1
 phrase_cut dad dad_L001
@@ -55,7 +56,7 @@ label question_3
 phrase_cut dad dad_L003
 if PhraseMemory.delivery_is("sponsor"):
 	\interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
-	if GameStats.get_story_flag("dad_offended_interviewer") == "none" or GameStats.get_story_flag("dad_offended_interviewer") == "family":
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
 		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
@@ -65,8 +66,7 @@ elif PhraseMemory.kept("family") and PhraseMemory.removed("wanted") and PhraseMe
 	\interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
-	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
-		story_flag_set {"name":"dad_offended_interviewer","value":"family"}
+	story_flag_set {"name":"dad_mentioned_family","value":true}
 elif PhraseMemory.kept("wanted") and PhraseMemory.kept_count() == 1:
 	\interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
 	set {GameStats.dad_silly} += 1

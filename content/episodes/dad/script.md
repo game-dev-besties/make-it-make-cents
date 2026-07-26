@@ -7,6 +7,7 @@
 ## intro
 @cue dad_enters
 SET dad_offended_interviewer = "none"
+SET dad_mentioned_family = false
 interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 
 ## question_1
@@ -71,7 +72,7 @@ dad: [I wanted to]{id=wanted} [balance]{id=balance} [my family]{id=family} [and]
 
 if delivery("sponsor"):
   interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
-  if flag("dad_offended_interviewer") == "none" or flag("dad_offended_interviewer") == "family":
+  if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
 elif delivery("silence"):
   interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
@@ -81,8 +82,7 @@ elif kept("family") and removed("wanted") and removed("balance") and removed("an
   interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
   dad.success -= 1
   dad.silly += 1
-  if flag("dad_offended_interviewer") == "none":
-    SET dad_offended_interviewer = "family"
+  SET dad_mentioned_family = true
 elif kept("wanted") and kept_count() == 1:
   interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
   dad.silly += 1
