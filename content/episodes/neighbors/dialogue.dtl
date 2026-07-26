@@ -1,7 +1,7 @@
 # Generated from content/episodes/neighbors/script.md; edit script.md, not this file.
 speaker_name crush "Clementine"
 speaker_name penny "Pennybot 3000"
-[background arg="res://content/episodes/neighbors/leiton_home.webp" fade="0.5"]
+[background arg="res://content/episodes/neighbors/family_house.png" fade="0.5"]
 \dad (neutral): Alright, everybody, how was your day?
 \dad (nervous): Oh, wait! No time for talk! We’re late to the neighbors’ place for dinner!
 \dad (happy): I’m excited to meet them, are you?
@@ -9,7 +9,10 @@ speaker_name penny "Pennybot 3000"
 presentation_cue neighbors_transition_out
 [wait time="0.4"]
 [background arg="res://content/episodes/neighbors/reeds_home.png" fade="0.5"]
-presentation_cue neighbors_transition_in
+if GameStats.get_story_flag("got_the_girl") == "yes":
+	presentation_cue neighbors_transition_in_connected
+else:
+	presentation_cue neighbors_transition_in
 [wait time="0.65"]
 \son (surprised): !!
 \crush (nervous): !!
@@ -23,7 +26,10 @@ if GameStats.story_flag_equals("got_the_girl", "yes"):
 	\crush (happy): I can’t believe it!
 	\crush (happy): I guess that means we’ll be hanging out a lot.
 	\crush (happy): Pretty exciting, huh?
-presentation_cue hosts_enter
+if GameStats.get_story_flag("got_the_girl") == "yes":
+	presentation_cue hosts_enter_connected
+else:
+	presentation_cue hosts_enter
 [wait time="0.5"]
 \interviewer (nervous): You…!
 if GameStats.story_flag_equals("dad_offended_interviewer", "soda"):
@@ -37,7 +43,10 @@ if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
 	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_did_not_offend_the_interviewer"}
 	\interviewer (happy): Our new hire! What a coincidence!
 	\interviewer (happy): Welcome to the family, neighbor!
-presentation_cue grandma_returns
+if GameStats.get_story_flag("got_the_girl") == "yes":
+	presentation_cue grandma_returns_connected
+else:
+	presentation_cue grandma_returns
 [wait time="0.4"]
 \doctor (neutral): Oh, hello. I didn’t think I would live right next to one of my patients.
 if GameStats.story_flag_equals("got_prescription", true):
@@ -56,7 +65,7 @@ if not GameStats.story_flag_equals("dad_offended_interviewer", "none"):
 	\interviewer (neutral): Alright, then…let’s eat.
 presentation_cue dinner_fade
 [wait time="0.5"]
-[background arg="res://content/episodes/neighbors/leiton_home.webp" fade="0.5"]
+[background arg="res://content/episodes/neighbors/family_house.png" fade="0.5"]
 presentation_cue back_at_home
 [wait time="0.65"]
 \Back at home…

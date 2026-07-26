@@ -319,7 +319,7 @@ func _refresh() -> void:
 	# Keep actors opaque: RGB modulation darkens rendered pixels while retaining
 	# their alpha, so transparent areas around a portrait stay transparent.
 	var brightness := 1.0 if is_active else 1.0 - inactive_darkness
-	modulate = Color(brightness, brightness, brightness, 1.0)
+	modulate = Color(brightness, brightness, brightness, modulate.a)
 
 
 func _resolve_portrait_texture() -> Texture2D:

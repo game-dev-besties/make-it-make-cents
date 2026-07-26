@@ -374,6 +374,54 @@ func _validate_authored_stage_choreography(
 		return
 
 	match String(episode.id):
+		"intro":
+			_finish_stage_animation(animation_player, &"RESET")
+			_finish_stage_animation(animation_player, &"intro_reveal")
+			_check_visible_cast(
+				stage,
+				["dad", "grandma", "son"],
+				"Chapter 1 should establish the three-person family.",
+			)
+			_finish_stage_animation(animation_player, &"penny_reveal")
+			_check_effect_visibility(
+				stage,
+				"Effects/PennySprite",
+				true,
+				"Pennybot should join the family only after its introduction.",
+			)
+			_finish_stage_animation(animation_player, &"home_reveal")
+			_check_effect_visibility(
+				stage,
+				"Effects/PennySprite",
+				false,
+				"The home reveal should clear the tutorial Pennybot.",
+			)
+			_finish_stage_animation(animation_player, &"clementine_reveal")
+			_check_visible_cast(
+				stage,
+				["dad", "son"],
+				"Clementine's reveal should drop Grandma from the focused composition.",
+			)
+			_check_effect_visibility(
+				stage,
+				"Effects/ClementineSprite",
+				true,
+				"Clementine should be visible during Percy's focused reveal.",
+			)
+			_finish_stage_animation(animation_player, &"clementine_exit")
+			_check_visible_cast(
+				stage,
+				["dad", "grandma", "son"],
+				"Chapter 1 should restore the family after Clementine exits.",
+			)
+		"dad":
+			_finish_stage_animation(animation_player, &"RESET")
+			_finish_stage_animation(animation_player, &"dad_enters")
+			_check_visible_cast(
+				stage,
+				["dad", "interviewer"],
+				"Chapter 2 should show only Dad and his interviewer.",
+			)
 		"son":
 			_finish_stage_animation(animation_player, &"RESET")
 			_check_visible_cast(
@@ -400,6 +448,13 @@ func _validate_authored_stage_choreography(
 				["crush", "son"],
 				"Chapter 4 should reveal Clem only after `clem_walks_over`.",
 			)
+		"grandma":
+			_finish_stage_animation(animation_player, &"RESET")
+			_check_visible_cast(
+				stage,
+				["doctor", "grandma"],
+				"Chapter 5 should show only Grandma and her doctor.",
+			)
 		"neighbors":
 			_finish_stage_animation(animation_player, &"RESET")
 			_check_visible_cast(
@@ -409,8 +464,8 @@ func _validate_authored_stage_choreography(
 			)
 			_check_background_flip(
 				stage,
-				true,
-				"The Leiton home should use the mirrored dining-room layout.",
+				false,
+				"The family-house artwork should retain its authored orientation.",
 			)
 
 			_finish_stage_animation(animation_player, &"neighbors_transition_out")
@@ -432,6 +487,13 @@ func _validate_authored_stage_choreography(
 				["dad", "doctor", "interviewer"],
 				"The adult introduction should show Dad and the two hosts.",
 			)
+			_check_actor_pair_distance(
+				stage,
+				&"Interviewer",
+				&"Doctor",
+				320.0,
+				"Clementine's parents should be staged together as a couple.",
+			)
 
 			_finish_stage_animation(animation_player, &"grandma_returns")
 			_check_visible_cast(
@@ -449,8 +511,8 @@ func _validate_authored_stage_choreography(
 			)
 			_check_background_flip(
 				stage,
-				true,
-				"Returning home should restore the mirrored Leiton layout.",
+				false,
+				"Returning home should restore the family-house orientation.",
 			)
 
 			_finish_stage_animation(animation_player, &"pennybot_reveal")
@@ -458,6 +520,74 @@ func _validate_authored_stage_choreography(
 				stage,
 				["penny"],
 				"The final ending card should isolate Pennybot.",
+			)
+
+			_finish_stage_animation(animation_player, &"RESET")
+			_finish_stage_animation(animation_player, &"neighbors_transition_out")
+			_finish_stage_animation(
+				animation_player,
+				&"neighbors_transition_in_connected",
+			)
+			_check_visible_cast(
+				stage,
+				["crush", "son"],
+				"The positive path should stage Percy and Clementine together.",
+			)
+			_check_actor_pair_distance(
+				stage,
+				&"Right",
+				&"Crush",
+				340.0,
+				"Percy and Clementine should stand close on the positive path.",
+			)
+
+			_finish_stage_animation(animation_player, &"hosts_enter_connected")
+			_check_visible_cast(
+				stage,
+				["crush", "dad", "doctor", "interviewer", "son"],
+				(
+					"The positive host introduction should keep Percy and "
+					+ "Clementine together with both of her parents."
+				),
+			)
+			_check_actor_pair_distance(
+				stage,
+				&"Interviewer",
+				&"Doctor",
+				260.0,
+				"Clementine's parents should stay together in the family shot.",
+			)
+			_check_actor_pair_distance(
+				stage,
+				&"Right",
+				&"Crush",
+				260.0,
+				"Percy and Clementine should stay together in the family shot.",
+			)
+
+			_finish_stage_animation(animation_player, &"grandma_returns_connected")
+			_check_visible_cast(
+				stage,
+				["doctor", "grandma", "interviewer"],
+				"The doctor callback should return to its focused adult trio.",
+			)
+			_check_actor_pair_distance(
+				stage,
+				&"Interviewer",
+				&"Doctor",
+				320.0,
+				"Clementine's parents should remain together in the adult trio.",
+			)
+
+			_finish_stage_animation(animation_player, &"dinner_fade")
+			_finish_stage_animation(animation_player, &"back_at_home")
+			_check_visible_cast(
+				stage,
+				["dad", "grandma", "son"],
+				(
+					"The positive path should also return home to only Dad, "
+					+ "Grandma, and Percy."
+				),
 			)
 
 
@@ -490,7 +620,7 @@ func _check_visible_cast(
 			if (
 				slot != null
 				and slot.visible
-				and slot.self_modulate.a > 0.01
+				and slot.modulate.a * slot.self_modulate.a > 0.01
 				and not slot.character_id.is_empty()
 			):
 				actual_ids.append(String(slot.character_id))
@@ -505,6 +635,40 @@ func _check_visible_cast(
 		"%s Expected %s, got %s."
 		% [message, normalized_expected, actual_ids],
 	)
+
+
+func _check_actor_pair_distance(
+	stage: Node,
+	first_slot_name: StringName,
+	second_slot_name: StringName,
+	maximum_distance: float,
+	message: String,
+) -> void:
+	var first_slot := stage.get_node_or_null(
+		"ActorSlots/%s" % first_slot_name,
+	) as Control
+	var second_slot := stage.get_node_or_null(
+		"ActorSlots/%s" % second_slot_name,
+	) as Control
+	var distance := INF
+	if first_slot != null and second_slot != null:
+		distance = absf(first_slot.position.x - second_slot.position.x)
+	_check(distance <= maximum_distance, message)
+
+
+func _check_effect_visibility(
+	stage: Node,
+	node_path: NodePath,
+	expected: bool,
+	message: String,
+) -> void:
+	var effect := stage.get_node_or_null(node_path) as CanvasItem
+	var is_visible := (
+		effect != null
+		and effect.visible
+		and effect.modulate.a * effect.self_modulate.a > 0.01
+	)
+	_check(is_visible == expected, message)
 
 
 func _check_background_flip(

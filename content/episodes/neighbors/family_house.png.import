@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0m0kdlgr5nnd"
-path="res://.godot/imported/leiton_home.webp-e3327c8a4814dad3870614fe37497a0b.ctex"
+uid="uid://dd7ijs665dsk5"
+path="res://.godot/imported/family_house.png-165bbbb56b5de4e064d3987b48395933.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://content/episodes/neighbors/leiton_home.webp"
-dest_files=["res://.godot/imported/leiton_home.webp-e3327c8a4814dad3870614fe37497a0b.ctex"]
+source_file="res://content/episodes/neighbors/family_house.png"
+dest_files=["res://.godot/imported/family_house.png-165bbbb56b5de4e064d3987b48395933.ctex"]
 
 [params]
 
