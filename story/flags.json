@@ -1,0 +1,26 @@
+{
+  "flags": [
+    {
+      "name": "dad_offended_interviewer",
+      "default": "none",
+      "values": [
+        {
+          "value": "none",
+          "description": "Dad did not offend the interviewer."
+        },
+        {
+          "value": "soda",
+          "description": "Dad offended the interviewer with the soda jingle."
+        },
+        {
+          "value": "butts",
+          "description": "Dad offended the interviewer by talking about butts."
+        },
+        {
+          "value": "family",
+          "description": "Dad offended the interviewer by insulting his family."
+        }
+      ]
+    }
+  ]
+}

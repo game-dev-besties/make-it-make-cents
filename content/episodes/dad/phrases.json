@@ -5,35 +5,38 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "I have",
+        "text": "I am",
         "cost": 2,
-        "id": "have"
+        "id": "iam"
       },
       {
         "type": "phrase",
-        "text": "no",
+        "text": "the best",
+        "cost": 2,
+        "id": "best"
+      },
+      {
+        "type": "phrase",
+        "text": "candidate",
         "cost": 1,
-        "id": "no"
+        "id": "candidate"
       },
       {
         "type": "phrase",
-        "text": "experience",
-        "cost": 1,
-        "id": "experience"
-      },
-      {
-        "type": "phrase",
-        "text": "but",
-        "cost": 1,
-        "id": "but"
-      },
-      {
-        "type": "phrase",
-        "text": "I’m a fast learner.",
+        "text": "you will ever meet",
         "cost": 4,
-        "id": "fast"
+        "id": "ever"
+      },
+      {
+        "type": "phrase",
+        "text": "guaranteed.",
+        "cost": 1,
+        "id": "guaranteed"
       }
-    ]
+    ],
+    "recovery": {
+      "sponsor_text": "I LOVE SAM’S SODA POP! NOW WITH ZERO SUGAR!"
+    }
   },
   "dad_L002": {
     "speaker": "dad",
@@ -63,6 +66,102 @@
         "cost": 8,
         "id": "contribute"
       }
-    ]
+    ],
+    "sponsor_success_delta": -1,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP! WITH OVER 500 DIFFERENT FLAVORS!"
+    }
+  },
+  "dad_L003": {
+    "speaker": "dad",
+    "expr": "",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I wanted to",
+        "cost": 3,
+        "id": "wanted"
+      },
+      {
+        "type": "phrase",
+        "text": "balance",
+        "cost": 1,
+        "id": "balance"
+      },
+      {
+        "type": "phrase",
+        "text": "my family",
+        "cost": 2,
+        "id": "family"
+      },
+      {
+        "type": "phrase",
+        "text": "and",
+        "cost": 1,
+        "id": "and"
+      },
+      {
+        "type": "phrase",
+        "text": "my career.",
+        "cost": 2,
+        "id": "career"
+      },
+      {
+        "type": "phrase",
+        "text": "Unfortunately,",
+        "cost": 1,
+        "id": "unfortunately"
+      },
+      {
+        "type": "phrase",
+        "text": "the workload was too much.",
+        "cost": 5,
+        "id": "workload"
+      }
+    ],
+    "sponsor_success_delta": -1,
+    "recovery": {
+      "sponsor_text": "I’D DIE WITHOUT SAM’S SODA POP!"
+    }
+  },
+  "dad_L004": {
+    "speaker": "dad",
+    "expr": "",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I have",
+        "cost": 2,
+        "id": "have"
+      },
+      {
+        "type": "phrase",
+        "text": "no",
+        "cost": 1,
+        "id": "no"
+      },
+      {
+        "type": "phrase",
+        "text": "experience",
+        "cost": 1,
+        "id": "experience"
+      },
+      {
+        "type": "phrase",
+        "text": "but",
+        "cost": 1,
+        "id": "but"
+      },
+      {
+        "type": "phrase",
+        "text": "I’m a fast learner.",
+        "cost": 4,
+        "id": "fast"
+      }
+    ],
+    "sponsor_success_delta": -2,
+    "recovery": {
+      "sponsor_text": "THE POP OF SAM’S SODA IS IRRESISTIBLE!"
+    }
   }
 }

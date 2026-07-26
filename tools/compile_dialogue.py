@@ -22,12 +22,13 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Iterable, Sequence
+from typing import Iterable, Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
 EPISODES_DIR = ROOT / "content" / "episodes"
 STATS_PATH = ROOT / "story" / "stats.json"
+FLAGS_PATH = ROOT / "story" / "flags.json"
 SOURCE_NAME = "script.md"
 SOURCE_MANIFEST_NAME = "scripts.json"
 TIMELINE_NAME = "dialogue.dtl"
@@ -46,6 +47,15 @@ SET_RE = re.compile(
     r"^(?P<stat>[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*)"
     r"\s*(?P<operator>\+=|-=|=)\s*(?P<value>.+?)\s*$"
 )
+FLAG_SET_RE = re.compile(
+    r"^SET\s+(?P<flag>[A-Za-z_][A-Za-z0-9_]*)"
+    r"\s*=\s*(?P<value>.+?)\s*$"
+)
+FLAG_CHECK_RE = re.compile(
+    r"^CHECK\s+(?P<flag>[A-Za-z_][A-Za-z0-9_]*)"
+    r"\s*(?P<operator>==|!=)\s*(?P<value>.+?)"
+    r"(?:\s+as\s+(?P<branch>[A-Za-z_][A-Za-z0-9_]*))?\s*:\s*$"
+)
 IF_RE = re.compile(r"^if\s+(.+):\s*$")
 ELIF_RE = re.compile(r"^elif\s+(.+):\s*$")
 ELSE_RE = re.compile(r"^else:\s*$")
@@ -56,9 +66,14 @@ ASSET_ID_RE = re.compile(r"^[A-Za-z0-9_./:-]+$")
 OUTSIDE_PHRASE_RE = re.compile(r"^[\s,.;:!?…—-]*$")
 
 DELIVERY_MODES = frozenset({"normal", "silence", "pity", "sponsor"})
-CONDITION_FUNCTIONS = frozenset({"kept", "removed", "kept_count", "delivery"})
+CONDITION_FUNCTIONS = frozenset(
+    {"kept", "removed", "kept_count", "delivery", "flag"}
+)
 RECOVERY_MODE_ORDER = ("pity", "sponsor")
 RECOVERY_MODES = frozenset(RECOVERY_MODE_ORDER)
+PHRASE_CONFIG_KINDS = frozenset(
+    {"recovery", "sponsor_score", "sponsor_text", "pity_text"}
+)
 
 
 class CompileError(Exception):
@@ -93,6 +108,53 @@ class EpisodeSources:
     episode_dir: Path
     source_paths: tuple[Path, ...]
     source_label: str
+
+
+@dataclass(frozen=True)
+class FlagDefinition:
+    name: str
+    default: object
+    values: tuple[object, ...]
+    descriptions: Mapping[str, str]
+
+    def accepts(self, value: object) -> bool:
+        value_key = _flag_value_key(value)
+        return any(
+            _flag_value_key(candidate) == value_key
+            for candidate in self.values
+        )
+
+
+def _flag_value_key(value: object) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _parse_flag_literal(raw_value: str, line: SourceLine) -> object:
+    if raw_value == "true":
+        value: object = True
+    elif raw_value == "false":
+        value = False
+    elif raw_value == "null":
+        value = None
+    else:
+        try:
+            value = ast.literal_eval(raw_value)
+        except (SyntaxError, ValueError):
+            _fail(
+                line,
+                "flag values must be a number, true/false/null, or a quoted string",
+            )
+    if value is not None and not isinstance(value, (str, int, float, bool)):
+        _fail(
+            line,
+            "flag values must be a number, true/false/null, or a quoted string",
+        )
+    return value
 
 
 def _fail(line: SourceLine, message: str) -> None:
@@ -167,10 +229,16 @@ def _tokenize(path: Path) -> list[SourceLine]:
 
 
 class ScriptParser:
-    def __init__(self, path: Path, allowed_stats: frozenset[str]):
+    def __init__(
+        self,
+        path: Path,
+        allowed_stats: frozenset[str],
+        flag_definitions: Mapping[str, FlagDefinition] | None = None,
+    ):
         self.path = path
         self.lines = _tokenize(path)
         self.allowed_stats = allowed_stats
+        self.flag_definitions = flag_definitions or {}
         self.position = 0
 
     def parse(self, *, validate_flow: bool = True) -> list[dict]:
@@ -292,6 +360,52 @@ class ScriptParser:
         if text.startswith("if ") or text.startswith("elif") or text.startswith("else"):
             _fail(line, "malformed condition; conditions must end with `:`")
 
+        flag_check_match = FLAG_CHECK_RE.fullmatch(text)
+        if flag_check_match:
+            flag_name = flag_check_match.group("flag")
+            value = self._validate_flag_value(
+                flag_name,
+                flag_check_match.group("value"),
+                line,
+            )
+            self.position += 1
+            return {
+                "kind": "flag_check",
+                "flag": flag_name,
+                "operator": flag_check_match.group("operator"),
+                "value": value,
+                "branch": flag_check_match.group("branch") or "",
+                "body": self._parse_body(line),
+                "line": line,
+            }
+        if text.startswith("CHECK"):
+            _fail(
+                line,
+                "malformed flag check; use "
+                '`CHECK flag_name == "value" as branch_name:`',
+            )
+
+        flag_set_match = FLAG_SET_RE.fullmatch(text)
+        if flag_set_match:
+            flag_name = flag_set_match.group("flag")
+            value = self._validate_flag_value(
+                flag_name,
+                flag_set_match.group("value"),
+                line,
+            )
+            self.position += 1
+            return {
+                "kind": "flag_set",
+                "flag": flag_name,
+                "value": value,
+                "line": line,
+            }
+        if text.startswith("SET"):
+            _fail(
+                line,
+                'malformed flag assignment; use `SET flag_name = "value"`',
+            )
+
         set_match = SET_RE.fullmatch(text)
         if set_match:
             stat = set_match.group("stat")
@@ -347,6 +461,30 @@ class ScriptParser:
         self.position += 1
         return {"kind": "narration", "text": text, "line": line}
 
+    def _validate_flag_value(
+        self,
+        flag_name: str,
+        raw_value: str,
+        line: SourceLine,
+    ) -> object:
+        definition = self.flag_definitions.get(flag_name)
+        if definition is None:
+            _fail(
+                line,
+                f"unknown flag `{flag_name}`; add it to story/flags.json first",
+            )
+        value = _parse_flag_literal(raw_value, line)
+        if not definition.accepts(value):
+            allowed_values = ", ".join(
+                _flag_value_key(candidate) for candidate in definition.values
+            )
+            _fail(
+                line,
+                f"invalid value {_flag_value_key(value)} for flag `{flag_name}`; "
+                f"expected one of {allowed_values}",
+            )
+        return value
+
     def _parse_directive(self, line: SourceLine) -> dict:
         parts = line.text[1:].split(None, 1)
         command = parts[0]
@@ -389,6 +527,23 @@ class ScriptParser:
             )
             return {"kind": "recovery", "policy": policy, "line": line}
 
+        if command == "sponsor_score":
+            if not re.fullmatch(r"-?\d+", argument):
+                _fail(line, "`@sponsor_score` needs a whole-number success delta")
+            delta = int(argument)
+            if delta < -10 or delta > 10:
+                _fail(line, "`@sponsor_score` must be between -10 and 10")
+            return {"kind": "sponsor_score", "delta": delta, "line": line}
+
+        if command in {"sponsor_text", "pity_text"}:
+            try:
+                recovery_text = ast.literal_eval(argument)
+            except (SyntaxError, ValueError):
+                _fail(line, f"`@{command}` needs one quoted string")
+            if not isinstance(recovery_text, str) or not recovery_text:
+                _fail(line, f"`@{command}` needs one nonempty quoted string")
+            return {"kind": command, "text": recovery_text, "line": line}
+
         if command == "wait":
             try:
                 seconds = float(argument)
@@ -415,7 +570,8 @@ class ScriptParser:
         _fail(
             line,
             "unknown directive; supported directives are "
-            "@background, @music, @sfx, @cue, @wait, @budget, and @recovery",
+            "@background, @music, @sfx, @cue, @wait, @budget, @recovery, "
+            "@sponsor_score, @sponsor_text, and @pity_text",
         )
 
     def _validate_condition(self, condition: str, line: SourceLine) -> None:
@@ -453,7 +609,7 @@ class ScriptParser:
                 _fail(
                     line,
                     "conditions only support comparisons, and/or/not, stats, "
-                    "kept/removed/kept_count, and delivery",
+                    "flags, kept/removed/kept_count, and delivery",
                 )
             if isinstance(node, ast.Attribute):
                 if not isinstance(node.value, ast.Name):
@@ -492,6 +648,12 @@ class ScriptParser:
                         argument
                     ):
                         _fail(line, f"`{function}()` needs a valid phrase id")
+                    if function == "flag" and argument not in self.flag_definitions:
+                        _fail(
+                            line,
+                            f"unknown flag `{argument}`; add it to "
+                            "story/flags.json first",
+                        )
             elif isinstance(node, ast.Name):
                 if isinstance(getattr(node, "ctx", None), ast.Load):
                     parent_is_attribute_base = any(
@@ -552,8 +714,19 @@ class ScriptParser:
                         for phrase in statement["phrases"]
                         if phrase["id"]
                     )
-                elif kind == "recovery":
+                elif kind in PHRASE_CONFIG_KINDS:
                     next_position = position + 1
+                    while (
+                        next_position < len(items)
+                        and items[next_position]["kind"] in PHRASE_CONFIG_KINDS
+                    ):
+                        if items[next_position]["kind"] == kind:
+                            _fail(
+                                items[next_position]["line"],
+                                f"`@{kind}` cannot be repeated before one "
+                                "phrase-cut dialogue line",
+                            )
+                        next_position += 1
                     next_is_phrase_line = (
                         next_position < len(items)
                         and items[next_position]["kind"] == "dialogue"
@@ -562,7 +735,7 @@ class ScriptParser:
                     if not next_is_phrase_line:
                         _fail(
                             line,
-                            "`@recovery` must be immediately followed by a "
+                            f"`@{kind}` must be immediately followed by a "
                             "phrase-cut dialogue line",
                         )
                 elif kind == "if":
@@ -589,6 +762,10 @@ class ScriptParser:
                         and all(result == branch_results[0] for result in branch_results)
                         else frozenset()
                     )
+                elif kind == "flag_check":
+                    checked_result = visit(statement["body"], current_phrase_ids)
+                    if checked_result != current_phrase_ids:
+                        current_phrase_ids = frozenset()
                 elif kind == "choice":
                     choice_results: list[frozenset[str]] = []
                     while position < len(items) and items[position]["kind"] == "choice":
@@ -740,6 +917,11 @@ def _translate_condition(condition: str, allowed_stats: Iterable[str]) -> str:
         "PhraseMemory.delivery_is(",
         translated,
     )
+    translated = re.sub(
+        r"(?<![\w.])flag\(",
+        "GameStats.get_story_flag(",
+        translated,
+    )
     return translated
 
 
@@ -760,6 +942,8 @@ class Emitter:
         self.timeline_lines: list[str] = []
         self.phrase_lines: dict[str, dict] = {}
         self.sequence = 0
+        self._pending_sponsor_success_delta: int | None = None
+        self._pending_recovery_text: dict[str, str] = {}
 
     def build(self, statements: Sequence[dict]) -> Artifact:
         # Use the logical project path rather than an absolute filesystem path
@@ -814,6 +998,50 @@ class Emitter:
                     f"set {{GameStats.{stat}}} {statement['operator']} "
                     f"{statement['value']}",
                 )
+            elif kind == "flag_set":
+                payload = {
+                    "name": statement["flag"],
+                    "value": statement["value"],
+                }
+                self._emit(
+                    depth,
+                    "story_flag_set "
+                    + json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    ),
+                )
+            elif kind == "flag_check":
+                flag_name = statement["flag"]
+                expected = _flag_value_key(statement["value"])
+                condition = (
+                    f'GameStats.story_flag_equals("{flag_name}", {expected})'
+                )
+                if statement["operator"] == "!=":
+                    condition = "not " + condition
+                self._emit(depth, f"if {condition}:")
+                branch = statement["branch"]
+                if not branch:
+                    branch = (
+                        f"{flag_name} {statement['operator']} {expected}"
+                    )
+                payload = {
+                    "name": flag_name,
+                    "operator": statement["operator"],
+                    "expected": statement["value"],
+                    "branch": branch,
+                }
+                self._emit(
+                    depth + 1,
+                    "story_flag_check "
+                    + json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    ),
+                )
+                self._emit_statements(statement["body"], depth + 1)
             elif kind == "narration":
                 self._emit_text(depth, statement["text"])
             elif kind == "dialogue":
@@ -839,6 +1067,10 @@ class Emitter:
                 self._emit(depth, f"budget_set {statement['amount']}")
             elif kind == "recovery":
                 self._emit(depth, f"recovery_policy {statement['policy']}")
+            elif kind == "sponsor_score":
+                self._pending_sponsor_success_delta = statement["delta"]
+            elif kind in {"sponsor_text", "pity_text"}:
+                self._pending_recovery_text[kind] = statement["text"]
             elif kind == "cue":
                 self._emit(depth, f"presentation_cue {statement['id']}")
             elif kind == "background":
@@ -885,6 +1117,16 @@ class Emitter:
             "expr": expression,
             "segments": segments,
         }
+        if self._pending_sponsor_success_delta is not None:
+            self.phrase_lines[line_id]["sponsor_success_delta"] = (
+                self._pending_sponsor_success_delta
+            )
+            self._pending_sponsor_success_delta = None
+        if self._pending_recovery_text:
+            self.phrase_lines[line_id]["recovery"] = (
+                self._pending_recovery_text.copy()
+            )
+            self._pending_recovery_text.clear()
         self._emit(depth, f"phrase_cut {prefix} {line_id}")
 
 
@@ -914,15 +1156,132 @@ def load_allowed_stats(path: Path = STATS_PATH) -> frozenset[str]:
     return frozenset(stats)
 
 
+def load_flag_definitions(
+    path: Path = FLAGS_PATH,
+) -> dict[str, FlagDefinition]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise CompileError(path, 1, "missing flag schema") from exc
+    except json.JSONDecodeError as exc:
+        raise CompileError(path, exc.lineno, f"invalid JSON: {exc.msg}") from exc
+    except OSError as exc:
+        raise CompileError(path, 1, f"cannot read flag schema: {exc}") from exc
+
+    raw_flags = data.get("flags") if isinstance(data, dict) else None
+    if not isinstance(raw_flags, list):
+        raise CompileError(path, 1, "`flags` must be an array")
+
+    definitions: dict[str, FlagDefinition] = {}
+    for raw_flag in raw_flags:
+        if not isinstance(raw_flag, dict):
+            raise CompileError(path, 1, "every flag definition must be an object")
+        unknown_keys = sorted(set(raw_flag) - {"name", "default", "values"})
+        if unknown_keys:
+            raise CompileError(
+                path,
+                1,
+                f"unknown flag definition key `{unknown_keys[0]}`",
+            )
+        name = raw_flag.get("name")
+        if not isinstance(name, str) or not IDENTIFIER_RE.fullmatch(name):
+            raise CompileError(path, 1, f"invalid flag name: {name!r}")
+        if name in definitions:
+            raise CompileError(path, 1, f"duplicate flag name: {name}")
+
+        raw_values = raw_flag.get("values")
+        if not isinstance(raw_values, list) or not raw_values:
+            raise CompileError(
+                path,
+                1,
+                f"flag `{name}` needs a nonempty `values` array",
+            )
+        values: list[object] = []
+        descriptions: dict[str, str] = {}
+        seen_values: set[str] = set()
+        for raw_entry in raw_values:
+            if not isinstance(raw_entry, dict):
+                raise CompileError(
+                    path,
+                    1,
+                    f"every value for flag `{name}` must be an object",
+                )
+            unknown_value_keys = sorted(
+                set(raw_entry) - {"value", "description"}
+            )
+            if unknown_value_keys:
+                raise CompileError(
+                    path,
+                    1,
+                    f"unknown value key `{unknown_value_keys[0]}` "
+                    f"for flag `{name}`",
+                )
+            if "value" not in raw_entry:
+                raise CompileError(
+                    path,
+                    1,
+                    f"every value for flag `{name}` needs a `value`",
+                )
+            value = raw_entry["value"]
+            if value is not None and not isinstance(
+                value,
+                (str, int, float, bool),
+            ):
+                raise CompileError(
+                    path,
+                    1,
+                    f"flag `{name}` values must be JSON scalars",
+                )
+            value_key = _flag_value_key(value)
+            if value_key in seen_values:
+                raise CompileError(
+                    path,
+                    1,
+                    f"duplicate value {value_key} for flag `{name}`",
+                )
+            seen_values.add(value_key)
+            description = raw_entry.get("description", "")
+            if not isinstance(description, str):
+                raise CompileError(
+                    path,
+                    1,
+                    f"description for flag `{name}` value {value_key} "
+                    "must be a string",
+                )
+            values.append(value)
+            descriptions[value_key] = description
+
+        if "default" not in raw_flag:
+            raise CompileError(path, 1, f"flag `{name}` needs a default value")
+        default = raw_flag["default"]
+        if _flag_value_key(default) not in seen_values:
+            raise CompileError(
+                path,
+                1,
+                f"default {_flag_value_key(default)} is not a declared "
+                f"value for flag `{name}`",
+            )
+        definitions[name] = FlagDefinition(
+            name=name,
+            default=default,
+            values=tuple(values),
+            descriptions=descriptions,
+        )
+
+    return definitions
+
+
 def compile_source(
     source_path: Path,
     episode_id: str,
     allowed_stats: frozenset[str],
+    flag_definitions: Mapping[str, FlagDefinition] | None = None,
 ) -> Artifact:
     return compile_sources(
         [source_path],
         episode_id,
         allowed_stats,
+        flag_definitions=flag_definitions,
         source_label=SOURCE_NAME,
     )
 
@@ -932,6 +1291,7 @@ def compile_sources(
     episode_id: str,
     allowed_stats: frozenset[str],
     *,
+    flag_definitions: Mapping[str, FlagDefinition] | None = None,
     source_label: str = SOURCE_MANIFEST_NAME,
 ) -> Artifact:
     if not IDENTIFIER_RE.fullmatch(episode_id):
@@ -943,7 +1303,7 @@ def compile_sources(
     parsers: list[ScriptParser] = []
     statements: list[dict] = []
     for source_path in source_paths:
-        parser = ScriptParser(source_path, allowed_stats)
+        parser = ScriptParser(source_path, allowed_stats, flag_definitions)
         parsers.append(parser)
         statements.extend(parser.parse(validate_flow=False))
 
@@ -1136,6 +1496,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_argument_parser().parse_args(argv)
     try:
         allowed_stats = load_allowed_stats()
+        flag_definitions = load_flag_definitions()
         sources = discover_sources(args.episodes)
         # Compile everything before writing anything. An author error therefore
         # cannot leave half the episodes updated.
@@ -1146,6 +1507,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     episode_sources.source_paths,
                     episode_sources.episode_id,
                     allowed_stats,
+                    flag_definitions=flag_definitions,
                     source_label=episode_sources.source_label,
                 ),
             )

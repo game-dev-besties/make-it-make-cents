@@ -13,6 +13,8 @@ func _get_events() -> Array:
 		this_folder.path_join("event_budget_set.gd"),
 		this_folder.path_join("event_recovery_policy.gd"),
 		this_folder.path_join("event_goto_label.gd"),
+		this_folder.path_join("event_story_flag_set.gd"),
+		this_folder.path_join("event_story_flag_check.gd"),
 	]
 
 

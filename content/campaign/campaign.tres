@@ -14,4 +14,4 @@ script = ExtResource("1_campaign")
 id = &"legendary_disco"
 title = "Legendary Disco"
 first_episode_id = &"intro"
-episodes = Array[ExtResource("1_jdu1k")]([ExtResource("2_intro"), ExtResource("3_son"), ExtResource("4_dad"), ExtResource("5_grandma"), ExtResource("6_neighbors")])
+episodes = Array[ExtResource("1_jdu1k")]([ExtResource("2_intro"), ExtResource("4_dad"), ExtResource("3_son"), ExtResource("5_grandma"), ExtResource("6_neighbors")])

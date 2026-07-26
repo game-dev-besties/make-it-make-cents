@@ -59,18 +59,24 @@ func _validate_custom_event_registration() -> void:
 	var has_budget_set := false
 	var has_recovery_policy := false
 	var has_goto_label := false
+	var has_story_flag_set := false
+	var has_story_flag_check := false
 	for event: DialogicEvent in DialogicResourceUtil.get_event_cache():
 		has_phrase_cut = has_phrase_cut or event is DialogicPhraseCutEvent
 		has_presentation_cue = has_presentation_cue or event is DialogicPresentationCueEvent
 		has_budget_set = has_budget_set or event is DialogicBudgetSetEvent
 		has_recovery_policy = has_recovery_policy or event is DialogicRecoveryPolicyEvent
 		has_goto_label = has_goto_label or event is DialogicGotoLabelEvent
+		has_story_flag_set = has_story_flag_set or event is DialogicStoryFlagSetEvent
+		has_story_flag_check = has_story_flag_check or event is DialogicStoryFlagCheckEvent
 		if (
 			event is DialogicPhraseCutEvent
 			or event is DialogicPresentationCueEvent
 			or event is DialogicBudgetSetEvent
 			or event is DialogicRecoveryPolicyEvent
 			or event is DialogicGotoLabelEvent
+			or event is DialogicStoryFlagSetEvent
+			or event is DialogicStoryFlagCheckEvent
 		):
 			_check(
 				event.disable_editor_button,
@@ -101,6 +107,16 @@ func _validate_custom_event_registration() -> void:
 	_check(
 		has_goto_label,
 		"Dialogic did not register DialogicGotoLabelEvent. Check "
+		+ "`dialogic/extensions_folder` and the Legendary Dialogic indexer.",
+	)
+	_check(
+		has_story_flag_set,
+		"Dialogic did not register DialogicStoryFlagSetEvent. Check "
+		+ "`dialogic/extensions_folder` and the Legendary Dialogic indexer.",
+	)
+	_check(
+		has_story_flag_check,
+		"Dialogic did not register DialogicStoryFlagCheckEvent. Check "
 		+ "`dialogic/extensions_folder` and the Legendary Dialogic indexer.",
 	)
 
@@ -499,6 +515,12 @@ func _validate_compiled_event_type(
 	elif source.begins_with("goto_label "):
 		valid = event is DialogicGotoLabelEvent
 		expected = "DialogicGotoLabelEvent"
+	elif source.begins_with("story_flag_set "):
+		valid = event is DialogicStoryFlagSetEvent
+		expected = "DialogicStoryFlagSetEvent"
+	elif source.begins_with("story_flag_check "):
+		valid = event is DialogicStoryFlagCheckEvent
+		expected = "DialogicStoryFlagCheckEvent"
 	elif source.begins_with("label "):
 		valid = event is DialogicLabelEvent
 		expected = "DialogicLabelEvent"

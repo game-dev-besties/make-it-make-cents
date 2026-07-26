@@ -1,52 +1,134 @@
 # Generated from content/episodes/dad/script.md; edit script.md, not this file.
 label intro
 presentation_cue dad_enters
-\interviewer: Hmm. Thanks for taking the time to interview with us today. Tell me a little about yourself.
+story_flag_set {"name":"dad_offended_interviewer","value":"none"}
+\interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
+label question_1
 phrase_cut dad dad_L001
 if PhraseMemory.delivery_is("sponsor"):
-	\interviewer: Advertising during an interview? That does not help your case.
-elif PhraseMemory.kept("have") and PhraseMemory.kept("no") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3:
-	\interviewer: Tsk, tsk. Not what we are looking for.
-	set {GameStats.dad_success} -= 1
-elif PhraseMemory.kept("fast") and PhraseMemory.kept_count() == 1:
-	\interviewer: Ah, I see. Straight to the point.
-	set {GameStats.dad_success} += 1
-elif PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.removed("no") and PhraseMemory.removed("but") and PhraseMemory.kept_count() <= 3:
-	\interviewer: Ah, I see. Straight to the point.
-	set {GameStats.dad_success} += 1
-elif PhraseMemory.kept("have") and PhraseMemory.kept("but") and PhraseMemory.removed("experience") and PhraseMemory.removed("fast") and PhraseMemory.kept_count() <= 3:
-	\interviewer: Sir!? That is not something I need to know.
-	set {GameStats.dad_success} -= 2
-	set {GameStats.dad_silly} += 2
-else:
-	\interviewer: Hmm. Not sure I understand what you mean.
+	\interviewer: A-alright. I was hoping for some explanation of your past experience, but if you love soda that much…
+	story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+elif PhraseMemory.delivery_is("silence"):
+	\interviewer: Nothing? You have nothing to say about yourself? Not a good start, sir.
 	set {GameStats.dad_success} -= 3
-goto_label motivation
-label motivation
-\interviewer: What makes you want to work here at Paperbox, Inc.?
+elif PhraseMemory.kept_count() == 5:
+	\interviewer: Right. Straight to the point, I see. I like it.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("iam") and PhraseMemory.kept("best") and PhraseMemory.removed("ever"):
+	\interviewer: Right. Straight to the point, I see. I like it.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("iam") and PhraseMemory.removed("best") and PhraseMemory.removed("ever") and PhraseMemory.removed("guaranteed"):
+	\interviewer: You…certainly are.
+	set {GameStats.dad_silly} += 1
+else:
+	\interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
+	set {GameStats.dad_success} -= 3
+label question_2
+\interviewer: We’ll move onto the next question. What makes you want to work here at Paperbox, Inc.?
 phrase_cut dad dad_L002
 if PhraseMemory.delivery_is("sponsor"):
-	\interviewer: Again with the soda? Please focus on Paperbox, Inc.
-elif PhraseMemory.kept("money") and PhraseMemory.removed("but") and PhraseMemory.removed("contribute") and PhraseMemory.kept_count() <= 2:
-	\interviewer: Honesty is not always the best policy, sir.
+	\interviewer: That’s…a reason. I suppose you heard about the free beverages in the break room? At least you did your research.
+	set {GameStats.dad_silly} += 1
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+elif PhraseMemory.delivery_is("silence"):
+	\interviewer: You really can’t think of a reason? Hmph, not very professional.
+	set {GameStats.dad_success} -= 3
+elif PhraseMemory.kept("money") and PhraseMemory.removed("but") and PhraseMemory.removed("contribute"):
+	\interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
-elif PhraseMemory.kept("contribute") and PhraseMemory.removed("money") and PhraseMemory.removed("but") and PhraseMemory.kept_count() <= 2:
+elif PhraseMemory.kept("contribute") and PhraseMemory.removed("money") and PhraseMemory.removed("but"):
 	\interviewer: Hmm, yes, your resume seems to agree.
 	set {GameStats.dad_success} += 2
 elif PhraseMemory.kept("but") and PhraseMemory.kept_count() == 1:
-	\interviewer: Sir, focus less on behinds and more on business.
+	\interviewer: Sir, I suggest you focus less on behinds and more on business.
 	set {GameStats.dad_success} -= 2
 	set {GameStats.dad_silly} += 2
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"butts"}
+else:
+	\interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
+	set {GameStats.dad_success} -= 3
+label question_3
+\interviewer: Let’s move on. I was wondering about this gap in your resume. Why did you leave your last job?
+phrase_cut dad dad_L003
+if PhraseMemory.delivery_is("sponsor"):
+	\interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none" or GameStats.get_story_flag("dad_offended_interviewer") == "family":
+		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+elif PhraseMemory.delivery_is("silence"):
+	\interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
+	set {GameStats.dad_success} += 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("family") and PhraseMemory.removed("wanted") and PhraseMemory.removed("balance") and PhraseMemory.removed("and") and PhraseMemory.removed("career") and PhraseMemory.removed("workload"):
+	\interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"family"}
+elif PhraseMemory.kept("wanted") and PhraseMemory.kept_count() == 1:
+	\interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("balance") and PhraseMemory.removed("and") and PhraseMemory.removed("career") and PhraseMemory.removed("unfortunately") and PhraseMemory.removed("workload"):
+	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("workload") and PhraseMemory.removed("wanted") and PhraseMemory.removed("balance") and PhraseMemory.removed("family") and PhraseMemory.removed("and") and PhraseMemory.removed("career"):
+	\interviewer: Happens to the best of us.
+	set {GameStats.dad_success} += 2
+else:
+	\interviewer: Hmm. Not sure I understand what you mean. Think your meaning got a little jumbled there.
+	set {GameStats.dad_success} -= 3
+label question_4
+\interviewer: Next question. What do you think is your greatest weakness?
+phrase_cut dad dad_L004
+if PhraseMemory.delivery_is("sponsor"):
+	\interviewer: I find soda as enjoyable as the next, but I wouldn’t go that far. It seems to me your weakness is a lack of self-control.
+	story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+elif PhraseMemory.delivery_is("silence"):
+	\interviewer: No weaknesses!? Very impressive.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("have") and PhraseMemory.kept("no") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3:
+	\interviewer: Tsk, tsk. Not what we’re looking for.
+	set {GameStats.dad_success} -= 1
+elif PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 2:
+	\interviewer: That’s…a weakness? What kind of experience are you talking about? Ah… nevermind.
+	set {GameStats.dad_success} -= 1
+	set {GameStats.dad_silly} += 1
+elif PhraseMemory.kept("fast") and PhraseMemory.removed("no") and PhraseMemory.removed("but") and (PhraseMemory.kept_count() == 1 or (PhraseMemory.kept("have") and PhraseMemory.kept("experience") and PhraseMemory.kept_count() == 3)):
+	\interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+	set {GameStats.dad_success} -= 2
+elif PhraseMemory.kept("but") and PhraseMemory.removed("experience") and PhraseMemory.removed("fast") and PhraseMemory.kept_count() >= 2:
+	\interviewer: Sir!? That’s-that’s not something I need to know. Please don’t continue talking about your butt…
+	set {GameStats.dad_success} -= 2
+	set {GameStats.dad_silly} += 2
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"butts"}
+elif PhraseMemory.kept("no") and PhraseMemory.kept_count() == 1:
+	\interviewer: No weaknesses!? Very impressive.
 else:
 	\interviewer: Hmm. Not sure I understand what you mean.
 	set {GameStats.dad_success} -= 3
-goto_label outcome
 label outcome
-if GameStats.dad_success > 5:
-	\interviewer: I like your work ethic. I think you belong here.
-elif GameStats.dad_silly >= 3:
-	\interviewer: You know, we need more people with your creativity around.
+\interviewer: Alright, that concludes our interview. As for your position…
+if GameStats.dad_success >= 5 and GameStats.get_story_flag("dad_offended_interviewer") == "none":
+	if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_got_the_job"}
+		\interviewer: You got the job!
+		\interviewer: We need more people with your humor and creativity around. You belong here!
+		\interviewer: You start tomorrow!
+elif GameStats.get_story_flag("dad_offended_interviewer") != "none":
+	if not GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"!=","expected":"none","branch":"dad_did_not_get_the_job"}
+		\interviewer: You didn’t get the job.
+		\interviewer: Too many of your answers were…strange, to say the least.
+		\interviewer: We will not be in touch with you.
+		\interviewer: Please leave before I have to contact security.
 else:
-	\interviewer: We will be in touch.
+	if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_did_not_get_the_job_low_success"}
+		\interviewer: You didn’t get the job.
+		\interviewer: Too many of your answers were…strange, to say the least.
+		\interviewer: We will not be in touch with you.
+		\interviewer: Please leave before I have to contact security.
 [end_timeline]
