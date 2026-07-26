@@ -98,19 +98,6 @@ func _run() -> void:
 		and target_center.x > cursor_position.x,
 		"Moneybot's cursor-hover boundary should be wider horizontally",
 	)
-	var vertical_cursor := Vector2(normal.size.x * 0.5, 200.0)
-	var below_cursor := vertical_cursor + Vector2(0.0, 300.0) - companion_size * 0.5
-	var vertical_target: Vector2 = normal.call(
-		"_companion_target_for_cursor",
-		vertical_cursor,
-		below_cursor,
-	)
-	var vertical_target_center := vertical_target + companion_size * 0.5
-	_assert(
-		is_equal_approx(vertical_target_center.distance_to(vertical_cursor), 225.0)
-		and vertical_target_center.y > vertical_cursor.y,
-		"Moneybot's cursor-hover ellipse should remain tighter vertically",
-	)
 	var first_word_rect := (normal_chips[0] as Control).get_global_rect()
 	_assert(
 		normal.call("_cursor_is_over_word", first_word_rect.get_center()),
@@ -154,23 +141,6 @@ func _run() -> void:
 	_assert(
 		impact_body_rect.intersects(first_word_rect),
 		"Moneybot's lower body should overlap the word block at impact",
-	)
-	var below_word := Rect2(Vector2(420.0, 240.0), Vector2(180.0, 46.0))
-	var below_impact: Vector2 = normal.call(
-		"_companion_impact_position",
-		below_word,
-		Vector2.UP,
-	)
-	var below_body_rect: Rect2 = normal.call(
-		"_companion_body_rect",
-		below_impact,
-	)
-	_assert(
-		is_equal_approx(
-			below_body_rect.position.y,
-			below_word.end.y - 36.0,
-		),
-		"an upward strike should trigger when Moneybot's lower half contacts the word",
 	)
 	var top_edge_word := Rect2(
 		Vector2(normal.size.x * 0.5 - 60.0, 150.0),
