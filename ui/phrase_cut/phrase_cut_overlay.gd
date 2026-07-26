@@ -466,7 +466,9 @@ func _on_chip_impact(
 
 func _play_prepared_chip_strike(chip: Button) -> void:
 	chip.call("play_prepared_strike")
-	Sfx.play_word_action(bool(chip.get_meta(&"strike_is_cut", true)))
+	var sfx := get_node_or_null("/root/Sfx")
+	if sfx != null:
+		sfx.call("play_word_action", bool(chip.get_meta(&"strike_is_cut", true)))
 
 
 func _spawn_impact_sparks(impact_point: Vector2, travel_direction: Vector2) -> void:
@@ -851,7 +853,9 @@ func _recovery_description() -> String:
 func _on_confirm() -> void:
 	var kept_text := _assemble()
 	var delivery_mode := DELIVERY_SILENCE if kept_text.is_empty() else DELIVERY_NORMAL
-	Sfx.play(Sfx.UI_CONFIRM, -5.0)
+	var sfx := get_node_or_null("/root/Sfx")
+	if sfx != null:
+		sfx.call("play", &"ui_confirm", -5.0)
 	_resolve(_kept_ids(), kept_text, delivery_mode, _cost())
 
 
