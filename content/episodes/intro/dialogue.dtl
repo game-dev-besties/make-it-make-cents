@@ -104,10 +104,6 @@ else:
 	\dad (neutral): Silence can be good, but it doesn’t give you money. Press the sponsor button and hear the shame for yourself.
 	goto_label try_sponsor
 label sponsor_aftermath
-presentation_cue sponsor_blackout
-audio "res://audio/sfx/sams_soda_jingle.mp3" [loop="false"]
-[wait time="7"]
-presentation_cue sponsor_return
 \son (surprised): …Oh my God.
 \dad (neutral): Yeah. Now you know what it sounds like.
 \son (nervous): A hundred people have turned around to look at me.

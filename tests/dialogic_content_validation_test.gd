@@ -15,7 +15,6 @@ var _character_count := 0
 var _timeline_count := 0
 var _phrase_count := 0
 var _cue_count := 0
-var _sponsor_jingle_cue_count := 0
 
 
 func _init() -> void:
@@ -39,10 +38,6 @@ func _run() -> void:
 		for error: String in campaign.validate():
 			_failures.append("Campaign validation: %s" % error)
 		_validate_compiled_timelines(campaign)
-		_check(
-			_sponsor_jingle_cue_count == 1,
-			"Chapter 1 should cue the sponsor jingle exactly once.",
-		)
 
 	if _failures.is_empty():
 		print(
@@ -298,8 +293,6 @@ func _validate_timeline(
 		elif event is DialogicAudioEvent:
 			_validate_audio_event(
 				event as DialogicAudioEvent,
-				timeline.events,
-				event_index,
 				context,
 			)
 
@@ -474,6 +467,17 @@ func _validate_presentation_cue(
 
 
 func _validate_sponsor_jingle_asset() -> void:
+	_check(
+		DialogicPhraseCutEvent.SPONSOR_JINGLE_PATH == SPONSOR_JINGLE_PATH,
+		"Every sponsor delivery should use the project sponsor jingle.",
+	)
+	_check(
+		is_equal_approx(
+			DialogicPhraseCutEvent.SPONSOR_JINGLE_AUDIBLE_SECONDS,
+			7.0,
+		),
+		"Sponsor delivery should hold through the jingle's audible duration.",
+	)
 	var stream := load(SPONSOR_JINGLE_PATH) as AudioStreamMP3
 	_check(
 		stream != null,
@@ -500,31 +504,11 @@ func _validate_sponsor_jingle_asset() -> void:
 
 func _validate_audio_event(
 	event: DialogicAudioEvent,
-	timeline_events: Array,
-	event_index: int,
 	context: String,
 ) -> void:
 	_check(
 		ResourceLoader.exists(event.file_path),
 		"%s references missing audio `%s`." % [context, event.file_path],
-	)
-	if event.file_path != SPONSOR_JINGLE_PATH:
-		return
-	_sponsor_jingle_cue_count += 1
-	_check(
-		event.channel_name.is_empty() and event.set_loop and not event.loop,
-		"%s must play the sponsor jingle once without looping." % context,
-	)
-	var wait_event: DialogicWaitEvent = null
-	if event_index + 1 < timeline_events.size():
-		wait_event = timeline_events[event_index + 1] as DialogicWaitEvent
-	_check(
-		wait_event != null
-		and wait_event.time >= 6.9
-		and wait_event.time <= 7.1
-		and not wait_event.skippable,
-		"%s should hold the blackout through the jingle's audible duration."
-		% context,
 	)
 
 

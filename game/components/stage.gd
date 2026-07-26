@@ -54,7 +54,7 @@ func _ready() -> void:
 
 
 func play_cue(cue_name: StringName, custom_blend := -1.0) -> bool:
-	if cue_name.is_empty() or not animation_player.has_animation(cue_name):
+	if not has_cue(cue_name):
 		push_warning("Stage cue '%s' does not exist on %s." % [cue_name, name])
 		return false
 
@@ -62,6 +62,10 @@ func play_cue(cue_name: StringName, custom_blend := -1.0) -> bool:
 	animation_player.play(cue_name, custom_blend)
 	cue_started.emit(cue_name)
 	return true
+
+
+func has_cue(cue_name: StringName) -> bool:
+	return not cue_name.is_empty() and animation_player.has_animation(cue_name)
 
 
 func stop_cue() -> void:

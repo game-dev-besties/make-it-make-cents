@@ -125,10 +125,6 @@ else:
   -> try_sponsor
 
 ## sponsor_aftermath
-@cue sponsor_blackout
-@sfx res://audio/sfx/sams_soda_jingle.mp3
-@wait 7
-@cue sponsor_return
 son (surprised): …Oh my God.
 dad (neutral): Yeah. Now you know what it sounds like.
 son (nervous): A hundred people have turned around to look at me.

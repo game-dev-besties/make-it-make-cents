@@ -46,6 +46,14 @@ func play_cue(cue_id: StringName) -> bool:
 	return bool(current_presentation.call("play_cue", cue_id))
 
 
+func has_cue(cue_id: StringName) -> bool:
+	if not is_instance_valid(current_presentation):
+		return false
+	if not current_presentation.has_method("has_cue"):
+		return false
+	return bool(current_presentation.call("has_cue", cue_id))
+
+
 func apply_dialogic_text(info: Dictionary) -> bool:
 	if not is_instance_valid(current_presentation):
 		return false

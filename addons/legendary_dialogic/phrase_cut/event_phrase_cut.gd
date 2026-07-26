@@ -11,12 +11,17 @@ extends DialogicEvent
 
 const PHRASE_CUT_OVERLAY := preload("res://ui/phrase_cut/phrase_cut_overlay.tscn")
 const SPONSOR_CREDIT := 3
+const SPONSOR_JINGLE_PATH := "res://audio/sfx/sams_soda_jingle.mp3"
+const SPONSOR_JINGLE_CHANNEL := "sponsor-jingle"
+const SPONSOR_JINGLE_AUDIBLE_SECONDS := 7.0
 
 var regex: RegEx = RegEx.create_from_string(
 	r"^phrase_cut\s+(?<speaker>[A-Za-z_][A-Za-z0-9_-]*)(?:\s*\((?<portrait>[^)]*)\))?\s+(?<line_id>[A-Za-z_]\w*)\s*$"
 )
 var _active_overlay: PhraseCutOverlay
 var _active_text_event: DialogicTextEvent
+var _sponsor_jingle_active := false
+var _sponsor_blackout_active := false
 
 
 func _init() -> void:
@@ -115,13 +120,21 @@ func _execute() -> void:
 
 	_apply_delivery(game_stats, result, data)
 	_record_phrase_memory(segments, result)
+	var sponsor_jingle_started := (
+		StringName(result.get("delivery_mode", &""))
+		== PhraseCutOverlay.DELIVERY_SPONSOR
+		and _start_sponsor_jingle()
+	)
 	var delivered_text := String(result.get("kept_text", ""))
 	if not delivered_text.is_empty():
 		await _speak_with_dialogic(delivered_text, character)
+	if sponsor_jingle_started:
+		await _finish_sponsor_jingle()
 	finish()
 
 
 func _clear_state() -> void:
+	_stop_sponsor_jingle()
 	if is_instance_valid(_active_overlay):
 		_active_overlay.queue_free()
 	_active_overlay = null
@@ -169,6 +182,75 @@ func _overlay() -> Node:
 	if dialogic.has_subsystem("Styles") and dialogic.Styles.has_active_layout_node():
 		return dialogic.Styles.get_layout_node()
 	return dialogic
+
+
+func _start_sponsor_jingle() -> bool:
+	_sponsor_blackout_active = _play_optional_stage_cue(&"sponsor_blackout")
+	if not is_instance_valid(dialogic) or not dialogic.has_subsystem("Audio"):
+		_stop_sponsor_jingle()
+		return false
+	dialogic.Audio.update_audio(
+		SPONSOR_JINGLE_CHANNEL,
+		SPONSOR_JINGLE_PATH,
+		{"loop": false},
+	)
+	var player := (
+		dialogic.Audio.current_audio_channels.get(SPONSOR_JINGLE_CHANNEL)
+		as AudioStreamPlayer
+	)
+	if not is_instance_valid(player):
+		_stop_sponsor_jingle()
+		return false
+	player.pitch_scale = 1.0
+	_sponsor_jingle_active = true
+	return true
+
+
+func _finish_sponsor_jingle() -> void:
+	if not _sponsor_jingle_active:
+		return
+	var player := (
+		dialogic.Audio.current_audio_channels.get(SPONSOR_JINGLE_CHANNEL)
+		as AudioStreamPlayer
+	)
+	if is_instance_valid(player) and dialogic.has_subsystem("Wait"):
+		var remaining := maxf(
+			0.0,
+			SPONSOR_JINGLE_AUDIBLE_SECONDS - player.get_playback_position(),
+		)
+		if remaining > 0.0:
+			await dialogic.Wait.update_wait(remaining, true, false)
+	_stop_sponsor_jingle()
+
+
+func _stop_sponsor_jingle() -> void:
+	if (
+		_sponsor_jingle_active
+		and is_instance_valid(dialogic)
+		and dialogic.has_subsystem("Audio")
+	):
+		dialogic.Audio.update_audio(SPONSOR_JINGLE_CHANNEL)
+	_sponsor_jingle_active = false
+	if _sponsor_blackout_active:
+		_play_optional_stage_cue(&"sponsor_return")
+	_sponsor_blackout_active = false
+
+
+func _play_optional_stage_cue(cue_id: StringName) -> bool:
+	if not is_instance_valid(dialogic):
+		return false
+	var tree := dialogic.get_tree()
+	if tree == null:
+		return false
+	var stage_host := tree.get_first_node_in_group(&"story_stage_host")
+	if (
+		stage_host == null
+		or not stage_host.has_method("has_cue")
+		or not stage_host.has_method("play_cue")
+		or not bool(stage_host.call("has_cue", cue_id))
+	):
+		return false
+	return bool(stage_host.call("play_cue", cue_id))
 
 
 func _recovery_data(data: Dictionary) -> Dictionary:

@@ -19,6 +19,7 @@ func _run() -> void:
 	_test_state_round_trip()
 	_test_story_flags_and_history()
 	_test_phrase_recovery_policy()
+	_test_sponsor_jingle_playback()
 	_test_non_stacking_goto()
 
 	if _failures.is_empty():
@@ -214,6 +215,37 @@ func _test_phrase_recovery_policy() -> void:
 		"Unknown recovery policies should be rejected.",
 	)
 	subsystem.free()
+
+
+func _test_sponsor_jingle_playback() -> void:
+	var dialogic := root.get_node_or_null("Dialogic") as DialogicGameHandler
+	_check(dialogic != null, "Sponsor jingle playback requires Dialogic.")
+	if dialogic == null:
+		return
+	var phrase_event := DialogicPhraseCutEvent.new()
+	phrase_event.dialogic = dialogic
+	var started := bool(phrase_event.call("_start_sponsor_jingle"))
+	var player := (
+		dialogic.Audio.current_audio_channels.get(
+			DialogicPhraseCutEvent.SPONSOR_JINGLE_CHANNEL,
+		)
+		as AudioStreamPlayer
+	)
+	_check(
+		started
+		and player != null
+		and player.stream is AudioStreamMP3
+		and player.stream.resource_path
+		== DialogicPhraseCutEvent.SPONSOR_JINGLE_PATH,
+		"Every sponsor delivery should start the sponsor jingle.",
+	)
+	_check(
+		player != null
+		and not (player.stream as AudioStreamMP3).loop
+		and is_equal_approx(player.pitch_scale, 1.0),
+		"The sponsor jingle should be a normal-speed, non-looping one-shot.",
+	)
+	phrase_event.call("_stop_sponsor_jingle")
 
 
 func _test_non_stacking_goto() -> void:
