@@ -46,10 +46,70 @@ from tools.compile_dialogue import (
 SPONSOR_CREDIT = 3
 DEFAULT_SPONSOR_SCORE_DELTA = -3
 DEFAULT_RECOVERY_MODES = frozenset({"pity", "sponsor"})
+SENTENCE_TERMINATORS = ".?!…"
+CLOSING_PUNCTUATION = "\"'”’)]}"
+WORD_BOUNDARIES = " \t\r\n.,!?…;:\"'“”‘’()[]{}"
 
 
 class AuditError(Exception):
     """An episode cannot yet be represented by the finite-state auditor."""
+
+
+def format_delivery_parts(parts: Sequence[str]) -> str:
+    """Mirror the runtime's conservative formatting of retained phrase chunks."""
+    formatted_parts: list[str] = []
+    capitalize_next = True
+    for raw_part in parts:
+        part = str(raw_part).strip()
+        if not part:
+            continue
+        if capitalize_next:
+            part = _uppercase_first_cased_character(part)
+        formatted_parts.append(part)
+        capitalize_next = _ends_sentence(part)
+    text = " ".join(formatted_parts).replace("  ", " ").strip()
+    return _replace_terminal_comma(text)
+
+
+def _uppercase_first_cased_character(text: str) -> str:
+    for index, character in enumerate(text):
+        lower = character.lower()
+        upper = character.upper()
+        if lower == upper:
+            if character.isdigit():
+                return text
+            continue
+        if character == lower and not _word_has_internal_uppercase(text, index):
+            return text[:index] + upper + text[index + 1 :]
+        return text
+    return text
+
+
+def _word_has_internal_uppercase(text: str, first_index: int) -> bool:
+    for character in text[first_index + 1 :]:
+        if character in WORD_BOUNDARIES:
+            return False
+        lower = character.lower()
+        upper = character.upper()
+        if lower != upper and character == upper:
+            return True
+    return False
+
+
+def _ends_sentence(text: str) -> bool:
+    index = len(text) - 1
+    while index >= 0 and text[index] in CLOSING_PUNCTUATION:
+        index -= 1
+    return index >= 0 and text[index] in SENTENCE_TERMINATORS
+
+
+def _replace_terminal_comma(text: str) -> str:
+    index = len(text) - 1
+    while index >= 0 and text[index] in CLOSING_PUNCTUATION:
+        index -= 1
+    if index < 0 or text[index] != ",":
+        return text
+    return text[:index] + "." + text[index + 1 :]
 
 
 @dataclass(frozen=True)
@@ -956,8 +1016,8 @@ class EpisodeAuditor:
             return "(silence)"
         if case.delivery in {"pity", "sponsor"}:
             return f"({case.delivery})"
-        return " ".join(
-            str(phrases[index]["text"]) for index in case.kept_indices
+        return format_delivery_parts(
+            [str(phrases[index]["text"]) for index in case.kept_indices]
         )
 
     def _case_label(

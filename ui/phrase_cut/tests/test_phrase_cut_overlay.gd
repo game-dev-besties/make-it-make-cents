@@ -2,6 +2,8 @@ extends SceneTree
 
 const OVERLAY_SCENE := preload("res://ui/phrase_cut/phrase_cut_overlay.tscn")
 const PHRASE_MEMORY_SCRIPT := preload("res://game/runtime/phrase_memory.gd")
+const PHRASE_TEXT_FORMATTER := preload("res://ui/phrase_cut/phrase_text_formatter.gd")
+const FORMATTER_CASES_PATH := "res://tools/tests/fixtures/phrase_text_formatter.json"
 
 var _failures: Array[String] = []
 
@@ -11,6 +13,8 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_test_phrase_text_formatter()
+
 	var normal: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
 	root.add_child(normal)
 	normal.setup(
@@ -301,7 +305,10 @@ func _run() -> void:
 	)
 	normal.call("_on_confirm")
 	_assert(normal.result.delivery_mode == &"normal", "kept text should be a normal delivery")
-	_assert(normal.result.kept_text == "learn very fast", "chip state should determine assembled text")
+	_assert(
+		normal.result.kept_text == "Learn very fast",
+		"delivered text should capitalize the first kept phrase",
+	)
 	_assert(normal.result.cost == 3, "missing phrase cost should be counted from words")
 	_assert(normal.result.kept_ids == ["learner"], "only pressed chip IDs should be kept")
 	normal.queue_free()
@@ -587,6 +594,32 @@ func _run() -> void:
 		return
 	print("Phrase-cut focused checks passed.")
 	quit(0)
+
+
+func _test_phrase_text_formatter() -> void:
+	var file := FileAccess.open(FORMATTER_CASES_PATH, FileAccess.READ)
+	if file == null:
+		_assert(false, "phrase formatter cases should be readable")
+		return
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if not parsed is Array:
+		_assert(false, "phrase formatter cases should be a JSON array")
+		return
+	for raw_case: Variant in parsed:
+		if not raw_case is Dictionary:
+			_assert(false, "each phrase formatter case should be an object")
+			continue
+		var test_case := raw_case as Dictionary
+		var parts := PackedStringArray()
+		var raw_parts: Variant = test_case.get("parts", [])
+		if raw_parts is Array:
+			for raw_part: Variant in raw_parts:
+				parts.append(String(raw_part))
+		var actual: String = PHRASE_TEXT_FORMATTER.format_parts(parts)
+		_assert(
+			actual == String(test_case.get("expected", "")),
+			"phrase formatter case failed: %s" % String(test_case.get("name", "unnamed")),
+		)
 
 
 func _assert(condition: bool, message: String) -> void:

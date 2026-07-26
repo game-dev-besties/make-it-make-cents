@@ -1,8 +1,23 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
 import unittest
 
-from tools.audit_dialogue import audit_episode
+from tools.audit_dialogue import audit_episode, format_delivery_parts
+
+
+class PhraseTextFormatterTests(unittest.TestCase):
+    def test_shared_runtime_formatting_cases(self) -> None:
+        fixture_path = (
+            Path(__file__).parent / "fixtures" / "phrase_text_formatter.json"
+        )
+        cases = json.loads(fixture_path.read_text(encoding="utf-8"))
+        for case in cases:
+            with self.subTest(case=case["name"]):
+                actual = format_delivery_parts(case["parts"])
+                self.assertEqual(actual, case["expected"])
+                self.assertEqual(format_delivery_parts([actual]), actual)
 
 
 class DialogueAuditTests(unittest.TestCase):
@@ -56,7 +71,7 @@ class DialogueAuditTests(unittest.TestCase):
         )
         self.assertTrue(
             any(
-                "bring it up to my manager" in example
+                "bring it up to my manager" in example.lower()
                 for example in q5_fallbacks["examples"]
             )
         )
@@ -91,6 +106,24 @@ class DialogueAuditTests(unittest.TestCase):
                 all(branch["condition"] != "else" for branch in selected_branches),
                 question["line_id"],
             )
+
+    def test_case_text_matches_runtime_surface_formatting(self) -> None:
+        q2_cases = {
+            tuple(case["kept"]): case
+            for case in self.report["questions"][1]["cases"]
+            if case["delivery"] == "normal"
+        }
+        self.assertEqual(q2_cases[("honestly",)]["text"], "Honestly.")
+
+        q3_cases = {
+            tuple(case["kept"]): case
+            for case in self.report["questions"][2]["cases"]
+            if case["delivery"] == "normal"
+        }
+        self.assertEqual(
+            q3_cases[("career", "workload")]["text"],
+            "My career. The workload was too much.",
+        )
 
     def test_q5_keeps_unwritten_manager_response_visible(self) -> None:
         question = self.report["questions"][4]

@@ -12,6 +12,7 @@ const DELIVERY_SPONSOR := &"sponsor"
 
 const DEFAULT_PITY_TEXT := "hnf"
 const DEFAULT_SPONSOR_TEXT := "Sam's Soda: pop open freedom."
+const PHRASE_TEXT_FORMATTER := preload("res://ui/phrase_cut/phrase_text_formatter.gd")
 
 const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
@@ -539,7 +540,7 @@ func _assemble() -> String:
 				var chip: Button = _chip_for_segment(segment_index)
 				if chip != null and chip.button_pressed:
 					parts.append(String(segment.get("text", "")))
-	return " ".join(parts).replace("  ", " ").strip_edges()
+	return PHRASE_TEXT_FORMATTER.format_parts(parts)
 
 
 func _cost() -> int:
