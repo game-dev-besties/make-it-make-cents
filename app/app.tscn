@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://q74cqdxysa3g" path="res://game/runtime/campaign_player.gd" id="2_campaign_player"]
 [ext_resource type="Script" uid="uid://dp0ns5vlbsxih" path="res://game/runtime/stage_host.gd" id="3_stage_host"]
 [ext_resource type="FontFile" uid="uid://cdx5wtmod06bs" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="4_font"]
-[ext_resource type="StyleBox" path="res://ui/theme/title_panel.tres" id="5_title_panel"]
 [ext_resource type="StyleBox" path="res://ui/theme/primary_button.tres" id="6_primary_button"]
 [ext_resource type="StyleBox" path="res://ui/theme/subtle_focus.tres" id="7_focus"]
 [ext_resource type="StyleBox" path="res://ui/theme/primary_button_hover.tres" id="10_primary_hover"]
@@ -13,17 +12,17 @@
 [ext_resource type="StyleBox" path="res://ui/theme/dropdown_hover.tres" id="13_dropdown_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/hud_control_hover.tres" id="14_hud_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/hud_control_focus.tres" id="15_hud_focus"]
-[ext_resource type="Texture2D" path="res://ui/title/title_backdrop.webp" id="16_title_background"]
-[ext_resource type="FontFile" path="res://ui/title/fonts/Tiny5-Regular.ttf" id="17_title_font"]
-[ext_resource type="Texture2D" path="res://ui/title/title_overlay.png" id="18_title_overlay"]
-[ext_resource type="Texture2D" path="res://ui/title/play_overlay.png" id="19_play_overlay"]
-[ext_resource type="Texture2D" path="res://ui/title/credits_overlay.png" id="20_credits_overlay"]
-[ext_resource type="Script" path="res://ui/title/image_menu_button.gd" id="21_image_button"]
-[ext_resource type="FontFile" path="res://ui/title/fonts/PixelifySans.ttf" id="22_credits_font"]
-[ext_resource type="Texture2D" path="res://ui/title/credits_heading_overlay.png" id="23_credits_heading"]
-[ext_resource type="Script" path="res://ui/title/play_indicator.gd" id="24_play_indicator"]
-[ext_resource type="Texture2D" path="res://ui/title/player_credits_overlay.png" id="25_player_credits"]
-[ext_resource type="Texture2D" path="res://ui/title/back_overlay.png" id="26_back_overlay"]
+[ext_resource type="Texture2D" uid="uid://tvn460fnkh4v" path="res://ui/title/title_backdrop.webp" id="16_title_background"]
+[ext_resource type="FontFile" uid="uid://82o47hdnvssv" path="res://ui/title/fonts/Tiny5-Regular.ttf" id="17_title_font"]
+[ext_resource type="Texture2D" uid="uid://dtlmsvqac0vuf" path="res://ui/title/title_overlay.png" id="18_title_overlay"]
+[ext_resource type="Texture2D" uid="uid://fqcie5xg8oym" path="res://ui/title/play_overlay.png" id="19_play_overlay"]
+[ext_resource type="Texture2D" uid="uid://frhr7gr6sqrp" path="res://ui/title/credits_overlay.png" id="20_credits_overlay"]
+[ext_resource type="Script" uid="uid://bpk8v7727y3m8" path="res://ui/title/image_menu_button.gd" id="21_image_button"]
+[ext_resource type="FontFile" uid="uid://ct4sat3rsjrru" path="res://ui/title/fonts/PixelifySans.ttf" id="22_credits_font"]
+[ext_resource type="Texture2D" uid="uid://caidi7ch7wy4k" path="res://ui/title/credits_heading_overlay.png" id="23_credits_heading"]
+[ext_resource type="Script" uid="uid://8b8pub13gufk" path="res://ui/title/play_indicator.gd" id="24_play_indicator"]
+[ext_resource type="Texture2D" uid="uid://cw0f35awdk1hx" path="res://ui/title/player_credits_overlay.png" id="25_player_credits"]
+[ext_resource type="Texture2D" uid="uid://b8v6udeo7gwma" path="res://ui/title/back_overlay.png" id="26_back_overlay"]
 
 [sub_resource type="FontVariation" id="FontVariation_credits_names"]
 base_font = ExtResource("22_credits_font")
@@ -36,21 +35,6 @@ region = Rect2(288, 325, 1346, 432)
 [sub_resource type="AtlasTexture" id="AtlasTexture_back"]
 atlas = ExtResource("26_back_overlay")
 region = Rect2(871, 542, 178, 54)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBox_title_menu"]
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_title_focus"]
-bg_color = Color(1, 1, 1, 0.16)
-border_width_bottom = 4
-border_color = Color(1, 1, 1, 1)
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
 
 [node name="App" type="Control" unique_id=534022310]
 layout_mode = 3
@@ -143,7 +127,7 @@ theme_override_styles/hover = ExtResource("14_hud_hover")
 theme_override_styles/focus = ExtResource("15_hud_focus")
 text = "Return to Title"
 
-[node name="HistoryButton" type="Button" parent="HistoryControls"]
+[node name="HistoryButton" type="Button" parent="HistoryControls" unique_id=1692487896]
 unique_name_in_owner = true
 visible = false
 offset_left = 1036.0
@@ -163,7 +147,7 @@ theme_override_styles/hover = ExtResource("14_hud_hover")
 theme_override_styles/focus = ExtResource("15_hud_focus")
 text = "History"
 
-[node name="ReturnToGameButton" type="Button" parent="HistoryControls"]
+[node name="ReturnToGameButton" type="Button" parent="HistoryControls" unique_id=807129582]
 unique_name_in_owner = true
 visible = false
 offset_left = 957.0
@@ -196,7 +180,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BaseColor" type="ColorRect" parent="TitleScreen"]
+[node name="BaseColor" type="ColorRect" parent="TitleScreen" unique_id=389877682]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -206,13 +190,14 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.654902, 0.862745, 1, 1)
 
-[node name="TitleCanvas" type="Control" parent="TitleScreen"]
+[node name="TitleCanvas" type="Control" parent="TitleScreen" unique_id=1352008405]
 unique_name_in_owner = true
 layout_mode = 1
+anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 
-[node name="TitleBackground" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+[node name="TitleBackground" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=761875315]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -223,45 +208,41 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("16_title_background")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="TitleArt" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+[node name="TitleArt" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=1916746959]
 unique_name_in_owner = true
+texture_filter = 1
 layout_mode = 0
 offset_left = 109.2
 offset_top = 69.6
 offset_right = 639.0
 offset_bottom = 445.8
 mouse_filter = 2
-texture_filter = 1
 texture = ExtResource("18_title_overlay")
 expand_mode = 1
-stretch_mode = 0
 
 [node name="StartButton" type="TextureButton" parent="TitleScreen/TitleCanvas" unique_id=1715812916]
 unique_name_in_owner = true
+texture_filter = 1
 layout_mode = 0
 offset_left = 267.0
 offset_top = 496.0
 offset_right = 480.0
 offset_bottom = 569.3
-focus_mode = 2
-mouse_default_cursor_shape = 2
 tooltip_text = "Begin the story."
-texture_filter = 1
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_play_overlay")
 ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
-[node name="PlayIndicator" type="Label" parent="TitleScreen/TitleCanvas"]
+[node name="PlayIndicator" type="Label" parent="TitleScreen/TitleCanvas" unique_id=888945109]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 212.0
 offset_top = 496.0
 offset_right = 260.0
 offset_bottom = 569.3
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.807843, 0.396078, 0.152941, 1)
 theme_override_colors/font_outline_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_constants/outline_size = 4
@@ -272,33 +253,31 @@ horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("24_play_indicator")
 
-[node name="CreditsHeading" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+[node name="CreditsHeading" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=1797142644]
 unique_name_in_owner = true
 visible = false
+texture_filter = 1
 layout_mode = 0
 offset_left = 211.4
 offset_top = 82.0
 offset_right = 488.6
 offset_bottom = 152.2
 mouse_filter = 2
-texture_filter = 1
 texture = ExtResource("23_credits_heading")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="CreditsBody" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+[node name="CreditsBody" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=202936815]
 unique_name_in_owner = true
 visible = false
+texture_filter = 1
 layout_mode = 0
 offset_left = 30.0
 offset_top = 178.7
 offset_right = 670.0
 offset_bottom = 384.1
 mouse_filter = 2
-texture_filter = 1
 texture = SubResource("AtlasTexture_player_credits")
 expand_mode = 1
-stretch_mode = 0
 
 [node name="StatusLabel" type="Label" parent="TitleScreen/TitleCanvas" unique_id=557643815]
 unique_name_in_owner = true
@@ -316,9 +295,9 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="PennybotCredits" type="Control" parent="TitleScreen/TitleCanvas"]
+[node name="PennybotCredits" type="Control" parent="TitleScreen/TitleCanvas" unique_id=135748281]
 unique_name_in_owner = true
-layout_mode = 0
+anchors_preset = 0
 offset_left = 716.0
 offset_top = 354.0
 offset_right = 974.0
@@ -327,34 +306,32 @@ rotation = 0.139626
 pivot_offset = Vector2(129, 75)
 mouse_filter = 2
 
-[node name="CreditsButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits"]
+[node name="CreditsButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits" unique_id=812168572]
 unique_name_in_owner = true
+texture_filter = 1
 layout_mode = 0
 offset_left = 41.6
 offset_top = 96.6
 offset_right = 226.4
 offset_bottom = 143.4
-focus_mode = 2
-mouse_default_cursor_shape = 2
 tooltip_text = "View the credits."
-texture_filter = 1
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("20_credits_overlay")
 ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
-[node name="CreditsBackButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits"]
+[node name="CreditsBackButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits" unique_id=624778955]
 unique_name_in_owner = true
 visible = false
+texture_filter = 1
 layout_mode = 0
 offset_left = 57.0
 offset_top = 96.6
 offset_right = 211.0
 offset_bottom = 143.4
-focus_mode = 2
-mouse_default_cursor_shape = 2
 tooltip_text = "Return to the title screen."
-texture_filter = 1
+mouse_default_cursor_shape = 2
 texture_normal = SubResource("AtlasTexture_back")
 ignore_texture_size = true
 stretch_mode = 0
