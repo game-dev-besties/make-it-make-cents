@@ -237,7 +237,7 @@ Arrival and prior-chapter checks
        coherent phrase: remember topic, percy_opened_up = true, "Go on..."
        only orphans:    "...What?"
        silence/grunt before opening up: cold exit
-       broke after opening up: required-jingle retry
+       silence/grunt after opening up: required-jingle retry
        enough money left after all four: polite failure
   -> first jingle
        empathy + Dad soda/butts/none reaction
@@ -262,7 +262,11 @@ Arrival and prior-chapter checks
 - Cue Clem walking into the right actor slot.
 - Set the chapter budget only after the money handoff.
 - Phrase-cut the name and Grandma explanation normally.
-- Branch on `grandma_ignored`.
+- Only reveal the caring caller to Clem when Percy retains `my_grandma` or
+  the complete `She wanted to know if I had food` thought. Other grammatical
+  recombinations, including `It was food`, get `...What?` and must not make
+  Clem act on words Percy cut.
+- Branch on `grandma_ignored` only after that information was communicated.
 - Branch first on `dad_mentioned_family`, then on
   `dad_offended_interviewer`.
 - Give the candidate response stable IDs for laugh, cutoff/immigrant, and
@@ -286,8 +290,10 @@ On silence or grunt:
 
 - if Percy has never opened up, take the cold exit and set
   `got_the_girl = "no"`;
-- if he has opened up and is effectively broke, enter a sponsor-only retry
-  until the player chooses the jingle.
+- if he has opened up, reserve the remainder and enter the required-jingle
+  beat. The first prompt still accepts silence, grunt, or sponsor; refusing
+  once advances to the prompt where those two refusals are visibly disabled
+  and only the jingle can continue.
 
 After all four prompts, if no jingle occurred, use the polite exit and set
 `got_the_girl = "no"`. This is the conservative-player failure described in
@@ -306,6 +312,8 @@ Branch on `son_showed_tariff_empathy`, then on Dad's interview outcome:
 
 The nested butts-only line must remain inside the butts branch; the supplied
 outline visually nests it under the empathy section but not under soda.
+If Percy jingles again during the butts exchange, reuse Clem's `SHUT UP!`
+reaction rather than routing the sponsor through dialogue written for silence.
 
 ### Post-jingle
 
@@ -322,6 +330,10 @@ outline visually nests it under the empathy section but not under soda.
 - The jingle success branch may show Percy's full internal intended sentence,
   but only a paid subset should be delivered aloud. Keep the rest as
   parenthetical narration so the tariff fiction is not contradicted.
+- A normal confession delivery must retain an affirmative independent thought
+  (`Yes` or `you'll let me`). Orphans such as `for` or `as long as` receive
+  `Percy... I still need an answer` and retry; they cannot reach the romantic
+  outcome merely because they were paid words.
 
 ## Budget selection
 
@@ -389,9 +401,10 @@ Keep automated coverage focused on the shared behavior:
 
 No separate hand-authored Chapter 4 branch matrix is necessary. The auditor
 varies the four incoming flags and verifies reachability of all 22 prompts and
-the `no`, `baited`, and `yes` outcomes. During content review, still play one
-tariff-empathy path and one positive-but-unaffordable path to check presentation
-and feel.
+the `no`, `baited`, and `yes` outcomes. Focused semantic assertions cover the
+phone-call disclosure, orphan classification, required-jingle lock, and final
+confession. During content review, still play one tariff-empathy path and one
+positive-but-unaffordable path to check presentation and feel.
 
 ### Final validation
 

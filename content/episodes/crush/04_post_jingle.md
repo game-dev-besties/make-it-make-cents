@@ -153,6 +153,9 @@ elif delivery("silence"):
 elif delivery("sponsor"):
   crush (happy): That is still not a yes or no, soda guy!
   -> jingle_confession_answer
+elif delivery("normal") and not kept("yes") and not kept("let_me"):
+  crush (nervous): Percy… I still need an answer.
+  -> jingle_confession_answer
 
 crush (nervous): You could’ve just grunted!
 crush (nervous): Instead you stood in the middle of the street and threw out your heart and dignity for Big Sam…

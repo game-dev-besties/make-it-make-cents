@@ -31,21 +31,23 @@ speaker_name crush "Clem"
 phrase_cut son (shy) crush_L001
 if PhraseMemory.delivery_is("sponsor"):
 	goto_label first_jingle
-else:
-	\crush (neutral): I know your name, dummy. The teacher introduced you, like, four hours ago.
+\crush (neutral): I know your name, dummy. The teacher introduced you, like, four hours ago.
 \son (shy): (She remembered? But she wasn’t even looking at me.)
 \crush (neutral): Anyway, that phone call, what was that about? That bully was too busy braying at his stupid Ohio jokes for me to even ask til now.
 phrase_cut son (nervous) crush_L002
 if PhraseMemory.delivery_is("sponsor"):
 	goto_label first_jingle
-if GameStats.story_flag_equals("grandma_ignored", true):
-	story_flag_check {"name":"grandma_ignored","operator":"==","expected":true,"branch":"percy_ignored_someone_who_cares_about_him"}
-	\crush (nervous): And you let it ring out?!
-	\crush (nervous): When someone cares enough about you to check up on you, how could you ignore them like that?
-	set {GameStats.son_success} -= 1
-if GameStats.story_flag_equals("grandma_ignored", false):
-	story_flag_check {"name":"grandma_ignored","operator":"==","expected":false,"branch":"percy_answered_grandmas_call"}
-	\crush (neutral): That’s nice, I wish I had that.
+elif PhraseMemory.kept("my_grandma") or (PhraseMemory.kept("she_wanted") and PhraseMemory.kept("to_know") and PhraseMemory.kept("if_i_had") and PhraseMemory.kept("food")):
+	if GameStats.story_flag_equals("grandma_ignored", true):
+		story_flag_check {"name":"grandma_ignored","operator":"==","expected":true,"branch":"percy_ignored_someone_who_cares_about_him"}
+		\crush (nervous): And you let it ring out?!
+		\crush (nervous): When someone cares enough about you to check up on you, how could you ignore them like that?
+		set {GameStats.son_success} -= 1
+	if GameStats.story_flag_equals("grandma_ignored", false):
+		story_flag_check {"name":"grandma_ignored","operator":"==","expected":false,"branch":"percy_answered_grandmas_call"}
+		\crush (neutral): That’s nice, I wish I had that.
+else:
+	\crush (nervous): …What?
 \crush (neutral): My dad barely acknowledges my existence.
 \crush (neutral): He’s really good at his line of work; he treats it as the most important thing any man can do.
 \crush (neutral): He gets upset when others don’t treat… paper… paper! …with the reverence he thinks it deserves.
@@ -106,7 +108,7 @@ elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 		goto_label required_jingle
 	else:
 		goto_label cold_exit
-elif PhraseMemory.kept("my_dad") and (PhraseMemory.kept("uprooted") or PhraseMemory.kept("sold_everything")):
+elif PhraseMemory.kept("my_dad") and PhraseMemory.kept("uprooted"):
 	\crush (neutral): Go on…
 	if not GameStats.get_story_flag("percy_opened_up"):
 		story_flag_set {"name":"percy_opened_up","value":true}
@@ -210,11 +212,15 @@ if GameStats.story_flag_equals("son_showed_tariff_empathy", true):
 		phrase_cut son (shy) crush_L011
 		if PhraseMemory.kept("do_i"):
 			\crush (nervous): SHUT UP!
+		elif PhraseMemory.delivery_is("sponsor"):
+			\crush (nervous): SHUT UP!
 		else:
 			phrase_cut son (shy) crush_L012
 			if PhraseMemory.kept("said_nothing"):
 				\crush (nervous): Shuddup.
 				\son (shy): ;)
+			elif PhraseMemory.delivery_is("sponsor"):
+				\crush (nervous): SHUT UP!
 			else:
 				\crush (nervous): Shut up!!! Your “nothing” is… is obnoxious.
 				\crush (nervous): (…especially with that look…)
@@ -346,6 +352,9 @@ elif PhraseMemory.delivery_is("silence"):
 	goto_label jingle_confession_answer
 elif PhraseMemory.delivery_is("sponsor"):
 	\crush (happy): That is still not a yes or no, soda guy!
+	goto_label jingle_confession_answer
+elif PhraseMemory.delivery_is("normal") and not PhraseMemory.kept("yes") and not PhraseMemory.kept("let_me"):
+	\crush (nervous): Percy… I still need an answer.
 	goto_label jingle_confession_answer
 \crush (nervous): You could’ve just grunted!
 \crush (nervous): Instead you stood in the middle of the street and threw out your heart and dignity for Big Sam…

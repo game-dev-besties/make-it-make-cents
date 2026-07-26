@@ -62,6 +62,21 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             },
             {"baited", "no", "yes"},
         )
+        for state in report["final_states"]:
+            outcome = state["flags"]["got_the_girl"]
+            heard_jingle = state["flags"]["girl_heard_jingle"]
+            if outcome in {"baited", "yes"}:
+                self.assertTrue(
+                    heard_jingle,
+                    "Clem cannot accept or reject Percy romantically before "
+                    "he has exposed the jingle.",
+                )
+            elif outcome == "no":
+                self.assertFalse(
+                    heard_jingle,
+                    "The pre-jingle exits should not be reachable after the "
+                    "scene has entered its romantic second half.",
+                )
         self.assertFalse(
             [
                 finding
@@ -96,6 +111,96 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             forced_jingle["available_deliveries"],
             ["sponsor"],
         )
+        required_jingle = next(
+            question
+            for question in report["questions"]
+            if [
+                phrase["id"]
+                for phrase in question["phrases"]
+            ] == ["required_jingle"]
+        )
+        self.assertEqual(
+            required_jingle["input_budget"],
+            {"min": 0, "max": 0},
+        )
+        self.assertEqual(
+            required_jingle["available_deliveries"],
+            ["pity", "silence", "sponsor"],
+        )
+        phone_call = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == [
+                "it_was",
+                "my_grandma",
+                "she_wanted",
+                "to_know",
+                "if_i_had",
+                "food",
+            ]
+        )
+        food_only_answer = next(
+            case
+            for case in phone_call["cases"]
+            if (
+                case["delivery"] == "normal"
+                and case["kept"] == ["it_was", "food"]
+            )
+        )
+        self.assertEqual(
+            food_only_answer["branches"],
+            [2],
+            '"It was food" must not reveal the grandma information Percy cut.',
+        )
+        for caring_answer in (
+            ["my_grandma"],
+            ["she_wanted", "to_know", "if_i_had", "food"],
+        ):
+            selection = next(
+                case
+                for case in phone_call["cases"]
+                if (
+                    case["delivery"] == "normal"
+                    and case["kept"] == caring_answer
+                )
+            )
+            self.assertEqual(
+                selection["branches"],
+                [1],
+                f"{caring_answer} should support Clem’s authored reaction.",
+            )
+        dad_disclosure = next(
+            question
+            for question in report["questions"]
+            if question["phrases"][0]["id"] == "my_dad"
+        )
+        coherent_dad_disclosure = next(
+            case
+            for case in dad_disclosure["cases"]
+            if (
+                case["delivery"] == "normal"
+                and case["kept"] == ["my_dad", "uprooted"]
+            )
+        )
+        self.assertEqual(
+            coherent_dad_disclosure["branches"],
+            [2],
+            '"My dad uprooted us" should count as opening up.',
+        )
+        orphaned_dad_disclosure = next(
+            case
+            for case in dad_disclosure["cases"]
+            if (
+                case["delivery"] == "normal"
+                and case["kept"] == ["my_dad", "sold_everything"]
+            )
+        )
+        self.assertEqual(
+            orphaned_dad_disclosure["branches"],
+            [3],
+            '"My dad and sold everything we had" should get Clem’s “…What?” response.',
+        )
         grandma_disclosure = next(
             question
             for question in report["questions"]
@@ -114,6 +219,81 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 selection["branches"],
                 [2],
                 f"{meaningful_id} should count as opening up.",
+            )
+        butts_tease = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == ["do_i", "hnf"]
+        )
+        butts_tease_sponsor = next(
+            case
+            for case in butts_tease["cases"]
+            if case["delivery"] == "sponsor"
+        )
+        self.assertEqual(
+            butts_tease_sponsor["branches"],
+            [1],
+            "A repeated jingle should get the authored SHUT UP reaction, "
+            "not be mistaken for silence.",
+        )
+        butts_followup = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == ["said_nothing"]
+        )
+        butts_followup_sponsor = next(
+            case
+            for case in butts_followup["cases"]
+            if case["delivery"] == "sponsor"
+        )
+        self.assertEqual(
+            butts_followup_sponsor["branches"],
+            [1],
+            "The follow-up jingle should not trigger Clem’s response to "
+            "Percy saying nothing.",
+        )
+        confession = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == [
+                "yes",
+                "three_words",
+                "for",
+                "as_long",
+                "let_me",
+                "please",
+            ]
+        )
+        for orphan_id in ("for", "as_long"):
+            selection = next(
+                case
+                for case in confession["cases"]
+                if (
+                    case["delivery"] == "normal"
+                    and case["kept"] == [orphan_id]
+                )
+            )
+            self.assertEqual(
+                selection["branches"],
+                [3],
+                f"{orphan_id} alone should make Clem ask for an answer again.",
+            )
+        for affirmative_id in ("yes", "let_me"):
+            selection = next(
+                case
+                for case in confession["cases"]
+                if (
+                    case["delivery"] == "normal"
+                    and case["kept"] == [affirmative_id]
+                )
+            )
+            self.assertEqual(
+                selection["branches"],
+                [],
+                f"{affirmative_id} should be enough to continue the confession.",
             )
 
     def test_presentation_directive_and_retry_loop_are_auditable(self) -> None:

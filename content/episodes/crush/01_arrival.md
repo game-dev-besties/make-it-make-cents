@@ -38,8 +38,8 @@ son (shy): [I’m]{id=im} [Percy.]{id=percy}
 
 if delivery("sponsor"):
   -> first_jingle
-else:
-  crush (neutral): I know your name, dummy. The teacher introduced you, like, four hours ago.
+
+crush (neutral): I know your name, dummy. The teacher introduced you, like, four hours ago.
 
 son (shy): (She remembered? But she wasn’t even looking at me.)
 crush (neutral): Anyway, that phone call, what was that about? That bully was too busy braying at his stupid Ohio jokes for me to even ask til now.
@@ -50,14 +50,16 @@ son (nervous): [It was]{id=it_was} [my grandma.]{id=my_grandma} [She wanted]{id=
 
 if delivery("sponsor"):
   -> first_jingle
+elif kept("my_grandma") or (kept("she_wanted") and kept("to_know") and kept("if_i_had") and kept("food")):
+  CHECK grandma_ignored == true as percy_ignored_someone_who_cares_about_him:
+    crush (nervous): And you let it ring out?!
+    crush (nervous): When someone cares enough about you to check up on you, how could you ignore them like that?
+    son.success -= 1
 
-CHECK grandma_ignored == true as percy_ignored_someone_who_cares_about_him:
-  crush (nervous): And you let it ring out?!
-  crush (nervous): When someone cares enough about you to check up on you, how could you ignore them like that?
-  son.success -= 1
-
-CHECK grandma_ignored == false as percy_answered_grandmas_call:
-  crush (neutral): That’s nice, I wish I had that.
+  CHECK grandma_ignored == false as percy_answered_grandmas_call:
+    crush (neutral): That’s nice, I wish I had that.
+else:
+  crush (nervous): …What?
 
 crush (neutral): My dad barely acknowledges my existence.
 crush (neutral): He’s really good at his line of work; he treats it as the most important thing any man can do.

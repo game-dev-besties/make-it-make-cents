@@ -12,7 +12,7 @@ elif delivery("silence") or delivery("pity"):
     -> required_jingle
   else:
     -> cold_exit
-elif kept("my_dad") and (kept("uprooted") or kept("sold_everything")):
+elif kept("my_dad") and kept("uprooted"):
   crush (neutral): Go on…
   if not flag("percy_opened_up"):
     SET percy_opened_up = true
