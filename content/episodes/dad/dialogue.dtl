@@ -76,11 +76,13 @@ elif PhraseMemory.delivery_is("silence"):
 	set {GameStats.dad_success} += 1
 	set {GameStats.dad_silly} += 1
 elif PhraseMemory.kept("workload"):
-	\interviewer: Happens to the best of us.
+	\interviewer: Happens to the best of us. Even I have trouble balancing my family and work sometimes.
 	set {GameStats.dad_success} += 2
-elif PhraseMemory.kept("balance") and (PhraseMemory.kept("family") or PhraseMemory.kept("career")):
+elif PhraseMemory.kept("career"):
+	\interviewer: Your career got in the way of your job? What kind of career were you going for…nevermind. Let’s not get off-topic.
+	set {GameStats.dad_success} -= 1
+elif PhraseMemory.kept("balance") and PhraseMemory.kept("family"):
 	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
-	set {GameStats.dad_success} += 1
 	set {GameStats.dad_silly} += 1
 elif PhraseMemory.kept("balance"):
 	\interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
@@ -148,6 +150,9 @@ elif PhraseMemory.kept("talk") and PhraseMemory.kept("out") and PhraseMemory.kep
 	set {GameStats.dad_success} += 3
 elif PhraseMemory.kept("talk") and PhraseMemory.kept("out"):
 	\interviewer: A fairly reasonable answer. I’m glad you know how to use your words.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("manager"):
+	\interviewer: I suppose that’s a fair response…Although I hope your manager has more patience for your spats than I do.
 	set {GameStats.dad_success} += 1
 elif PhraseMemory.kept("talk"):
 	\interviewer: I see you’re a simple man. Talking can certainly be very effective, but I’m not sure it would be in your case…

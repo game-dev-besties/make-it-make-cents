@@ -57,6 +57,11 @@ class AuditError(Exception):
 
 def format_delivery_parts(parts: Sequence[str]) -> str:
     """Mirror the runtime's conservative formatting of retained phrase chunks."""
+    return " ".join(format_delivery_part_labels(parts)).replace("  ", " ").strip()
+
+
+def format_delivery_part_labels(parts: Sequence[str]) -> list[str]:
+    """Return the exact display form for each non-empty retained phrase chunk."""
     formatted_parts: list[str] = []
     capitalize_next = True
     for raw_part in parts:
@@ -67,8 +72,9 @@ def format_delivery_parts(parts: Sequence[str]) -> str:
             part = _uppercase_first_cased_character(part)
         formatted_parts.append(part)
         capitalize_next = _ends_sentence(part)
-    text = " ".join(formatted_parts).replace("  ", " ").strip()
-    return _replace_terminal_comma(text)
+    if formatted_parts:
+        formatted_parts[-1] = _replace_terminal_comma(formatted_parts[-1])
+    return formatted_parts
 
 
 def _uppercase_first_cased_character(text: str) -> str:

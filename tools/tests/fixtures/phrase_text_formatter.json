@@ -2,66 +2,79 @@
   {
     "name": "empty delivery",
     "parts": [],
+    "expected_parts": [],
     "expected": ""
   },
   {
     "name": "leading lowercase",
     "parts": ["the workload was too much."],
+    "expected_parts": ["The workload was too much."],
     "expected": "The workload was too much."
   },
   {
     "name": "lone terminal comma",
     "parts": ["No,"],
+    "expected_parts": ["No."],
     "expected": "No."
   },
   {
     "name": "terminal comma before a closing quote",
     "parts": ["“no,”"],
+    "expected_parts": ["“No.”"],
     "expected": "“No.”"
   },
   {
     "name": "internal comma",
     "parts": ["No,", "I don’t", "think", "so."],
+    "expected_parts": ["No,", "I don’t", "think", "so."],
     "expected": "No, I don’t think so."
   },
   {
     "name": "retained sentence boundary",
     "parts": ["it out.", "if they start to", "escalate,"],
+    "expected_parts": ["It out.", "If they start to", "escalate."],
     "expected": "It out. If they start to escalate."
   },
   {
     "name": "unicode letters and closing punctuation",
     "parts": ["“élan.”", "über"],
+    "expected_parts": ["“Élan.”", "Über"],
     "expected": "“Élan.” Über"
   },
   {
     "name": "ellipsis boundary",
     "parts": ["wait…", "then continue"],
+    "expected_parts": ["Wait…", "Then continue"],
     "expected": "Wait… Then continue"
   },
   {
     "name": "unterminated fragment",
     "parts": ["talk"],
+    "expected_parts": ["Talk"],
     "expected": "Talk"
   },
   {
     "name": "authored interior casing",
     "parts": ["hello. there"],
+    "expected_parts": ["Hello. there"],
     "expected": "Hello. there"
   },
   {
     "name": "stylized lowercase brand",
     "parts": ["iPhone", "works."],
+    "expected_parts": ["iPhone", "works."],
     "expected": "iPhone works."
   },
   {
     "name": "numeric sentence start",
     "parts": ["42 reasons"],
+    "expected_parts": ["42 reasons"],
     "expected": "42 reasons"
   },
   {
     "name": "acronym",
     "parts": ["NASA", "responds."],
+    "expected_parts": ["NASA", "responds."],
     "expected": "NASA responds."
   }
 ]

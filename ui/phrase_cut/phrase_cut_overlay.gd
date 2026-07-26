@@ -227,6 +227,7 @@ func _rebuild() -> void:
 			fixed_word.add_theme_font_override("font", FIXED_WORD_FONT)
 			fixed_word.add_theme_font_size_override("font_size", 29)
 			fixed_word.add_theme_constant_override("outline_size", 0)
+			fixed_word.set_meta("segment_index", segment_index)
 			_chips.add_child(fixed_word)
 			continue
 		if String(segment.get("type", "phrase")) != "phrase":
@@ -597,8 +598,11 @@ func _recompute() -> void:
 	var cost := _cost()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
-	_recovery_box.visible = kept_text.is_empty()
-	_confirm_button.visible = not kept_text.is_empty()
+	_recovery_box.visible = _budget <= 0 or not _has_cut_phrase()
+	_confirm_button.visible = (
+		_budget > 0
+		or (cost == 0 and not kept_text.is_empty())
+	)
 	_confirm_button.disabled = over_budget
 	if over_budget:
 		_confirm_button.text = "Cut $%d more  /  $%d" % [cost - _budget, cost]
@@ -608,22 +612,47 @@ func _recompute() -> void:
 		_confirm_button.text = "Say it  /  $%d" % cost
 	_refresh_chip_presentation()
 
+
+func _has_cut_phrase() -> bool:
+	for chip: Button in _phrase_buttons:
+		if not chip.button_pressed:
+			return true
+	return false
+
+
 func _refresh_chip_presentation() -> void:
+	var formatted_texts := _formatted_segment_texts()
+	for child: Node in _chips.get_children():
+		var fixed_word := child as Label
+		if fixed_word == null or not fixed_word.has_meta("segment_index"):
+			continue
+		var fixed_index := int(fixed_word.get_meta("segment_index", -1))
+		if fixed_index < 0 or fixed_index >= _segments.size():
+			continue
+		var fixed_segment: Dictionary = _segments[fixed_index]
+		fixed_word.text = String(
+			formatted_texts.get(
+				fixed_index,
+				fixed_segment.get("text", ""),
+			)
+		)
+
 	for chip: Button in _phrase_buttons:
 		var segment_index := int(chip.get_meta("segment_index", -1))
 		if segment_index < 0 or segment_index >= _segments.size():
 			continue
 		var segment: Dictionary = _segments[segment_index]
 		var phrase_text := String(segment.get("text", ""))
+		var display_text := String(formatted_texts.get(segment_index, phrase_text))
 		var phrase_cost := _segment_cost(segment)
 		if chip.disabled:
 			chip.text = phrase_text
 			chip.tooltip_text = "Your budget is empty."
 		elif chip.button_pressed:
-			chip.text = phrase_text
+			chip.text = display_text
 			chip.tooltip_text = (
 				"%s costs $%d. Click to cut."
-				% [phrase_text, phrase_cost]
+				% [display_text, phrase_cost]
 			)
 		else:
 			chip.text = phrase_text
@@ -631,6 +660,33 @@ func _refresh_chip_presentation() -> void:
 				'Cut: "%s" will be omitted, saving $%d. Click to restore it.'
 				% [phrase_text, phrase_cost]
 			)
+
+
+func _formatted_segment_texts() -> Dictionary:
+	var segment_indices: Array[int] = []
+	var parts := PackedStringArray()
+	for segment_index: int in _segments.size():
+		var segment: Variant = _segments[segment_index]
+		if not segment is Dictionary:
+			continue
+		var segment_type := String(segment.get("type", "phrase"))
+		if segment_type == "phrase":
+			var chip := _chip_for_segment(segment_index)
+			if chip == null or not chip.button_pressed:
+				continue
+		elif segment_type != "fixed":
+			continue
+		var text := String(segment.get("text", ""))
+		if text.strip_edges().is_empty():
+			continue
+		segment_indices.append(segment_index)
+		parts.append(text)
+
+	var formatted_parts: PackedStringArray = PHRASE_TEXT_FORMATTER.format_part_labels(parts)
+	var formatted_texts := {}
+	for output_index: int in mini(segment_indices.size(), formatted_parts.size()):
+		formatted_texts[segment_indices[output_index]] = formatted_parts[output_index]
+	return formatted_texts
 
 
 func _focus_initial_control(is_out_of_budget: bool) -> void:
