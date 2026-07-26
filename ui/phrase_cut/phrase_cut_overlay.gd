@@ -24,6 +24,8 @@ const PANEL_CONTENT_MARGIN_RIGHT := 38
 const COMPANION_CONTENT_MARGIN_RIGHT := 128
 const COMPANION_PANEL_OVERLAP := 90.0
 const COMPANION_SIZE := Vector2(286.0, 342.0)
+const COMPANION_BODY_OFFSET := Vector2(0.0, 171.0)
+const COMPANION_BODY_SIZE := Vector2(286.0, 171.0)
 const COMPANION_EDGE_PADDING := 4.0
 const COMPANION_CURSOR_RADIUS_X := 260.0
 const COMPANION_CURSOR_RADIUS_Y := 225.0
@@ -280,8 +282,10 @@ func _play_chip_action(chip: Button, is_cut: bool) -> void:
 	var word_center := word_rect.get_center()
 	var start_position := _companion_follow_position
 	var recoil_peak_position := _closest_recoil_peak(word_rect, start_position)
-	var recoil_peak_center := recoil_peak_position + COMPANION_SIZE * 0.5
-	var travel_direction := recoil_peak_center.direction_to(word_center)
+	var recoil_body_center := _companion_body_rect(
+		recoil_peak_position,
+	).get_center()
+	var travel_direction := recoil_body_center.direction_to(word_center)
 	if travel_direction.is_zero_approx():
 		travel_direction = Vector2.LEFT
 	var left_to_right := travel_direction.x >= 0.0
@@ -333,7 +337,7 @@ func _set_companion_follow_position(companion_position: Vector2) -> void:
 func _companion_impact_position(word_rect: Rect2, travel_direction: Vector2) -> Vector2:
 	var expanded_half_size := (
 		word_rect.size * 0.5
-		+ COMPANION_SIZE * 0.5
+		+ COMPANION_BODY_SIZE * 0.5
 		- Vector2.ONE * COMPANION_IMPACT_OVERLAP
 	)
 	var distance_x := (
@@ -346,8 +350,22 @@ func _companion_impact_position(word_rect: Rect2, travel_direction: Vector2) -> 
 		if is_zero_approx(travel_direction.y)
 		else expanded_half_size.y / absf(travel_direction.y)
 	)
-	var impact_center := word_rect.get_center() - travel_direction * minf(distance_x, distance_y)
-	return _clamped_companion_position(impact_center - COMPANION_SIZE * 0.5)
+	var impact_body_center := (
+		word_rect.get_center()
+		- travel_direction * minf(distance_x, distance_y)
+	)
+	return _clamped_companion_position(
+		impact_body_center
+		- COMPANION_BODY_OFFSET
+		- COMPANION_BODY_SIZE * 0.5,
+	)
+
+
+func _companion_body_rect(companion_position: Vector2) -> Rect2:
+	return Rect2(
+		companion_position + COMPANION_BODY_OFFSET,
+		COMPANION_BODY_SIZE,
+	)
 
 
 func _closest_recoil_peak(word_rect: Rect2, current_position: Vector2) -> Vector2:
@@ -385,7 +403,8 @@ func _closest_recoil_peak(word_rect: Rect2, current_position: Vector2) -> Vector
 			(candidate_center.x - word_center.x) / recoil_radii.x,
 			(candidate_center.y - word_center.y) / recoil_radii.y,
 		).length()
-		var attack_direction := candidate_center.direction_to(word_center)
+		var candidate_body_center := _companion_body_rect(candidate).get_center()
+		var attack_direction := candidate_body_center.direction_to(word_center)
 		if attack_direction.is_zero_approx():
 			attack_direction = Vector2.LEFT
 		var candidate_impact := _companion_impact_position(word_rect, attack_direction)
@@ -449,29 +468,60 @@ func _on_chip_impact(
 
 func _spawn_impact_sparks(impact_point: Vector2, travel_direction: Vector2) -> void:
 	var spark_directions: Array[Vector2] = [
-		-travel_direction.rotated(-0.55),
+		-travel_direction.rotated(-0.9),
+		-travel_direction.rotated(-0.45),
 		-travel_direction,
-		-travel_direction.rotated(0.55),
+		-travel_direction.rotated(0.45),
+		-travel_direction.rotated(0.9),
+	]
+	var spark_sizes: Array[float] = [8.0, 10.0, 12.0, 10.0, 8.0]
+	var spark_colors: Array[Color] = [
+		Color(1.0, 0.72549, 0.411765, 1.0),
+		Color(0.992157, 0.584314, 0.352941, 1.0),
+		Color(1.0, 0.839216, 0.568627, 1.0),
+		Color(0.992157, 0.584314, 0.352941, 1.0),
+		Color(1.0, 0.72549, 0.411765, 1.0),
 	]
 	for spark_index: int in spark_directions.size():
 		var spark := ColorRect.new()
 		spark.z_index = 6
 		spark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		spark.color = Color(0.917647, 0.498039, 0.345098, 1.0)
-		spark.size = Vector2(4.0, 4.0) if spark_index != 1 else Vector2(5.0, 5.0)
+		spark.color = spark_colors[spark_index]
+		spark.size = Vector2.ONE * spark_sizes[spark_index]
+		spark.pivot_offset = spark.size * 0.5
+		spark.rotation = deg_to_rad(45.0)
+		spark.scale = Vector2.ONE * 0.6
 		add_child(spark)
 		spark.global_position = impact_point - spark.size * 0.5
-		var spark_distance := 22.0 + float(spark_index % 2) * 8.0
+		var spark_distance := 38.0 + float(2 - absi(spark_index - 2)) * 8.0
+		var spark_duration := 0.24
 		var spark_tween := create_tween()
 		spark_tween.tween_property(
 			spark,
 			"global_position",
 			spark.global_position + spark_directions[spark_index] * spark_distance,
-			0.18,
+			spark_duration,
 		).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		var transparent := spark.modulate
 		transparent.a = 0.0
-		spark_tween.parallel().tween_property(spark, "modulate", transparent, 0.18)
+		spark_tween.parallel().tween_property(
+			spark,
+			"modulate",
+			transparent,
+			spark_duration,
+		)
+		spark_tween.parallel().tween_property(
+			spark,
+			"scale",
+			Vector2.ONE * 1.35,
+			spark_duration,
+		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		spark_tween.parallel().tween_property(
+			spark,
+			"rotation",
+			spark.rotation + deg_to_rad(90.0),
+			spark_duration,
+		)
 		spark_tween.tween_callback(spark.queue_free)
 
 

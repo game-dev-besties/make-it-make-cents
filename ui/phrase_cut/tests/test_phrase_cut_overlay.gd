@@ -135,7 +135,11 @@ func _run() -> void:
 		recoil_radius >= 0.8,
 		"Moneybot should choose a reachable recoil peak around the word",
 	)
-	var impact_direction := recoil_peak_center.direction_to(
+	var recoil_body_rect: Rect2 = normal.call(
+		"_companion_body_rect",
+		recoil_peak,
+	)
+	var impact_direction := recoil_body_rect.get_center().direction_to(
 		first_word_rect.get_center(),
 	)
 	var impact_position: Vector2 = normal.call(
@@ -143,9 +147,30 @@ func _run() -> void:
 		first_word_rect,
 		impact_direction,
 	)
+	var impact_body_rect: Rect2 = normal.call(
+		"_companion_body_rect",
+		impact_position,
+	)
 	_assert(
-		Rect2(impact_position, companion_size).intersects(first_word_rect),
-		"Moneybot should visibly overlap the word block at impact",
+		impact_body_rect.intersects(first_word_rect),
+		"Moneybot's lower body should overlap the word block at impact",
+	)
+	var below_word := Rect2(Vector2(420.0, 240.0), Vector2(180.0, 46.0))
+	var below_impact: Vector2 = normal.call(
+		"_companion_impact_position",
+		below_word,
+		Vector2.UP,
+	)
+	var below_body_rect: Rect2 = normal.call(
+		"_companion_body_rect",
+		below_impact,
+	)
+	_assert(
+		is_equal_approx(
+			below_body_rect.position.y,
+			below_word.end.y - 36.0,
+		),
+		"an upward strike should trigger when Moneybot's lower half contacts the word",
 	)
 	var top_edge_word := Rect2(
 		Vector2(normal.size.x * 0.5 - 60.0, 150.0),
@@ -177,9 +202,13 @@ func _run() -> void:
 		wide_word,
 		home_position,
 	)
-	var wide_attack_direction := (
-		wide_peak + companion_size * 0.5
-	).direction_to(wide_word.get_center())
+	var wide_peak_body_rect: Rect2 = normal.call(
+		"_companion_body_rect",
+		wide_peak,
+	)
+	var wide_attack_direction := wide_peak_body_rect.get_center().direction_to(
+		wide_word.get_center(),
+	)
 	var wide_impact: Vector2 = normal.call(
 		"_companion_impact_position",
 		wide_word,
