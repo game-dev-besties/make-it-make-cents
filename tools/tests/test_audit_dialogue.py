@@ -175,12 +175,12 @@ class ChapterAuditSmokeTests(unittest.TestCase):
     def test_crush_chapter_audit_covers_conditional_prompt_variants(self) -> None:
         report = audit_episode(
             "crush",
-            expected_phrase_lines=22,
+            expected_phrase_lines=20,
             max_loop_visits=1,
             vary_flags=("dad_offended_interviewer",),
         )
-        self.assertEqual(report["summary"]["phrase_lines"], 22)
-        self.assertEqual(report["summary"]["reachable_phrase_lines"], 22)
+        self.assertEqual(report["summary"]["phrase_lines"], 20)
+        self.assertEqual(report["summary"]["reachable_phrase_lines"], 20)
         self.assertEqual(
             {
                 state["flags"]["got_the_girl"]
@@ -203,6 +203,23 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                     "The pre-jingle exits should not be reachable after the "
                     "scene has entered its romantic second half.",
                 )
+        failure_exits = [
+            state
+            for state in report["final_states"]
+            if state["flags"]["clem_failure_count"] == 3
+        ]
+        self.assertTrue(
+            failure_exits,
+            "Three failed pre-jingle replies should reach Clem’s early exit.",
+        )
+        self.assertTrue(
+            all(
+                state["flags"]["got_the_girl"] == "no"
+                and not state["flags"]["girl_heard_jingle"]
+                for state in failure_exits
+            ),
+            "The three-strike exit must happen before the romantic jingle reveal.",
+        )
         self.assertFalse(
             [
                 finding
@@ -213,13 +230,31 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 }
             ]
         )
-        self.assertFalse(
-            [
-                finding
+        self.assertEqual(
+            {
+                (
+                    finding["code"],
+                    finding["line_id"],
+                    finding["message"],
+                )
                 for finding in report["findings"]
                 if finding["severity"] == "high"
                 and finding["kind"] == "exact"
-            ]
+            },
+            {
+                (
+                    "UNREACHABLE_RESPONSE_BRANCH",
+                    "crush_L017",
+                    'Response branch is never selected: kept("did_at_first")',
+                ),
+                (
+                    "UNREACHABLE_RESPONSE_BRANCH",
+                    "crush_L018",
+                    'Response branch is never selected: kept("sorry_overshare")',
+                ),
+            },
+            "Only the two intentionally unaffordable post-jingle full-sentence "
+            "responses should be structurally unreachable.",
         )
         forced_jingle = next(
             question
@@ -257,32 +292,9 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             question
             for question in report["questions"]
             if [phrase["id"] for phrase in question["phrases"]]
-            == [
-                "it_was",
-                "my_grandma",
-                "she_wanted",
-                "to_know",
-                "if_i_had",
-                "food",
-            ]
+            == ["my_grandma", "grandma_food"]
         )
-        food_only_answer = next(
-            case
-            for case in phone_call["cases"]
-            if (
-                case["delivery"] == "normal"
-                and case["kept"] == ["it_was", "food"]
-            )
-        )
-        self.assertEqual(
-            food_only_answer["branches"],
-            [2],
-            '"It was food" must not reveal the grandma information Percy cut.',
-        )
-        for caring_answer in (
-            ["my_grandma"],
-            ["she_wanted", "to_know", "if_i_had", "food"],
-        ):
+        for caring_answer in (["my_grandma"], ["grandma_food"]):
             selection = next(
                 case
                 for case in phone_call["cases"]
@@ -293,40 +305,26 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
             self.assertEqual(
                 selection["branches"],
-                [1],
+                [2],
                 f"{caring_answer} should support Clem’s authored reaction.",
             )
         dad_disclosure = next(
             question
             for question in report["questions"]
-            if question["phrases"][0]["id"] == "my_dad"
+            if question["phrases"][0]["id"] == "uprooted"
         )
-        coherent_dad_disclosure = next(
-            case
-            for case in dad_disclosure["cases"]
-            if (
-                case["delivery"] == "normal"
-                and case["kept"] == ["my_dad", "uprooted"]
+        for independent_id in ("uprooted", "sold_everything"):
+            selection = next(
+                case
+                for case in dad_disclosure["cases"]
+                if case["delivery"] == "normal"
+                and case["kept"] == [independent_id]
             )
-        )
-        self.assertEqual(
-            coherent_dad_disclosure["branches"],
-            [2],
-            '"My dad uprooted us" should count as opening up.',
-        )
-        orphaned_dad_disclosure = next(
-            case
-            for case in dad_disclosure["cases"]
-            if (
-                case["delivery"] == "normal"
-                and case["kept"] == ["my_dad", "sold_everything"]
+            self.assertEqual(
+                selection["branches"],
+                [2],
+                f"{independent_id} should count as opening up.",
             )
-        )
-        self.assertEqual(
-            orphaned_dad_disclosure["branches"],
-            [3],
-            '"My dad and sold everything we had" should get Clem’s “…What?” response.',
-        )
         grandma_disclosure = next(
             question
             for question in report["questions"]
@@ -346,11 +344,66 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 [2],
                 f"{meaningful_id} should count as opening up.",
             )
+        orphan_examples = (
+            ("dont_want", ["dont_want"]),
+            ("because", ["because"]),
+            ("just_wish", ["just_wish"]),
+            ("those_moments", ["those_moments"]),
+            ("if", ["if"]),
+        )
+        for first_phrase_id, kept_ids in orphan_examples:
+            question = next(
+                item
+                for item in report["questions"]
+                if item["phrases"][0]["id"] == first_phrase_id
+                or any(
+                    phrase["id"] == first_phrase_id
+                    for phrase in item["phrases"]
+                )
+            )
+            selection = next(
+                case
+                for case in question["cases"]
+                if case["delivery"] == "normal"
+                and case["kept"] == kept_ids
+            )
+            self.assertEqual(
+                selection["branches"],
+                [3],
+                f"{kept_ids} alone should get Clem’s “…What?” response.",
+            )
+        coherent_fragments = (
+            ("dont_want", ["dont_want", "feel_like_this"]),
+            ("stay_mad", ["stay_mad", "gave_up", "for_you"]),
+            ("just_wish", ["just_wish", "normal"]),
+            ("those_moments", ["those_moments", "feel_so", "far_away"]),
+            ("feel_happy", ["feel_happy"]),
+        )
+        for identifying_id, kept_ids in coherent_fragments:
+            question = next(
+                item
+                for item in report["questions"]
+                if any(
+                    phrase["id"] == identifying_id
+                    for phrase in item["phrases"]
+                )
+            )
+            selection = next(
+                case
+                for case in question["cases"]
+                if case["delivery"] == "normal"
+                and case["kept"] == kept_ids
+            )
+            self.assertEqual(
+                selection["branches"],
+                [2],
+                f"{kept_ids} should count as a coherent disclosure.",
+            )
         butts_tease = next(
             question
             for question in report["questions"]
             if [phrase["id"] for phrase in question["phrases"]]
-            == ["do_i", "hnf"]
+            == ["do_i"]
         )
         butts_tease_sponsor = next(
             case
@@ -359,26 +412,8 @@ class ChapterAuditSmokeTests(unittest.TestCase):
         )
         self.assertEqual(
             butts_tease_sponsor["branches"],
-            [1],
-            "A repeated jingle should get the authored SHUT UP reaction, "
-            "not be mistaken for silence.",
-        )
-        butts_followup = next(
-            question
-            for question in report["questions"]
-            if [phrase["id"] for phrase in question["phrases"]]
-            == ["said_nothing"]
-        )
-        butts_followup_sponsor = next(
-            case
-            for case in butts_followup["cases"]
-            if case["delivery"] == "sponsor"
-        )
-        self.assertEqual(
-            butts_followup_sponsor["branches"],
-            [1],
-            "The follow-up jingle should not trigger Clem’s response to "
-            "Percy saying nothing.",
+            [3],
+            "A repeated jingle should get Clem’s authored smile response.",
         )
         confession = next(
             question
@@ -404,22 +439,8 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
             self.assertEqual(
                 selection["branches"],
-                [3],
-                f"{orphan_id} alone should make Clem ask for an answer again.",
-            )
-        for affirmative_id in ("yes", "let_me"):
-            selection = next(
-                case
-                for case in confession["cases"]
-                if (
-                    case["delivery"] == "normal"
-                    and case["kept"] == [affirmative_id]
-                )
-            )
-            self.assertEqual(
-                selection["branches"],
-                [],
-                f"{affirmative_id} should be enough to continue the confession.",
+                [1],
+                f"{orphan_id} now follows the authored paid-word response.",
             )
 
     def test_neighbors_chapter_audit_covers_every_ending_combination(self) -> None:
