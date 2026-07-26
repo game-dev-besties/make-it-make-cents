@@ -15,23 +15,24 @@ const PAPER_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
 
 ## The history modal (ui/dialogue/history_layer.tscn) is a separate scene
 ## mounted by Dialogic, not a child of this one -- these mirror its layout
-## so the chapter title and "Return to Title" can align with its button row
-## while it's open. Keep in sync with that file's HideHistory/HistoryBox rects.
+## so the chapter title can align with the transcript while its actions remain
+## in the persistent top header.
 const HISTORY_MODAL_LEFT_INSET := 74.0
 const HISTORY_MODAL_RING_CLEARANCE := 20.0
 const HISTORY_ROW_TOP := 82.0
-const HISTORY_ROW_BOTTOM := 123.0
-const HISTORY_RETURN_TO_GAME_LEFT_INSET := 313.0
-const BACK_TO_TITLE_GAP := 10.0
+const HISTORY_ROW_BOTTOM := 122.0
 const HISTORY_CHAPTER_GAP := 16.0
 const BACK_TO_TITLE_WIDTH := 180.0
 const COMPACT_BACK_TO_TITLE_WIDTH := 150.0
 const COMPACT_HISTORY_CHAPTER_TOP := 48.0
-const COMPACT_HISTORY_CHAPTER_BOTTOM := 81.0
-const HISTORY_BUTTON_LEFT_INSET := 104.0
+const COMPACT_HISTORY_CHAPTER_BOTTOM := 88.0
 const HUD_BUTTON_TOP := 7.0
-const COMPACT_RETURN_BUTTON_TOP := 46.0
-const HUD_BUTTON_HEIGHT := 31.0
+const COMPACT_RETURN_BUTTON_TOP := 55.0
+const HUD_CONTROL_HEIGHT := 40.0
+const HISTORY_BUTTON_WIDTH := 96.0
+const RETURN_TO_GAME_WIDTH := 175.0
+const HUD_RIGHT_MARGIN := 20.0
+const HUD_CONTROL_GAP := 10.0
 
 @onready var title_screen: Control = %TitleScreen
 @onready var start_button: Button = %StartButton
@@ -39,6 +40,8 @@ const HUD_BUTTON_HEIGHT := 31.0
 @onready var episode_label: Label = %EpisodeLabel
 @onready var budget_label: Label = %BudgetLabel
 @onready var back_to_title_button: Button = %BackToTitleButton
+@onready var history_button: Button = %HistoryButton
+@onready var return_to_game_button: Button = %ReturnToGameButton
 @onready var status_label: Label = %StatusLabel
 @onready var campaign_player: CampaignPlayer = %CampaignPlayer
 @onready var developer_tools: VBoxContainer = %DeveloperTools
@@ -106,8 +109,11 @@ func _on_episode_started(episode: EpisodeDefinition) -> void:
 	budget_label.show()
 	hud_status_panel.show()
 	back_to_title_button.show()
+	# The Dialogic history layer mounts just after this signal. Its opener is
+	# enabled by _ensure_history_box_connection() once it has a live target.
+	history_button.visible = _history_box != null and is_instance_valid(_history_box)
 	_on_budget_changed(game_state.remaining_budget(), game_state.remaining_budget())
-	_layout_active_cutscene_button()
+	_layout_active_cutscene_header()
 
 
 func _on_campaign_finished() -> void:
@@ -115,6 +121,8 @@ func _on_campaign_finished() -> void:
 	budget_label.hide()
 	hud_status_panel.hide()
 	back_to_title_button.hide()
+	history_button.hide()
+	return_to_game_button.hide()
 	title_screen.hide()
 
 
@@ -123,6 +131,8 @@ func _on_campaign_aborted() -> void:
 	budget_label.hide()
 	hud_status_panel.hide()
 	back_to_title_button.hide()
+	history_button.hide()
+	return_to_game_button.hide()
 	title_screen.show()
 	start_button.text = "Play again"
 	start_button.grab_focus()
@@ -133,6 +143,18 @@ func _on_back_to_title_button_pressed() -> void:
 	if history != null and history.has_method("close_history"):
 		history.call("close_history")
 	await campaign_player.abort_campaign()
+
+
+func _on_history_button_pressed() -> void:
+	var history: Object = dialogic_node.call("get_subsystem", "History")
+	if history != null and history.has_method("open_history"):
+		history.call("open_history")
+
+
+func _on_return_to_game_button_pressed() -> void:
+	var history: Object = dialogic_node.call("get_subsystem", "History")
+	if history != null and history.has_method("close_history"):
+		history.call("close_history")
 
 
 func _on_validation_failed(errors: PackedStringArray) -> void:
@@ -175,11 +197,8 @@ func _style_episode_picker_popup() -> void:
 	popup.add_theme_stylebox_override(&"hover", load("res://ui/dialogue/choice_button_hover.tres"))
 
 
-## The History layer's own "Show"/"Hide" buttons call their handlers directly
-## rather than going through History.open_history()/close_history() (those
-## are only emitted for programmatic callers) -- open_requested/close_requested
-## never fire from an actual click, so watching HistoryBox's own visibility is
-## the only hook that reliably reflects what the player sees.
+## The app header requests open/close through Dialogic, while HistoryBox
+## visibility remains the source of truth for keeping both layouts in sync.
 func _ensure_history_box_connection() -> void:
 	if _history_box != null and is_instance_valid(_history_box):
 		return
@@ -197,6 +216,11 @@ func _ensure_history_box_connection() -> void:
 	_history_box = history_box
 	if not _history_box.visibility_changed.is_connected(_on_history_box_visibility_changed):
 		_history_box.visibility_changed.connect(_on_history_box_visibility_changed)
+	if _history_box.visible:
+		_on_history_opened()
+	elif campaign_player.current_episode != null:
+		history_button.show()
+		_layout_active_cutscene_header()
 
 
 func _on_history_box_visibility_changed() -> void:
@@ -207,8 +231,11 @@ func _on_history_box_visibility_changed() -> void:
 
 
 func _on_history_opened() -> void:
+	history_button.hide()
+	return_to_game_button.show()
 	var frame := _story_frame_rect()
 	var compact_history := frame.size.x < 680.0 or frame.size.y < 460.0
+	_layout_history_actions(frame, compact_history)
 	if compact_history:
 		# Stack chapter identity below the two actions so every control remains
 		# readable on a phone-sized story frame.
@@ -224,16 +251,6 @@ func _on_history_opened() -> void:
 		episode_label.offset_top = frame.position.y + COMPACT_HISTORY_CHAPTER_TOP
 		episode_label.offset_bottom = frame.position.y + COMPACT_HISTORY_CHAPTER_BOTTOM
 		episode_label.show()
-		back_to_title_button.anchor_left = 0.0
-		back_to_title_button.anchor_right = 0.0
-		back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
-		back_to_title_button.offset_left = frame.position.x + 16.0
-		back_to_title_button.offset_right = (
-			frame.position.x + 16.0 + COMPACT_BACK_TO_TITLE_WIDTH
-		)
-		back_to_title_button.offset_top = frame.position.y + 8.0
-		back_to_title_button.offset_bottom = frame.position.y + 47.0
-		back_to_title_button.show()
 		return
 
 	if _budget_visible_before_history:
@@ -242,8 +259,7 @@ func _on_history_opened() -> void:
 	if _hud_visible_before_history:
 		hud_status_panel.show()
 		_hud_visible_before_history = false
-	var back_to_title_right := frame.end.x - (HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
-	var back_to_title_left := back_to_title_right - BACK_TO_TITLE_WIDTH
+	var back_to_title_left := back_to_title_button.position.x
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
 	episode_label.grow_horizontal = Control.GROW_DIRECTION_END
@@ -253,18 +269,9 @@ func _on_history_opened() -> void:
 	episode_label.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
 	episode_label.show()
 
-	back_to_title_button.anchor_left = 0.0
-	back_to_title_button.anchor_right = 0.0
-	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
-	back_to_title_button.offset_right = back_to_title_right
-	back_to_title_button.offset_left = back_to_title_left
-	back_to_title_button.offset_top = frame.position.y + HISTORY_ROW_TOP
-	back_to_title_button.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
-	back_to_title_button.show()
-
-
 func _on_history_closed() -> void:
 	episode_label.hide()
+	return_to_game_button.hide()
 	if _budget_visible_before_history:
 		budget_label.show()
 	_budget_visible_before_history = false
@@ -273,9 +280,12 @@ func _on_history_closed() -> void:
 	_hud_visible_before_history = false
 	if campaign_player.current_episode != null:
 		back_to_title_button.show()
-		_layout_active_cutscene_button()
+		history_button.show()
+		_layout_active_cutscene_header()
 	else:
 		back_to_title_button.hide()
+		history_button.hide()
+		return_to_game_button.hide()
 
 
 func _apply_responsive_layout() -> void:
@@ -302,14 +312,12 @@ func _apply_responsive_layout() -> void:
 	if _history_box != null and is_instance_valid(_history_box) and _history_box.visible:
 		_on_history_opened()
 	elif campaign_player.current_episode != null:
-		_layout_active_cutscene_button()
+		_layout_active_cutscene_header()
 
 
 ## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
-## ever needs ~183px (DepartureMono, size 18), so a stretchy box just left a
-## huge dead gap after the left-aligned text. The top offset (7) matches the
-## History layer's ShowHistory button (ui/dialogue/history_layer.tscn) so the
-## two line up in the same header row regardless of layout mode.
+## ever needs ~183px (DepartureMono, size 18), so a stretchy box would leave a
+## large dead gap after the text. All persistent HUD controls share this row.
 func _layout_stacked_hud() -> void:
 	_layout_hud_status()
 
@@ -323,30 +331,67 @@ func _layout_hud_status() -> void:
 	hud_status_panel.anchor_left = 0.0
 	hud_status_panel.anchor_right = 0.0
 	hud_status_panel.offset_left = frame.position.x + 20.0
-	hud_status_panel.offset_top = frame.position.y + 7.0
+	hud_status_panel.offset_top = frame.position.y + HUD_BUTTON_TOP
 	hud_status_panel.offset_right = frame.position.x + 236.0
-	hud_status_panel.offset_bottom = frame.position.y + 55.0
+	hud_status_panel.offset_bottom = (
+		frame.position.y + HUD_BUTTON_TOP + HUD_CONTROL_HEIGHT
+	)
 
 	budget_label.anchor_left = 0.0
 	budget_label.anchor_right = 0.0
 	budget_label.offset_left = frame.position.x + 28.0
-	budget_label.offset_top = frame.position.y + 15.0
+	budget_label.offset_top = frame.position.y + HUD_BUTTON_TOP
 	budget_label.offset_right = frame.position.x + 228.0
-	budget_label.offset_bottom = frame.position.y + 47.0
+	budget_label.offset_bottom = (
+		frame.position.y + HUD_BUTTON_TOP + HUD_CONTROL_HEIGHT
+	)
 
 
-func _layout_active_cutscene_button() -> void:
+func _layout_active_cutscene_header() -> void:
 	var frame := _story_frame_rect()
 	var compact := frame.size.x < 680.0 or frame.size.y < 460.0
 	var top := COMPACT_RETURN_BUTTON_TOP if compact else HUD_BUTTON_TOP
 	var width := COMPACT_BACK_TO_TITLE_WIDTH if compact else BACK_TO_TITLE_WIDTH
-	var right := frame.end.x - HISTORY_BUTTON_LEFT_INSET - BACK_TO_TITLE_GAP
+	var history_right := frame.end.x - HUD_RIGHT_MARGIN
+	var history_left := history_right - HISTORY_BUTTON_WIDTH
+	var right := history_left - HUD_CONTROL_GAP
+
+	history_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	history_button.position = Vector2(history_left, frame.position.y + HUD_BUTTON_TOP)
+	history_button.size = Vector2(HISTORY_BUTTON_WIDTH, HUD_CONTROL_HEIGHT)
+	return_to_game_button.hide()
+
 	back_to_title_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
 	back_to_title_button.position = Vector2(
 		right - width,
 		frame.position.y + top,
 	)
-	back_to_title_button.size = Vector2(width, HUD_BUTTON_HEIGHT)
+	back_to_title_button.size = Vector2(width, HUD_CONTROL_HEIGHT)
+
+
+func _layout_history_actions(frame: Rect2, compact: bool) -> void:
+	var return_right := frame.end.x - (16.0 if compact else HUD_RIGHT_MARGIN)
+	var return_left := return_right - RETURN_TO_GAME_WIDTH
+	return_to_game_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	return_to_game_button.position = Vector2(
+		return_left,
+		frame.position.y + HUD_BUTTON_TOP,
+	)
+	return_to_game_button.size = Vector2(RETURN_TO_GAME_WIDTH, HUD_CONTROL_HEIGHT)
+
+	var back_width := COMPACT_BACK_TO_TITLE_WIDTH if compact else BACK_TO_TITLE_WIDTH
+	var back_left := (
+		frame.position.x + 16.0
+		if compact
+		else return_left - HUD_CONTROL_GAP - back_width
+	)
+	back_to_title_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	back_to_title_button.position = Vector2(
+		back_left,
+		frame.position.y + HUD_BUTTON_TOP,
+	)
+	back_to_title_button.size = Vector2(back_width, HUD_CONTROL_HEIGHT)
+	back_to_title_button.show()
 
 
 func _story_frame_rect() -> Rect2:

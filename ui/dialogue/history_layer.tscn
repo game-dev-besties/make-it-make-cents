@@ -4,28 +4,32 @@
 [ext_resource type="PackedScene" path="res://ui/dialogue/history_item.tscn" id="2_history_item"]
 [ext_resource type="FontFile" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="3_font"]
 [ext_resource type="StyleBox" path="res://ui/dialogue/dialogue_textbox_panel.tres" id="4_panel"]
-[ext_resource type="StyleBox" path="res://ui/dialogue/choice_button_normal.tres" id="5_secondary_normal"]
-[ext_resource type="StyleBox" path="res://ui/dialogue/choice_button_hover.tres" id="6_secondary_hover"]
-[ext_resource type="StyleBox" path="res://ui/theme/subtle_focus.tres" id="7_focus"]
+[ext_resource type="StyleBox" path="res://ui/theme/hud_control_normal.tres" id="5_hud_normal"]
+[ext_resource type="StyleBox" path="res://ui/theme/hud_control_hover.tres" id="6_hud_hover"]
+[ext_resource type="StyleBox" path="res://ui/theme/hud_control_focus.tres" id="7_hud_focus"]
 
-[node name="HistoryLayer" type="Control"]
-layout_direction = 1
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-mouse_filter = 2
+[node name="HistoryLayer" type="CanvasLayer"]
+layer = 50
 script = ExtResource("1_history_layer")
 font_use_global_size = false
 font_custom_size = 16
 font_use_global_fonts = false
 font_custom_normal = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
-show_open_button = true
+show_open_button = false
+show_close_button = false
 HistoryItem = ExtResource("2_history_item")
+
+[node name="HistoryBackdrop" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.019608, 0.015686, 0.019608, 0.92)
 
 [node name="HistoryBox" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
@@ -66,7 +70,7 @@ anchor_right = 1.0
 offset_left = -73.0
 offset_top = 7.0
 offset_right = -9.0
-offset_bottom = 38.0
+offset_bottom = 47.0
 grow_horizontal = 0
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -75,10 +79,10 @@ theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_styles/normal = ExtResource("6_secondary_hover")
-theme_override_styles/hover = ExtResource("6_secondary_hover")
-theme_override_styles/pressed = ExtResource("6_secondary_hover")
-theme_override_styles/focus = ExtResource("7_focus")
+theme_override_styles/normal = ExtResource("5_hud_normal")
+theme_override_styles/hover = ExtResource("6_hud_hover")
+theme_override_styles/pressed = ExtResource("6_hud_hover")
+theme_override_styles/focus = ExtResource("7_hud_focus")
 text = "History"
 
 [node name="HideHistory" type="Button" parent="."]
@@ -90,7 +94,7 @@ anchor_right = 1.0
 offset_left = -313.0
 offset_top = 82.0
 offset_right = -138.0
-offset_bottom = 123.0
+offset_bottom = 122.0
 grow_horizontal = 0
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -99,10 +103,10 @@ theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_styles/normal = ExtResource("6_secondary_hover")
-theme_override_styles/hover = ExtResource("6_secondary_hover")
-theme_override_styles/pressed = ExtResource("6_secondary_hover")
-theme_override_styles/focus = ExtResource("7_focus")
+theme_override_styles/normal = ExtResource("5_hud_normal")
+theme_override_styles/hover = ExtResource("6_hud_hover")
+theme_override_styles/pressed = ExtResource("6_hud_hover")
+theme_override_styles/focus = ExtResource("7_hud_focus")
 text = "Return to Game"
 
 [connection signal="pressed" from="ShowHistory" to="." method="_on_show_history_pressed"]

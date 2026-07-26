@@ -140,9 +140,14 @@ func _test_return_to_title_stops_dialogue() -> void:
 	var campaign_player := app.get_node("%CampaignPlayer") as CampaignPlayer
 	var history_controls := app.get_node("HistoryControls") as CanvasLayer
 	var back_to_title_button := app.get_node("%BackToTitleButton") as Button
+	var history_button := app.get_node("%HistoryButton") as Button
+	var hud_status_panel := app.get_node("%HudStatusPanel") as Panel
 	_check(
-		history_controls.layer > 1 and back_to_title_button.get_parent() == history_controls,
-		"History controls should render above Dialogic's canvas layer.",
+		history_controls.layer > 1
+			and back_to_title_button.get_parent() == history_controls
+			and history_button.get_parent() == history_controls
+			and hud_status_panel.get_parent() == history_controls,
+		"The complete HUD header should render above Dialogic overlays.",
 	)
 	(app.get_node("%StartButton") as Button).pressed.emit()
 	await process_frame
@@ -152,10 +157,22 @@ func _test_return_to_title_stops_dialogue() -> void:
 		"Starting a campaign should create an active episode and Dialogic timeline.",
 	)
 	_check(
-		back_to_title_button.visible,
-		"Return to Title should stay available during normal cutscene dialogue.",
+		back_to_title_button.visible and history_button.visible,
+		"Header actions should stay available during normal cutscene dialogue.",
 	)
-	await _test_history_header(app, back_to_title_button)
+	_check(
+		is_equal_approx(back_to_title_button.size.y, history_button.size.y)
+			and is_equal_approx(back_to_title_button.size.y, hud_status_panel.size.y),
+		"Top-row cards and buttons should share one height.",
+	)
+	_check(
+		back_to_title_button.get_theme_stylebox(&"normal").resource_path
+				== "res://ui/theme/hud_control_normal.tres"
+			and history_button.get_theme_stylebox(&"hover").resource_path
+				== "res://ui/theme/hud_control_hover.tres",
+		"Top-row actions should share the HUD border and hover treatments.",
+	)
+	await _test_history_header(app, back_to_title_button, history_button)
 
 	back_to_title_button.pressed.emit()
 	for _attempt: int in 30:
@@ -218,21 +235,25 @@ func _test_return_to_title_stops_dialogue() -> void:
 	await process_frame
 
 
-func _test_history_header(app: Node, back_to_title_button: Button) -> void:
+func _test_history_header(
+	app: Node,
+	back_to_title_button: Button,
+	history_button: Button,
+) -> void:
 	var episode_label := app.get_node("%EpisodeLabel") as Label
 	var styles: Object = _dialogic.get_subsystem("Styles")
 	var layout := styles.call("get_layout_node") as Node
-	var history_box := layout.find_child("HistoryBox", true, false) as Control
-	var show_history := layout.find_child("ShowHistory", true, false) as Button
-	var return_to_game := layout.find_child("HideHistory", true, false) as Button
+	var history_box := layout.find_child("HistoryBox", true, false) as ScrollContainer
+	var return_to_game := app.get_node("%ReturnToGameButton") as Button
+	var history_controls := app.get_node("HistoryControls") as CanvasLayer
 	_check(
-		history_box != null and show_history != null and return_to_game != null,
+		history_box != null and history_button != null and return_to_game != null,
 		"The active dialogue layout should expose the history header controls.",
 	)
-	if history_box == null or show_history == null or return_to_game == null:
+	if history_box == null or history_button == null or return_to_game == null:
 		return
 
-	show_history.pressed.emit()
+	history_button.pressed.emit()
 	for _attempt: int in 10:
 		if history_box.visible and episode_label.visible:
 			break
@@ -244,21 +265,38 @@ func _test_history_header(app: Node, back_to_title_button: Button) -> void:
 	)
 	_check(
 		episode_label.get_theme_stylebox(&"normal").resource_path
-			== "res://ui/theme/history_chapter_badge.tres",
-		"The chapter title should use the dedicated history badge treatment.",
+			== "res://ui/theme/hud_control_normal.tres",
+		"The chapter title should use the shared HUD card treatment.",
 	)
 	_check(
 		back_to_title_button.get_theme_stylebox(&"normal").resource_path
-			== "res://ui/theme/return_to_title_normal.tres",
-		"Return to Title should use a distinct exit treatment.",
+			== "res://ui/theme/hud_control_normal.tres",
+		"Return to Title should use the shared HUD control treatment.",
 	)
 	var chapter_rect := episode_label.get_global_rect()
 	var exit_rect := back_to_title_button.get_global_rect()
 	var return_rect := return_to_game.get_global_rect()
 	_check(
-		chapter_rect.end.x <= exit_rect.position.x
-			and exit_rect.end.x <= return_rect.position.x,
-		"History header controls should read left-to-right as chapter, exit, and return to game.",
+		is_equal_approx(chapter_rect.size.y, exit_rect.size.y)
+			and is_equal_approx(exit_rect.size.y, return_rect.size.y),
+		"History header cards and actions should share one height.",
+	)
+	_check(
+		return_to_game.get_theme_stylebox(&"hover").resource_path
+			== "res://ui/theme/hud_control_hover.tres",
+		"The modal return action should use the shared HUD hover treatment.",
+	)
+	_check(
+		is_equal_approx(exit_rect.position.y, return_rect.position.y)
+			and exit_rect.end.y <= history_box.get_global_rect().position.y,
+		"History actions should remain together above the transcript window.",
+	)
+	_check(
+		return_to_game.visible
+			and not return_to_game.disabled
+			and return_to_game.get_parent() == history_controls
+			and history_controls.layer > 1,
+		"Return to Game should remain clickable above the History backdrop.",
 	)
 
 	return_to_game.pressed.emit()
@@ -364,6 +402,74 @@ func _test_start_to_phrase_delivery() -> void:
 		(overlay.get_node("%TitleLabel") as Label).text == "User: Percy",
 		"The phrase overlay should show the character's display name in its minimal header.",
 	)
+	var styles: Object = _dialogic.get_subsystem("Styles")
+	var layout := styles.call("get_layout_node") as Node
+	var history_layer := layout.find_child("HistoryLayer", true, false) as CanvasLayer
+	var history_box := layout.find_child("HistoryBox", true, false) as ScrollContainer
+	var history_log := layout.find_child("HistoryLog", true, false) as VBoxContainer
+	var history_backdrop := layout.find_child("HistoryBackdrop", true, false) as ColorRect
+	var return_to_game := app.get_node("%ReturnToGameButton") as Button
+	var history_button := app.get_node("%HistoryButton") as Button
+	var phrase_canvas_layer: CanvasLayer = overlay.get_canvas_layer_node()
+	for _attempt: int in 10:
+		if history_button.visible:
+			break
+		await process_frame
+	_check(
+		history_layer != null
+			and history_box != null
+			and history_log != null
+			and history_backdrop != null
+			and return_to_game != null
+			and phrase_canvas_layer != null
+			and history_button.visible,
+		"The phrase overlay should retain an available history layer and opener.",
+	)
+	if (
+		history_layer != null
+		and history_box != null
+		and history_log != null
+		and history_backdrop != null
+		and return_to_game != null
+		and phrase_canvas_layer != null
+		and history_button.visible
+	):
+		history_button.pressed.emit()
+		await process_frame
+		_check(
+			history_box.visible
+				and history_backdrop.visible
+				and history_layer.layer > phrase_canvas_layer.layer,
+			"History should render above an active phrase-cut overlay.",
+		)
+		_check(
+			history_backdrop.mouse_filter == Control.MOUSE_FILTER_STOP,
+			"History should block input from reaching the phrase-cut overlay underneath.",
+		)
+		var scroll_probe := Control.new()
+		scroll_probe.custom_minimum_size = Vector2(1.0, history_box.size.y * 2.0)
+		history_log.add_child(scroll_probe)
+		await process_frame
+		await process_frame
+		history_box.scroll_vertical = 0
+		var wheel_event := InputEventMouseButton.new()
+		wheel_event.button_index = MOUSE_BUTTON_WHEEL_DOWN
+		wheel_event.pressed = true
+		wheel_event.position = history_box.get_global_rect().get_center()
+		wheel_event.global_position = wheel_event.position
+		Input.parse_input_event(wheel_event)
+		await process_frame
+		_check(
+			history_box.scroll_vertical > 0,
+			"History should receive wheel scrolling above the phrase-cut overlay.",
+		)
+		scroll_probe.queue_free()
+		return_to_game.pressed.emit()
+		await process_frame
+		_check(
+			not history_box.visible and not history_backdrop.visible,
+			"Closing History should reveal the still-active phrase-cut overlay.",
+		)
 	var intro_stage := stage_host.current_presentation as StoryStage
 	if intro_stage != null:
 		var son_slot := intro_stage.get_node("ActorSlots/Center") as StageActorSlot

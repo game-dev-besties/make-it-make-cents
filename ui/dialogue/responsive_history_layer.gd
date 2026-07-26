@@ -5,11 +5,19 @@ extends "res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_
 
 const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 
+@onready var _history_backdrop: ColorRect = %HistoryBackdrop
+
 
 func _ready() -> void:
 	super()
+	get_history_box().visibility_changed.connect(_sync_history_backdrop)
+	_sync_history_backdrop()
 	get_viewport().size_changed.connect(_apply_responsive_layout)
 	call_deferred("_apply_responsive_layout")
+
+
+func _sync_history_backdrop() -> void:
+	_history_backdrop.visible = get_history_box().visible
 
 
 func _apply_responsive_layout() -> void:
@@ -38,13 +46,13 @@ func _apply_responsive_layout() -> void:
 	show_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
 	# Keep the button's styled edge clear of the letterbox/frame boundary.
 	show_button.position = frame.position + Vector2(frame.size.x - 104.0, 7.0)
-	show_button.size = Vector2(64.0, 31.0)
+	show_button.size = Vector2(64.0, 40.0)
 
 	var hide_button := get_hide_history_button()
 	hide_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
 	if compact:
-		hide_button.position = frame.position + Vector2(frame.size.x - 191.0, 8.0)
-		hide_button.size = Vector2(175.0, 39.0)
+		hide_button.position = frame.position + Vector2(frame.size.x - 191.0, 7.0)
+		hide_button.size = Vector2(175.0, 40.0)
 	else:
 		hide_button.position = frame.position + Vector2(frame.size.x - 313.0, 82.0)
-		hide_button.size = Vector2(175.0, 41.0)
+		hide_button.size = Vector2(175.0, 40.0)
