@@ -121,6 +121,9 @@ if delivery("sponsor"):
 elif delivery("silence") or delivery("pity"):
   interviewer: No weaknesses!? Very impressive.
   dad.success += 1
+elif kept("no") and kept("experience") and kept("fast"):
+  interviewer: Ah, I see! It’s always useful to have someone quick on their toes around here.
+  dad.success += 2
 elif kept("have") and kept("no") and kept("experience"):
   interviewer: Tsk, tsk. Not what we’re looking for. If you did a little research on interviews, you’d know you’re not supposed to say an actual weakness here.
   dad.success -= 1

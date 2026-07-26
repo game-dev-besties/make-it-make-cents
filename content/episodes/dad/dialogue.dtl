@@ -105,6 +105,9 @@ if PhraseMemory.delivery_is("sponsor"):
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	\interviewer: No weaknesses!? Very impressive.
 	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("no") and PhraseMemory.kept("experience") and PhraseMemory.kept("fast"):
+	\interviewer: Ah, I see! It’s always useful to have someone quick on their toes around here.
+	set {GameStats.dad_success} += 2
 elif PhraseMemory.kept("have") and PhraseMemory.kept("no") and PhraseMemory.kept("experience"):
 	\interviewer: Tsk, tsk. Not what we’re looking for. If you did a little research on interviews, you’d know you’re not supposed to say an actual weakness here.
 	set {GameStats.dad_success} -= 1

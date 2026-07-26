@@ -81,14 +81,33 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
 
         no_experience = weakness_case("have", "no", "experience")
-        self.assertEqual(no_experience["branches"], [2])
+        self.assertEqual(no_experience["branches"], [3])
         self.assertEqual(
             no_experience["authored_actions"],
             ["dad.success -= 1"],
         )
 
+        for kept_ids in (
+            ("no", "experience", "fast"),
+            ("have", "no", "experience", "fast"),
+            ("have", "no", "experience", "but", "fast"),
+        ):
+            fast_learner = weakness_case(*kept_ids)
+            self.assertEqual(fast_learner["branches"], [2])
+            self.assertEqual(
+                fast_learner["authored_actions"],
+                ["dad.success += 2"],
+            )
+        self.assertEqual(
+            weakness["branches"][2]["response"],
+            (
+                "Ah, I see! It’s always useful to have someone quick on "
+                "their toes around here."
+            ),
+        )
+
         experience = weakness_case("have", "experience")
-        self.assertEqual(experience["branches"], [4])
+        self.assertEqual(experience["branches"], [5])
         self.assertCountEqual(
             experience["authored_actions"],
             ["dad.success -= 1", "dad.silly += 1"],
@@ -96,7 +115,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
 
         for kept_ids in (("fast",), ("have", "experience", "fast")):
             fast = weakness_case(*kept_ids)
-            self.assertEqual(fast["branches"], [3])
+            self.assertEqual(fast["branches"], [4])
             self.assertEqual(
                 fast["authored_actions"],
                 ["dad.success -= 2"],
@@ -108,7 +127,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             ("no", "but"),
         ):
             butts = weakness_case(*kept_ids)
-            self.assertEqual(butts["branches"], [5])
+            self.assertEqual(butts["branches"], [6])
             self.assertCountEqual(
                 butts["authored_actions"],
                 [
@@ -119,7 +138,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
 
         no_weakness = weakness_case("no")
-        self.assertEqual(no_weakness["branches"], [6])
+        self.assertEqual(no_weakness["branches"], [7])
         self.assertFalse(no_weakness["authored_actions"])
 
     def test_grandma_budget_supports_one_full_answer_plus_participation(
