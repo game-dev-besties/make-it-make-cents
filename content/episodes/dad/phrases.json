@@ -163,5 +163,69 @@
     "recovery": {
       "sponsor_text": "THE POP OF SAM’S SODA IS IRRESISTIBLE!"
     }
+  },
+  "dad_L005": {
+    "speaker": "dad",
+    "expr": "",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "First, I would",
+        "cost": 3,
+        "id": "first"
+      },
+      {
+        "type": "phrase",
+        "text": "try to",
+        "cost": 2,
+        "id": "try"
+      },
+      {
+        "type": "phrase",
+        "text": "talk",
+        "cost": 1,
+        "id": "talk"
+      },
+      {
+        "type": "phrase",
+        "text": "it out.",
+        "cost": 2,
+        "id": "out"
+      },
+      {
+        "type": "phrase",
+        "text": "If they start to",
+        "cost": 4,
+        "id": "if_start"
+      },
+      {
+        "type": "phrase",
+        "text": "escalate,",
+        "cost": 1,
+        "id": "escalate"
+      },
+      {
+        "type": "phrase",
+        "text": "then",
+        "cost": 1,
+        "id": "then"
+      },
+      {
+        "type": "phrase",
+        "text": "I would",
+        "cost": 2,
+        "id": "i_would"
+      },
+      {
+        "type": "phrase",
+        "text": "bring it up to my manager.",
+        "cost": 6,
+        "id": "manager"
+      }
+    ],
+    "sponsor_success_delta": -2,
+    "recovery": {
+      "sponsor_text": "TELL ALL YOUR FRIENDS AND FAMILY ABOUT SAM’S ROCKIN’ SODA POP!"
+    }
   }
 }

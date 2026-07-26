@@ -42,9 +42,11 @@ surfaces:
 - compressed budget, stat, recovery, and story-flag states after every prompt;
 - unreachable and shadowed responses;
 - catch-all responses that absorb most selections;
+- smallest phrase selections that still reach a catch-all;
 - an all-kept default sentence that unexpectedly reaches `else`;
 - large score changes caused by toggling one phrase;
-- inaccessible pity or sponsor responses; and
+- inaccessible pity or sponsor responses;
+- reachable pity or sponsor deliveries that use a generic fallback; and
 - suspiciously low or high scores reaching a named outcome.
 
 Use `--include-states` to put every compressed state into the Markdown report,

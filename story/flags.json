@@ -15,10 +15,20 @@
         {
           "value": "butts",
           "description": "Dad offended the interviewer by talking about butts."
+        }
+      ]
+    },
+    {
+      "name": "dad_mentioned_family",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Dad did not mention his family during the interview."
         },
         {
-          "value": "family",
-          "description": "Dad offended the interviewer by insulting his family."
+          "value": true,
+          "description": "Dad mentioned his family during the interview."
         }
       ]
     }

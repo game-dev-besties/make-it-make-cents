@@ -16,16 +16,16 @@ class DialogueAuditTests(unittest.TestCase):
     def test_enumerates_every_reachable_selection_and_state(self) -> None:
         self.assertEqual(
             [len(question["cases"]) for question in self.report["questions"]],
-            [32, 16, 128, 32],
+            [32, 16, 128, 32, 514],
         )
-        self.assertGreater(self.report["summary"]["raw_paths"], 2_000_000)
+        self.assertGreater(self.report["summary"]["raw_paths"], 800_000_000)
         self.assertGreater(
             self.report["summary"]["final_mechanical_states"],
-            1_000,
+            4_000,
         )
         self.assertEqual(
             self.report["summary"]["reachable_deliveries"],
-            ["normal", "silence"],
+            ["normal", "pity", "silence", "sponsor"],
         )
 
     def test_surfaces_remaining_dad_interview_risks(self) -> None:
@@ -33,12 +33,26 @@ class DialogueAuditTests(unittest.TestCase):
             (finding["code"], finding.get("line_id"))
             for finding in self.report["findings"]
         }
-        self.assertIn(("PHRASE_LINE_COUNT", None), findings)
+        self.assertNotIn(("PHRASE_LINE_COUNT", None), findings)
         for line_id in ("dad_L001", "dad_L002", "dad_L003", "dad_L004"):
             self.assertNotIn(("DEFAULT_FALLS_THROUGH", line_id), findings)
         self.assertIn(("UNREACHABLE_DELIVERY", "dad_L001"), findings)
+        self.assertIn(("MINIMAL_FALLBACK_SELECTIONS", "dad_L005"), findings)
+        self.assertIn(("RECOVERY_FALLS_THROUGH", "dad_L005"), findings)
         self.assertNotIn(("POSITIVE_OUTCOME_LOW_SUCCESS", None), findings)
         self.assertIn(("NEGATIVE_OUTCOME_HIGH_SUCCESS", None), findings)
+        q5_fallbacks = next(
+            finding
+            for finding in self.report["findings"]
+            if finding["code"] == "MINIMAL_FALLBACK_SELECTIONS"
+            and finding.get("line_id") == "dad_L005"
+        )
+        self.assertTrue(
+            any(
+                "bring it up to my manager" in example
+                for example in q5_fallbacks["examples"]
+            )
+        )
         q4_overlap = next(
             finding
             for finding in self.report["findings"]
@@ -71,11 +85,46 @@ class DialogueAuditTests(unittest.TestCase):
                 question["line_id"],
             )
 
+    def test_q5_keeps_unwritten_manager_response_visible(self) -> None:
+        question = self.report["questions"][4]
+        else_index = next(
+            branch["index"]
+            for branch in question["branches"]
+            if branch["condition"] == "else"
+        )
+        cases = {
+            tuple(case["kept"]): case
+            for case in question["cases"]
+            if case["delivery"] == "normal"
+        }
+        self.assertEqual(cases[("manager",)]["branches"], [else_index])
+        self.assertEqual(
+            cases[("i_would", "manager")]["branches"],
+            [else_index],
+        )
+
+    def test_family_mention_is_independent_from_offense(self) -> None:
+        final_flags = {
+            (
+                state["flags"]["dad_offended_interviewer"],
+                state["flags"]["dad_mentioned_family"],
+            )
+            for state in self.report["final_states"]
+        }
+        self.assertIn(("none", True), final_flags)
+        self.assertNotIn(
+            "family",
+            {
+                state["flags"]["dad_offended_interviewer"]
+                for state in self.report["final_states"]
+            },
+        )
+
     def test_reports_word_budget_pressure(self) -> None:
         pressure = self.report["budget_pressure"]
         self.assertEqual(pressure["initial_budget"], 40)
-        self.assertEqual(pressure["implemented_full_cost"], 48)
-        self.assertEqual(pressure["headroom_over_all_full"], -8)
+        self.assertEqual(pressure["implemented_full_cost"], 70)
+        self.assertEqual(pressure["headroom_over_all_full"], -30)
         self.assertEqual(
             pressure["full_cost_by_line"],
             {
@@ -83,6 +132,7 @@ class DialogueAuditTests(unittest.TestCase):
                 "dad_L002": 14,
                 "dad_L003": 15,
                 "dad_L004": 9,
+                "dad_L005": 22,
             },
         )
 

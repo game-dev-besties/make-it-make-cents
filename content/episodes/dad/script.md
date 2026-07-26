@@ -1,12 +1,13 @@
 # Chapter 2: Dad's job interview.
 #
-# Question 5 is intentionally waiting for its unfinished response, silence,
-# sponsor, and fallback copy. The completed four questions still resolve
-# through the approved flag-based job outcome below.
+# The manager-only response in Question 5 is intentionally waiting for its
+# unfinished outline copy. Those selections use the approved fallback until
+# the writer supplies that response.
 
 ## intro
 @cue dad_enters
 SET dad_offended_interviewer = "none"
+SET dad_mentioned_family = false
 interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 
 ## question_1
@@ -84,7 +85,7 @@ dad: [I wanted to]{id=wanted} [balance]{id=balance} [my family]{id=family} [and]
 
 if delivery("sponsor"):
   interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
-  if flag("dad_offended_interviewer") == "none" or flag("dad_offended_interviewer") == "family":
+  if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
 elif delivery("silence"):
   interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
@@ -104,8 +105,7 @@ elif kept("family"):
   interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
   dad.success -= 1
   dad.silly += 1
-  if flag("dad_offended_interviewer") == "none":
-    SET dad_offended_interviewer = "family"
+  SET dad_mentioned_family = true
 elif kept("wanted"):
   interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
   dad.silly += 1
@@ -121,7 +121,8 @@ dad: [I have]{id=have} [no]{id=no} [experience]{id=experience} [but]{id=but} [I�
 
 if delivery("sponsor"):
   interviewer: I find soda as enjoyable as the next, but I wouldn’t go that far. It seems to me your weakness is a lack of self-control.
-  SET dad_offended_interviewer = "soda"
+  if flag("dad_offended_interviewer") == "none":
+    SET dad_offended_interviewer = "soda"
 elif delivery("silence"):
   interviewer: No weaknesses!? Very impressive.
   dad.success += 1
@@ -153,8 +154,36 @@ else:
   interviewer: Hmm. Not sure I understand what you mean.
   dad.success -= 3
 
+## question_5
+interviewer: Moving on. For your final question, I want to give you a hypothetical situation. Say you don’t get along with a co-worker. What do you do?
+@sponsor_score -2
+@sponsor_text "TELL ALL YOUR FRIENDS AND FAMILY ABOUT SAM’S ROCKIN’ SODA POP!"
+dad: [First, I would]{id=first} [try to]{id=try} [talk]{id=talk} [it out.]{id=out} [If they start to]{id=if_start} [escalate,]{id=escalate} [then]{id=then} [I would]{id=i_would} [bring it up to my manager.]{id=manager}
+
+if delivery("sponsor"):
+  interviewer: Sir, that is not an appropriate response to this question! What if your coworker doesn’t like soda? Some people are very sensitive about their teeth. Ah…nevermind.
+  if flag("dad_offended_interviewer") == "none":
+    SET dad_offended_interviewer = "soda"
+elif delivery("silence"):
+  interviewer: Hmm, are you blanking? This is a very common scenario. I’d recommend you do more research next time.
+  dad.success -= 2
+elif kept("talk") and kept("out") and kept("manager"):
+  interviewer: A detailed plan, I see. You’ve certainly thought this one through.
+  dad.success += 3
+elif kept("talk") and kept("out"):
+  interviewer: A fairly reasonable answer. I’m glad you know how to use your words.
+  dad.success += 1
+elif kept("talk"):
+  interviewer: I see you’re a simple man. Talking can certainly be very effective, but I’m not sure it would be in your case…
+elif kept("escalate"):
+  interviewer: Oh…erm. Escalate how? Nevermind. I don’t want to know.
+  dad.success -= 2
+else:
+  interviewer: Hmm, not sure I understand what you mean. Seems like another weakness of yours is your lack of eloquence.
+  dad.success -= 2
+
 ## outcome
-interviewer: Alright, that concludes our interview. As for your position…
+interviewer: Well then, that concludes our interview. As for your position…
 
 if dad.success >= 5 and flag("dad_offended_interviewer") == "none":
   CHECK dad_offended_interviewer == "none" as dad_got_the_job:

@@ -20,6 +20,7 @@ import argparse
 import ast
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 import json
 from pathlib import Path
 import re
@@ -228,10 +229,15 @@ class ConditionEvaluator:
         self.phrase = state.phrase
 
     def evaluate(self, expression: str) -> object:
+        return self._visit(self._parse(expression))
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def _parse(expression: str) -> ast.AST:
         normalized = re.sub(r"\btrue\b", "True", expression)
         normalized = re.sub(r"\bfalse\b", "False", normalized)
         normalized = re.sub(r"\bnull\b", "None", normalized)
-        return self._visit(ast.parse(normalized, mode="eval").body)
+        return ast.parse(normalized, mode="eval").body
 
     def _visit(self, node: ast.AST) -> object:
         if isinstance(node, ast.Constant):
@@ -298,6 +304,93 @@ class ConditionEvaluator:
             if function == "delivery":
                 return self.phrase.delivery == str(argument)
         raise AuditError(f"unsupported condition node: {ast.dump(node)}")
+
+
+@lru_cache(maxsize=None)
+def _condition_is_phrase_local(expression: str) -> bool:
+    for node in ast.walk(ConditionEvaluator._parse(expression)):
+        if isinstance(node, ast.Attribute):
+            return False
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "flag"
+        ):
+            return False
+    return True
+
+
+@lru_cache(maxsize=None)
+def _condition_uses_phrase(expression: str) -> bool:
+    return any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in {"kept", "removed", "kept_count", "delivery"}
+        for node in ast.walk(ConditionEvaluator._parse(expression))
+    )
+
+
+def _statements_reference_current_phrase(statements: Sequence[dict]) -> bool:
+    for statement in statements:
+        kind = statement["kind"]
+        if kind in PHRASE_CONFIG_KINDS:
+            return False
+        if kind == "dialogue" and "phrases" in statement:
+            return False
+        if kind == "if":
+            if any(
+                condition is not None and _condition_uses_phrase(condition)
+                for condition, _body, _line in statement["branches"]
+            ):
+                return True
+            if any(
+                _statements_reference_current_phrase(body)
+                for _condition, body, _line in statement["branches"]
+            ):
+                return True
+        elif kind in {"flag_check", "choice"}:
+            if _statements_reference_current_phrase(statement["body"]):
+                return True
+        elif kind == "jump" and statement["target"] == "end":
+            return False
+    return False
+
+
+def _has_phrase_reset_or_end(statements: Sequence[dict]) -> bool:
+    return any(
+        statement["kind"] in PHRASE_CONFIG_KINDS
+        or (
+            statement["kind"] == "dialogue"
+            and "phrases" in statement
+        )
+        or (
+            statement["kind"] == "jump"
+            and statement["target"] == "end"
+        )
+        for statement in statements
+    )
+
+
+def _can_discard_current_phrase(statements: Sequence[dict]) -> bool:
+    return (
+        _has_phrase_reset_or_end(statements)
+        and not _statements_reference_current_phrase(statements)
+    )
+
+
+def _is_simple_transition(statements: Sequence[dict]) -> bool:
+    for statement in statements:
+        kind = statement["kind"]
+        if kind in PHRASE_CONFIG_KINDS or kind in {
+            "if",
+            "flag_check",
+            "choice",
+            "recovery",
+        }:
+            return False
+        if kind == "dialogue" and "phrases" in statement:
+            return False
+    return True
 
 
 class EpisodeAuditor:
@@ -454,6 +547,14 @@ class EpisodeAuditor:
 
             frontier = _merge(active, halted)
             position += 1
+            remaining_statements = statements[position:]
+            if (
+                remaining_statements
+                and _can_discard_current_phrase(remaining_statements)
+                and any(state.phrase is not None for state in active)
+            ):
+                active = _clear_phrase_and_collapse(active)
+                frontier = _merge(active, halted)
         return frontier
 
     def _execute_phrase(
@@ -645,15 +746,45 @@ class EpisodeAuditor:
             response_question.response_if_line = line.number
             response_question.response_branches = tuple(statement["branches"])
 
+        conditions = tuple(
+            condition
+            for condition, _body, _branch_line in statement["branches"]
+        )
+        phrase_local_conditions = all(
+            condition is None or _condition_is_phrase_local(condition)
+            for condition in conditions
+        )
+        phrase_condition_cache: dict[
+            PhraseMemory | None,
+            tuple[int, ...],
+        ] = {}
+        simple_branches = tuple(
+            _is_simple_transition(body)
+            for _condition, body, _branch_line in statement["branches"]
+        )
+        transition_cache: dict[
+            tuple[int, tuple[object, ...]],
+            Frontier,
+        ] = {}
+
         for state, reach in frontier.items():
-            evaluator = ConditionEvaluator(state)
-            true_indices = [
-                index
-                for index, (condition, _body, _branch_line) in enumerate(
-                    statement["branches"]
+            cached_true_indices = (
+                phrase_condition_cache.get(state.phrase)
+                if phrase_local_conditions
+                else None
+            )
+            if cached_true_indices is None:
+                evaluator = ConditionEvaluator(state)
+                true_indices = tuple(
+                    index
+                    for index, condition in enumerate(conditions)
+                    if condition is not None
+                    and bool(evaluator.evaluate(condition))
                 )
-                if condition is not None and bool(evaluator.evaluate(condition))
-            ]
+                if phrase_local_conditions:
+                    phrase_condition_cache[state.phrase] = true_indices
+            else:
+                true_indices = cached_true_indices
             for index in true_indices:
                 audit.independently_true_paths[index] += reach.paths
             if len(true_indices) > 1:
@@ -688,10 +819,28 @@ class EpisodeAuditor:
             audit.selected_paths[selected_index] += reach.paths
             _condition, body, _branch_line = statement["branches"][selected_index]
             before = state
-            branch_frontier = self._execute_sequence(
-                body,
-                {state: Reach(reach.paths, reach.example)},
-            )
+            if simple_branches[selected_index]:
+                transition_key = (selected_index, state.mechanics_key())
+                branch_frontier = transition_cache.get(transition_key)
+                if branch_frontier is None:
+                    mechanical_state = replace(state, phrase=None)
+                    branch_frontier = self._execute_sequence(
+                        body,
+                        {mechanical_state: Reach(1)},
+                    )
+                    transition_cache[transition_key] = branch_frontier
+                branch_frontier = {
+                    replace(next_state, phrase=state.phrase): Reach(
+                        next_reach.paths * reach.paths,
+                        reach.example + next_reach.example,
+                    )
+                    for next_state, next_reach in branch_frontier.items()
+                }
+            else:
+                branch_frontier = self._execute_sequence(
+                    body,
+                    {state: Reach(reach.paths, reach.example)},
+                )
             for next_state, next_reach in branch_frontier.items():
                 _add(result, next_state, next_reach)
                 if response_question is not None and state.phrase is not None:
@@ -976,6 +1125,58 @@ class EpisodeAuditor:
                 if else_index is not None
                 and question.cases[case].branches == {else_index}
             ]
+            minimal_else_cases = [
+                case
+                for case in else_cases
+                if not any(
+                    set(other.kept_indices) < set(case.kept_indices)
+                    for other in else_cases
+                )
+            ]
+            if minimal_else_cases:
+                findings.append(
+                    {
+                        "severity": "low",
+                        "code": "MINIMAL_FALLBACK_SELECTIONS",
+                        "kind": "heuristic",
+                        "line_id": question.line_id,
+                        "message": (
+                            f"{len(minimal_else_cases)} irreducible normal "
+                            "selection(s) use the catch-all response; review "
+                            "whether each is an intentional fragment or an "
+                            "unsupported meaning."
+                        ),
+                        "examples": [
+                            (
+                                f"{self._case_label(question, case)}: "
+                                f"“{self._case_text(question.phrases, case)}”"
+                            )
+                            for case in minimal_else_cases[:8]
+                        ],
+                    }
+                )
+            recovery_fallbacks = [
+                case.delivery
+                for case, result in question.cases.items()
+                if case.delivery in {"pity", "sponsor"}
+                and else_index is not None
+                and result.branches == {else_index}
+            ]
+            if recovery_fallbacks:
+                findings.append(
+                    {
+                        "severity": "medium",
+                        "code": "RECOVERY_FALLS_THROUGH",
+                        "kind": "heuristic",
+                        "line_id": question.line_id,
+                        "message": (
+                            "Reachable recovery delivery uses the generic "
+                            "catch-all response: "
+                            + ", ".join(sorted(recovery_fallbacks))
+                            + "."
+                        ),
+                    }
+                )
             if normal_cases and len(else_cases) / len(normal_cases) >= 0.5:
                 findings.append(
                     {

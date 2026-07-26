@@ -2,6 +2,7 @@
 label intro
 presentation_cue dad_enters
 story_flag_set {"name":"dad_offended_interviewer","value":"none"}
+story_flag_set {"name":"dad_mentioned_family","value":false}
 \interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 label question_1
 phrase_cut dad dad_L001
@@ -68,7 +69,7 @@ label question_3
 phrase_cut dad dad_L003
 if PhraseMemory.delivery_is("sponsor"):
 	\interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
-	if GameStats.get_story_flag("dad_offended_interviewer") == "none" or GameStats.get_story_flag("dad_offended_interviewer") == "family":
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
 		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
@@ -88,8 +89,7 @@ elif PhraseMemory.kept("family"):
 	\interviewer: Erm. That’s interesting. I suppose we can’t choose our family.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
-	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
-		story_flag_set {"name":"dad_offended_interviewer","value":"family"}
+	story_flag_set {"name":"dad_mentioned_family","value":true}
 elif PhraseMemory.kept("wanted"):
 	\interviewer: You wanted to be unemployed? In this economy? I suppose you must be one of those risk-taking types.
 	set {GameStats.dad_silly} += 1
@@ -101,7 +101,8 @@ label question_4
 phrase_cut dad dad_L004
 if PhraseMemory.delivery_is("sponsor"):
 	\interviewer: I find soda as enjoyable as the next, but I wouldn’t go that far. It seems to me your weakness is a lack of self-control.
-	story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
 elif PhraseMemory.delivery_is("silence"):
 	\interviewer: No weaknesses!? Very impressive.
 	set {GameStats.dad_success} += 1
@@ -132,8 +133,32 @@ elif PhraseMemory.kept("no"):
 else:
 	\interviewer: Hmm. Not sure I understand what you mean.
 	set {GameStats.dad_success} -= 3
+label question_5
+\interviewer: Moving on. For your final question, I want to give you a hypothetical situation. Say you don’t get along with a co-worker. What do you do?
+phrase_cut dad dad_L005
+if PhraseMemory.delivery_is("sponsor"):
+	\interviewer: Sir, that is not an appropriate response to this question! What if your coworker doesn’t like soda? Some people are very sensitive about their teeth. Ah…nevermind.
+	if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+		story_flag_set {"name":"dad_offended_interviewer","value":"soda"}
+elif PhraseMemory.delivery_is("silence"):
+	\interviewer: Hmm, are you blanking? This is a very common scenario. I’d recommend you do more research next time.
+	set {GameStats.dad_success} -= 2
+elif PhraseMemory.kept("talk") and PhraseMemory.kept("out") and PhraseMemory.kept("manager"):
+	\interviewer: A detailed plan, I see. You’ve certainly thought this one through.
+	set {GameStats.dad_success} += 3
+elif PhraseMemory.kept("talk") and PhraseMemory.kept("out"):
+	\interviewer: A fairly reasonable answer. I’m glad you know how to use your words.
+	set {GameStats.dad_success} += 1
+elif PhraseMemory.kept("talk"):
+	\interviewer: I see you’re a simple man. Talking can certainly be very effective, but I’m not sure it would be in your case…
+elif PhraseMemory.kept("escalate"):
+	\interviewer: Oh…erm. Escalate how? Nevermind. I don’t want to know.
+	set {GameStats.dad_success} -= 2
+else:
+	\interviewer: Hmm, not sure I understand what you mean. Seems like another weakness of yours is your lack of eloquence.
+	set {GameStats.dad_success} -= 2
 label outcome
-\interviewer: Alright, that concludes our interview. As for your position…
+\interviewer: Well then, that concludes our interview. As for your position…
 if GameStats.dad_success >= 5 and GameStats.get_story_flag("dad_offended_interviewer") == "none":
 	if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
 		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_got_the_job"}

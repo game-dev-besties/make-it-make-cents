@@ -204,8 +204,16 @@ func _test_story_flags() -> void:
 		"Declared story flags should expose their default before the first SET.",
 	)
 	_check(
+		not state.get_story_flag(&"dad_mentioned_family"),
+		"Boolean story flags should expose their false default.",
+	)
+	_check(
 		state.set_story_flag(&"dad_offended_interviewer", "soda"),
 		"Declared story flags should accept schema values.",
+	)
+	_check(
+		state.set_story_flag(&"dad_mentioned_family", true),
+		"Boolean story flags should accept schema values.",
 	)
 	_check(
 		state.story_flag_equals(&"dad_offended_interviewer", "soda"),
@@ -215,6 +223,11 @@ func _test_story_flags() -> void:
 		state.describe_story_flag(&"dad_offended_interviewer", "soda")
 		== "Dad offended the interviewer with the soda jingle.",
 		"Story flags should expose their plain-English history description.",
+	)
+	_check(
+		state.describe_story_flag(&"dad_mentioned_family", true)
+		== "Dad mentioned his family during the interview.",
+		"Boolean story flags should expose their plain-English description.",
 	)
 	var later_episode := EpisodeDefinition.new()
 	later_episode.id = &"later_chapter"
@@ -230,10 +243,18 @@ func _test_story_flags() -> void:
 		restored.get_story_flag(&"dad_offended_interviewer") == "soda",
 		"Story flags should survive state serialization.",
 	)
+	_check(
+		restored.get_story_flag(&"dad_mentioned_family"),
+		"Boolean story flags should survive state serialization.",
+	)
 	restored.reset_for_new_game()
 	_check(
 		restored.get_story_flag(&"dad_offended_interviewer") == "none",
 		"Starting a new game should restore story flag defaults.",
+	)
+	_check(
+		not restored.get_story_flag(&"dad_mentioned_family"),
+		"Starting a new game should restore boolean story flag defaults.",
 	)
 
 	var set_event := DialogicStoryFlagSetEvent.new()

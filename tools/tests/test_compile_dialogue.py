@@ -23,7 +23,13 @@ FLAGS = {
     "dad_offended_interviewer": FlagDefinition(
         name="dad_offended_interviewer",
         default="none",
-        values=("none", "soda", "butts", "family"),
+        values=("none", "soda", "butts"),
+        descriptions={},
+    ),
+    "dad_mentioned_family": FlagDefinition(
+        name="dad_mentioned_family",
+        default=False,
+        values=(False, True),
         descriptions={},
     )
 }
@@ -75,6 +81,7 @@ else:
         artifact = self.compile_with_flags(
             """\
 SET dad_offended_interviewer = "none"
+SET dad_mentioned_family = true
 if flag("dad_offended_interviewer") == "none":
   SET dad_offended_interviewer = "soda"
 CHECK dad_offended_interviewer != "none" as dad_did_not_get_the_job:
@@ -86,6 +93,10 @@ CHECK dad_offended_interviewer == "none" as dad_got_the_job:
 
         self.assertIn(
             'story_flag_set {"name":"dad_offended_interviewer","value":"none"}',
+            artifact.timeline,
+        )
+        self.assertIn(
+            'story_flag_set {"name":"dad_mentioned_family","value":true}',
             artifact.timeline,
         )
         self.assertIn(
@@ -110,6 +121,9 @@ CHECK dad_offended_interviewer == "none" as dad_got_the_job:
             'SET missing_flag = "none"\n': "unknown flag `missing_flag`",
             'SET dad_offended_interviewer = "angry"\n': (
                 'invalid value "angry" for flag `dad_offended_interviewer`'
+            ),
+            'SET dad_mentioned_family = "true"\n': (
+                'invalid value "true" for flag `dad_mentioned_family`'
             ),
             'if flag("missing_flag") == "none":\n  dad: Hello.\n': (
                 "unknown flag `missing_flag`"
