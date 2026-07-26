@@ -1,0 +1,149 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" path="res://content/episodes/son/park.png" id="2_park"]
+[ext_resource type="Texture2D" path="res://content/characters/penny/moneybot.png" id="3_moneybot"]
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(760, -36)]
+}
+
+[sub_resource type="Animation" id="Animation_clem_walks_over"]
+resource_name = "clem_walks_over"
+length = 0.75
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Right:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.75),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(760, -36), Vector2(596, -36)]
+}
+
+[sub_resource type="Animation" id="Animation_clem_backs_away"]
+resource_name = "clem_backs_away"
+length = 0.7
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.45, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [1.0, 1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Right:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(596, -36), Vector2(760, -36)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_crush"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"clem_backs_away": SubResource("Animation_clem_backs_away"),
+&"clem_walks_over": SubResource("Animation_clem_walks_over")
+}
+
+[node name="CrushStage" instance=ExtResource("1_base")]
+stage_title = "Monday afternoon - school grounds"
+
+[node name="Background" parent="." index="0"]
+color = Color(0.11, 0.22, 0.2, 1)
+
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_park")
+
+[node name="Left" parent="ActorSlots" index="0"]
+offset_left = 42.0
+offset_top = -36.0
+offset_right = 552.0
+offset_bottom = 684.0
+character_id = &"son"
+actor_name = "Percy"
+expression = "nervous"
+accent_color = Color(0.35, 0.67, 0.86, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+visible = false
+actor_name = ""
+expression = ""
+is_active = false
+
+[node name="Right" parent="ActorSlots" index="2"]
+self_modulate = Color(1, 1, 1, 0)
+offset_left = 596.0
+offset_top = -36.0
+offset_right = 1106.0
+offset_bottom = 684.0
+character_id = &"crush"
+actor_name = "Clementine"
+expression = "neutral"
+accent_color = Color(0.86, 0.35, 0.62, 1)
+
+[node name="PennyBot" type="TextureRect" parent="Effects" index="0"]
+layout_mode = 0
+offset_left = 490.0
+offset_top = 306.0
+offset_right = 662.0
+offset_bottom = 510.0
+mouse_filter = 2
+texture = ExtResource("3_moneybot")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StageTitle" parent="." index="4"]
+text = "Monday afternoon - school grounds"
+
+[node name="AnimationPlayer" parent="." index="5"]
+libraries/ = SubResource("AnimationLibrary_crush")

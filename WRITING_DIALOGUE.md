@@ -167,6 +167,7 @@ Available helpers are:
 
 - `kept("id")` and `removed("id")`
 - `kept_count()`
+- `budget()` for the current remaining word budget
 - `delivery("normal")`, `delivery("silence")`, `delivery("pity")`, and
   `delivery("sponsor")`
 
@@ -298,15 +299,15 @@ The amount must be a nonnegative whole number. This emits:
 budget_set 0
 ```
 
-After the tutorial, silence is available on every phrase-cut prompt. The
-one-time pity and sponsor responses are also available on every prompt until
-used, regardless of the remaining word budget. These alternatives are visible
-before the player cuts any phrase, then hide once phrase editing begins. They
-also remain visible immediately when the budget is empty.
+After the tutorial, silence, pity-grunt, and sponsor responses are available on
+every phrase-cut prompt, regardless of the remaining word budget. The grunt and
+sponsor are repeatable across prompts. These alternatives are visible before
+the player cuts any phrase, then hide once phrase editing begins. They also
+remain visible immediately when the budget is empty.
 
-Use `@recovery` immediately before a phrase-cut line to override which one-time
-response buttons that line offers. This is primarily useful while teaching
-the responses in the tutorial:
+Use `@recovery` immediately before a phrase-cut line to override which recovery
+buttons that line offers. This is primarily useful while teaching the responses
+in the tutorial:
 
 ```md
 @recovery sponsor, pity
@@ -326,6 +327,14 @@ phrase_cut son intro_L001
 
 The other exact policy forms are `recovery_policy pity`,
 `recovery_policy sponsor`, and `recovery_policy none`.
+
+Use `@speaker_name` to change a registered character's player-facing name at
+an authored reveal:
+
+```md
+crush: Name’s Clem, by the way.
+@speaker_name crush "Clem"
+```
 
 ## Presentation and audio cues
 

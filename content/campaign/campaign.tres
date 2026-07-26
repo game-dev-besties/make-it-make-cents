@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://tjsooa7dbvlc" path="res://content/episodes/dad/episode.tres" id="4_dad"]
 [ext_resource type="Resource" uid="uid://dbq7u44rm8523" path="res://content/episodes/grandma/episode.tres" id="5_grandma"]
 [ext_resource type="Resource" uid="uid://befj17lxf4b5f" path="res://content/episodes/neighbors/episode.tres" id="6_neighbors"]
+[ext_resource type="Resource" path="res://content/episodes/crush/episode.tres" id="7_crush"]
 
 [resource]
 resource_name = "LegendaryDiscoCampaign"
@@ -14,4 +15,4 @@ script = ExtResource("1_campaign")
 id = &"legendary_disco"
 title = "Legendary Disco"
 first_episode_id = &"intro"
-episodes = Array[ExtResource("1_jdu1k")]([ExtResource("2_intro"), ExtResource("4_dad"), ExtResource("3_son"), ExtResource("5_grandma"), ExtResource("6_neighbors")])
+episodes = Array[ExtResource("1_jdu1k")]([ExtResource("2_intro"), ExtResource("4_dad"), ExtResource("3_son"), ExtResource("7_crush"), ExtResource("5_grandma"), ExtResource("6_neighbors")])

@@ -7,7 +7,7 @@ exercises the chapter's full mechanical contract:
 - phrase deletion with exact kept-phrase branches;
 - free silence;
 - a forced zero-budget practice section;
-- a one-use pity grunt;
+- a one-use pity-grunt practice step, before normal gameplay makes grunts repeatable;
 - a required sponsor refill that applies the standard success penalty;
 - a normal dialogue choice stored in `intro.grandma_praised_for_silence`;
 - a faceless customs interaction stored in `intro.pills_confiscated`; and

@@ -2,45 +2,59 @@
 label door
 \grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
 \interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
-if GameStats.son_success > 5:
-	\crush (happy): Wait — you're that sweet kid from the park! Percy!
+if GameStats.get_story_flag("got_the_girl") == "yes":
+	\crush (happy): Wait — you’re that sweet kid from the park! Percy!
 	phrase_cut son (surprised) neighbors_L001
+	\crush (happy): I told you I’d see you around. Guess it’s today!
+	goto_label warm
+elif GameStats.get_story_flag("got_the_girl") == "baited":
+	\crush (nervous): ...You.
+	\crush (nervous): You’re the one who didn’t want to keep talking.
+	phrase_cut son (sad) neighbors_L002
+	goto_label chilly
+elif GameStats.get_story_flag("got_the_girl") == "no":
+	\crush (neutral): ...Huh. You look familiar. Have we met?
+	phrase_cut son (nervous) neighbors_L003
+	goto_label neutral_end
+elif GameStats.son_success > 5:
+	\crush (happy): Wait — you're that sweet kid from the park! Percy!
+	phrase_cut son (surprised) neighbors_L004
 	\crush (happy): I told you I'd see you tomorrow. Guess it's today!
 	goto_label warm
 elif GameStats.son_silly >= 3:
 	\crush (nervous): ...You. You're the one from the park, aren't you.
-	phrase_cut son (sad) neighbors_L002
+	phrase_cut son (sad) neighbors_L005
 	goto_label chilly
 else:
 	\crush (neutral): ...Huh. You look familiar. Have we met?
-	phrase_cut son (nervous) neighbors_L003
+	phrase_cut son (nervous) neighbors_L006
 	goto_label neutral_end
 label warm
 if GameStats.dad_success > 5:
 	\interviewer (happy): And you must be our new hire! Welcome to the team, neighbor.
-	phrase_cut dad (happy) neighbors_L004
+	phrase_cut dad (happy) neighbors_L007
 	goto_label good_end
 elif GameStats.dad_silly >= 3:
 	\interviewer (happy): And here is our new creative hire. I knew you looked familiar.
-	phrase_cut dad (happy) neighbors_L005
+	phrase_cut dad (happy) neighbors_L008
 	goto_label good_end
 elif GameStats.dad_silly >= 2:
 	\interviewer (confused): Wait — you're the fellow who applied with us. The...
-	phrase_cut dad (sad) neighbors_L006
+	phrase_cut dad (sad) neighbors_L009
 	goto_label mixed
 else:
 	\interviewer (neutral): I am afraid the position was not the right fit.
-	phrase_cut dad (sad) neighbors_L007
+	phrase_cut dad (sad) neighbors_L010
 	goto_label mixed
 label chilly
 \interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
 if GameStats.dad_success > 5:
 	\interviewer (happy): Welcome to the team! Don't mind Clementine, she's shy.
-	phrase_cut dad (happy) neighbors_L008
+	phrase_cut dad (happy) neighbors_L011
 	goto_label mixed
 elif GameStats.dad_silly >= 3:
 	\interviewer (happy): Our unexpected creative hire. Quite the family.
-	phrase_cut dad (happy) neighbors_L009
+	phrase_cut dad (happy) neighbors_L012
 	goto_label mixed
 elif GameStats.dad_silly >= 2:
 	\interviewer (nervous): ...Both of you, quite the impression.
@@ -51,25 +65,25 @@ else:
 label neutral_end
 if GameStats.dad_success > 5:
 	\interviewer (happy): And you're our new hire — welcome to the team, neighbor!
-	phrase_cut dad (happy) neighbors_L010
+	phrase_cut dad (happy) neighbors_L013
 	goto_label good_end
 elif GameStats.dad_silly >= 3:
 	\interviewer (happy): And you are our new creative hire. Small world.
-	phrase_cut dad (happy) neighbors_L011
+	phrase_cut dad (happy) neighbors_L014
 	goto_label good_end
 else:
 	\interviewer (neutral): And I recognize you from the office.
-	phrase_cut dad (nervous) neighbors_L012
+	phrase_cut dad (nervous) neighbors_L015
 	goto_label mixed
 label mixed
 \grandma (happy): What a small world! Let's all have tea.
 \doctor (happy): There is my patient! I didn't expect to see you so soon.
-phrase_cut grandma (happy) neighbors_L013
+phrase_cut grandma (happy) neighbors_L016
 [end_timeline]
 label good_end
 \grandma (happy): What a wonderful welcome. I think we're going to like it here.
 \doctor (happy): Nice to see you again! How's the back?
-phrase_cut grandma (happy) neighbors_L014
+phrase_cut grandma (happy) neighbors_L017
 [end_timeline]
 label bad_end
 \grandma (neutral): Well. Thank you for the cookies... reception.

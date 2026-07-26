@@ -59,6 +59,7 @@ class CompilerTests(unittest.TestCase):
             """\
 ## start
 @cue dad_enters
+@speaker_name dad "Marco"
 dad (nervous): [I have]{id=have} [experience]{id=experience, cost=1}.
 if kept("experience") and delivery("normal"):
   dad.success += 2
@@ -69,6 +70,7 @@ else:
         )
 
         self.assertIn("presentation_cue dad_enters", artifact.timeline)
+        self.assertIn('speaker_name dad "Marco"', artifact.timeline)
         self.assertIn("phrase_cut dad (nervous) dad_L001", artifact.timeline)
         self.assertIn("PhraseMemory.kept(\"experience\")", artifact.timeline)
         self.assertIn("PhraseMemory.delivery_is(\"normal\")", artifact.timeline)
@@ -162,6 +164,17 @@ phrase_cut dad dad_L001
 [end_timeline]
 """,
         )
+
+    def test_budget_condition_reads_the_remaining_runtime_budget(self) -> None:
+        artifact = self.compile(
+            """\
+if budget() == 0:
+  dad: Empty.
+else:
+  dad: Funded.
+"""
+        )
+        self.assertIn("if GameStats.remaining_budget() == 0:", artifact.timeline)
 
     def test_recovery_none_emits_an_explicit_empty_policy(self) -> None:
         artifact = self.compile(

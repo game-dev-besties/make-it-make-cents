@@ -67,7 +67,7 @@ OUTSIDE_PHRASE_RE = re.compile(r"^[\s,.;:!?…—-]*$")
 
 DELIVERY_MODES = frozenset({"normal", "silence", "pity", "sponsor"})
 CONDITION_FUNCTIONS = frozenset(
-    {"kept", "removed", "kept_count", "delivery", "flag"}
+    {"kept", "removed", "kept_count", "delivery", "flag", "budget"}
 )
 RECOVERY_MODE_ORDER = ("pity", "sponsor")
 RECOVERY_MODES = frozenset(RECOVERY_MODE_ORDER)
@@ -558,6 +558,31 @@ class ScriptParser:
                 _fail(line, "`@cue` needs an identifier such as `dad_enters`")
             return {"kind": "cue", "id": argument, "line": line}
 
+        if command == "speaker_name":
+            speaker_parts = argument.split(None, 1)
+            if len(speaker_parts) != 2 or not IDENTIFIER_RE.fullmatch(
+                speaker_parts[0]
+            ):
+                _fail(
+                    line,
+                    "`@speaker_name` needs a character id and quoted name",
+                )
+            try:
+                display_name = ast.literal_eval(speaker_parts[1])
+            except (SyntaxError, ValueError):
+                _fail(
+                    line,
+                    "`@speaker_name` needs a character id and quoted name",
+                )
+            if not isinstance(display_name, str) or not display_name:
+                _fail(line, "`@speaker_name` needs a nonempty quoted name")
+            return {
+                "kind": "speaker_name",
+                "character": speaker_parts[0],
+                "name": display_name,
+                "line": line,
+            }
+
         if command in {"background", "music", "sfx"}:
             if not argument:
                 _fail(line, f"`@{command}` needs an asset id or `res://` path")
@@ -571,7 +596,7 @@ class ScriptParser:
             line,
             "unknown directive; supported directives are "
             "@background, @music, @sfx, @cue, @wait, @budget, @recovery, "
-            "@sponsor_score, @sponsor_text, and @pity_text",
+            "@speaker_name, @sponsor_score, @sponsor_text, and @pity_text",
         )
 
     def _validate_condition(self, condition: str, line: SourceLine) -> None:
@@ -609,7 +634,7 @@ class ScriptParser:
                 _fail(
                     line,
                     "conditions only support comparisons, and/or/not, stats, "
-                    "flags, kept/removed/kept_count, and delivery",
+                    "flags, budget, kept/removed/kept_count, and delivery",
                 )
             if isinstance(node, ast.Attribute):
                 if not isinstance(node.value, ast.Name):
@@ -628,9 +653,9 @@ class ScriptParser:
                     _fail(line, f"unknown condition helper `{function}`")
                 if node.keywords:
                     _fail(line, f"`{function}` does not accept named arguments")
-                if function == "kept_count":
+                if function in {"kept_count", "budget"}:
                     if node.args:
-                        _fail(line, "`kept_count()` takes no arguments")
+                        _fail(line, f"`{function}()` takes no arguments")
                 else:
                     if (
                         len(node.args) != 1
@@ -922,6 +947,11 @@ def _translate_condition(condition: str, allowed_stats: Iterable[str]) -> str:
         "GameStats.get_story_flag(",
         translated,
     )
+    translated = re.sub(
+        r"(?<![\w.])budget\(\)",
+        "GameStats.remaining_budget()",
+        translated,
+    )
     return translated
 
 
@@ -1073,6 +1103,15 @@ class Emitter:
                 self._pending_recovery_text[kind] = statement["text"]
             elif kind == "cue":
                 self._emit(depth, f"presentation_cue {statement['id']}")
+            elif kind == "speaker_name":
+                self._emit(
+                    depth,
+                    "speaker_name %s %s"
+                    % (
+                        statement["character"],
+                        json.dumps(statement["name"], ensure_ascii=False),
+                    ),
+                )
             elif kind == "background":
                 path = _asset_path(kind, statement["asset"])
                 self._emit(depth, f'[background arg="{path}" fade="0.5"]')

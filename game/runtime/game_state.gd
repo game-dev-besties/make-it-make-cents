@@ -20,8 +20,6 @@ var cutscene_spent := 0
 var cutscene_reserved_savings := 0
 ## Sponsor-funded words can be spoken, but cannot become family savings.
 var cutscene_sponsor_credit := 0
-var pity_used := false
-var sponsor_used := false
 
 var intro_grandma_praised_for_silence := false
 var intro_pills_confiscated := false
@@ -62,8 +60,6 @@ func reset_for_new_game() -> void:
 	cutscene_spent = 0
 	cutscene_reserved_savings = 0
 	cutscene_sponsor_credit = 0
-	pity_used = false
-	sponsor_used = false
 	_cutscene_open = false
 	_values.clear()
 	_story_flags.clear()
@@ -190,8 +186,6 @@ func begin_cutscene(next_budget: int) -> void:
 	cutscene_spent = 0
 	cutscene_reserved_savings = 0
 	cutscene_sponsor_credit = 0
-	pity_used = false
-	sponsor_used = false
 	_cutscene_open = true
 	if cutscene_budget != previous_budget:
 		budget_changed.emit(cutscene_budget, previous_budget)
@@ -246,24 +240,22 @@ func remaining_budget() -> int:
 
 
 func can_use_pity() -> bool:
-	return _cutscene_open and not pity_used
+	return _cutscene_open
 
 
 func use_pity() -> bool:
 	if not can_use_pity():
 		return false
-	pity_used = true
 	return true
 
 
 func can_use_sponsor() -> bool:
-	return _cutscene_open and not sponsor_used
+	return _cutscene_open
 
 
 func use_sponsor(credit: int) -> bool:
 	if not can_use_sponsor():
 		return false
-	sponsor_used = true
 	cutscene_sponsor_credit += add_budget(credit)
 	return true
 
@@ -302,8 +294,6 @@ func to_dictionary() -> Dictionary:
 		"cutscene_reserved_savings": cutscene_reserved_savings,
 		"cutscene_sponsor_credit": cutscene_sponsor_credit,
 		"cutscene_open": _cutscene_open,
-		"pity_used": pity_used,
-		"sponsor_used": sponsor_used,
 		"intro_grandma_praised_for_silence": intro_grandma_praised_for_silence,
 		"intro_pills_confiscated": intro_pills_confiscated,
 		"son_success": son_success,
@@ -329,10 +319,6 @@ func load_dictionary(data: Dictionary) -> void:
 		remaining_budget(),
 	)
 	_cutscene_open = bool(data.get("cutscene_open", false))
-	pity_used = bool(data.get("pity_used", false))
-	sponsor_used = bool(data.get("sponsor_used", false))
-	if not sponsor_used:
-		cutscene_sponsor_credit = 0
 	intro_grandma_praised_for_silence = bool(
 		data.get(
 			"intro_grandma_praised_for_silence",

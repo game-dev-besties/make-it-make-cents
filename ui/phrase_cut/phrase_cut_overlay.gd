@@ -253,7 +253,7 @@ func _rebuild() -> void:
 	_pity_button.visible = _can_use_pity
 	_sponsor_button.visible = _can_use_sponsor
 	_pity_button.text = '"%s"  /  $0' % _pity_text
-	_pity_button.tooltip_text = 'Deliver the one free pity word: "%s".' % _pity_text
+	_pity_button.tooltip_text = 'Deliver the free grunt: "%s".' % _pity_text
 	_sponsor_button.tooltip_text = "Read the sponsor message for +$3, at a score cost."
 	_recovery_label.text = _recovery_description()
 	_recompute()
@@ -890,7 +890,7 @@ func _clamp_companion_to_bounds(companion_position: Vector2, bounds: Rect2) -> V
 func _recovery_description() -> String:
 	var choices := PackedStringArray(["stay silent"])
 	if _can_use_pity:
-		choices.append("use your one pity grunt")
+		choices.append("grunt for free")
 	if _can_use_sponsor:
 		choices.append("read a sponsor message for $3")
 	if _budget <= 0:
