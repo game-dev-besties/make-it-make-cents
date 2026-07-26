@@ -173,6 +173,28 @@
       ]
     },
     {
+      "name": "clem_failure_count",
+      "default": 0,
+      "values": [
+        {
+          "value": 0,
+          "description": "Percy has not yet failed to engage with Clem."
+        },
+        {
+          "value": 1,
+          "description": "Percy has failed to engage with Clem once."
+        },
+        {
+          "value": 2,
+          "description": "Percy has failed to engage with Clem twice."
+        },
+        {
+          "value": 3,
+          "description": "Percy has failed to engage with Clem three times."
+        }
+      ]
+    },
+    {
       "name": "got_the_girl",
       "default": "unresolved",
       "values": [

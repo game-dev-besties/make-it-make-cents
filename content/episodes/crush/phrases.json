@@ -18,7 +18,7 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S THE NAME AND SODA POP IS MY GAME!"
     }
   },
   "crush_L002": {
@@ -27,44 +27,20 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "It was",
-        "cost": 2,
-        "id": "it_was"
-      },
-      {
-        "type": "phrase",
-        "text": "my grandma.",
+        "text": "My grandma.",
         "cost": 2,
         "id": "my_grandma"
       },
       {
         "type": "phrase",
-        "text": "She wanted",
-        "cost": 2,
-        "id": "she_wanted"
-      },
-      {
-        "type": "phrase",
-        "text": "to know",
-        "cost": 2,
-        "id": "to_know"
-      },
-      {
-        "type": "phrase",
-        "text": "if I had",
-        "cost": 3,
-        "id": "if_i_had"
-      },
-      {
-        "type": "phrase",
-        "text": "food.",
-        "cost": 1,
-        "id": "food"
+        "text": "Grandma wanted to know if I had food.",
+        "cost": 8,
+        "id": "grandma_food"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP CAN’T BE STOPPED!"
     }
   },
   "crush_L003": {
@@ -73,13 +49,7 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "Ha,",
-        "cost": 1,
-        "id": "laugh"
-      },
-      {
-        "type": "phrase",
-        "text": "that’s hilarious.",
+        "text": "That’s hilarious.",
         "cost": 2,
         "id": "hilarious"
       },
@@ -125,21 +95,15 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "Ha,",
-        "cost": 1,
-        "id": "laugh"
-      },
-      {
-        "type": "phrase",
-        "text": "that’s hilarious.",
+        "text": "That’s hilarious.",
         "cost": 2,
         "id": "hilarious"
       },
       {
         "type": "phrase",
-        "text": "He",
-        "cost": 1,
-        "id": "he"
+        "text": "He was",
+        "cost": 2,
+        "id": "he_was"
       },
       {
         "type": "phrase",
@@ -149,20 +113,8 @@
       },
       {
         "type": "phrase",
-        "text": "got cut off",
-        "cost": 3,
-        "id": "cut_off"
-      },
-      {
-        "type": "phrase",
-        "text": "if",
-        "cost": 1,
-        "id": "if"
-      },
-      {
-        "type": "phrase",
-        "text": "he was an immigrant.",
-        "cost": 4,
+        "text": "an immigrant.",
+        "cost": 2,
         "id": "immigrant"
       },
       {
@@ -189,26 +141,20 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "My dad",
-        "cost": 2,
-        "id": "my_dad"
-      },
-      {
-        "type": "phrase",
-        "text": "uprooted us",
-        "cost": 2,
+        "text": "My dad uprooted us.",
+        "cost": 4,
         "id": "uprooted"
       },
       {
         "type": "phrase",
-        "text": "and sold everything we had",
+        "text": "He sold everything we had.",
         "cost": 5,
         "id": "sold_everything"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     }
   },
   "crush_L006": {
@@ -242,7 +188,7 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     }
   },
   "crush_L007": {
@@ -251,21 +197,9 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "I’m mad.",
-        "cost": 2,
-        "id": "mad"
-      },
-      {
-        "type": "phrase",
-        "text": "No.",
-        "cost": 1,
-        "id": "no"
-      },
-      {
-        "type": "phrase",
-        "text": "I’m sad.",
-        "cost": 2,
-        "id": "sad"
+        "text": "I’m mad…no, I’m sad.",
+        "cost": 4,
+        "id": "mixed_emotion"
       },
       {
         "type": "phrase",
@@ -281,7 +215,7 @@
       },
       {
         "type": "phrase",
-        "text": "I’m not mad at him.",
+        "text": "I’m not mad at him",
         "cost": 5,
         "id": "not_mad_at_him"
       },
@@ -294,7 +228,7 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     }
   },
   "crush_L008": {
@@ -303,25 +237,31 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "The thing is,",
+        "text": "The thing is",
         "cost": 3,
         "id": "the_thing_is"
       },
       {
         "type": "phrase",
-        "text": "I know why he did it.",
+        "text": "I know why he did it",
         "cost": 6,
         "id": "know_why"
       },
       {
         "type": "phrase",
-        "text": "And that’s so much worse.",
+        "text": "and that’s so much worse",
         "cost": 5,
         "id": "much_worse"
       },
       {
         "type": "phrase",
-        "text": "How do you stay mad",
+        "text": "because",
+        "cost": 1,
+        "id": "because"
+      },
+      {
+        "type": "phrase",
+        "text": "how do you stay mad",
         "cost": 5,
         "id": "stay_mad"
       },
@@ -340,10 +280,160 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     }
   },
   "crush_L009": {
+    "speaker": "son",
+    "expr": "sad",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I don’t know...",
+        "cost": 3,
+        "id": "dont_know"
+      },
+      {
+        "type": "phrase",
+        "text": "I just wish",
+        "cost": 3,
+        "id": "just_wish"
+      },
+      {
+        "type": "phrase",
+        "text": "everything was just…normal.",
+        "cost": 3,
+        "id": "normal"
+      },
+      {
+        "type": "phrase",
+        "text": "But I don’t even know",
+        "cost": 5,
+        "id": "dont_even_know"
+      },
+      {
+        "type": "phrase",
+        "text": "what normal is anymore.",
+        "cost": 4,
+        "id": "what_normal_is"
+      }
+    ],
+    "sponsor_success_delta": 0,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
+    }
+  },
+  "crush_L010": {
+    "speaker": "son",
+    "expr": "sad",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Like, is it",
+        "cost": 3,
+        "id": "like_is_it"
+      },
+      {
+        "type": "phrase",
+        "text": "before Mom left?",
+        "cost": 3,
+        "id": "before_mom"
+      },
+      {
+        "type": "phrase",
+        "text": "Or before",
+        "cost": 2,
+        "id": "or_before"
+      },
+      {
+        "type": "phrase",
+        "text": "Grandma got sick?",
+        "cost": 3,
+        "id": "grandma_got_sick"
+      },
+      {
+        "type": "phrase",
+        "text": "Those moments",
+        "cost": 2,
+        "id": "those_moments"
+      },
+      {
+        "type": "phrase",
+        "text": "just",
+        "cost": 1,
+        "id": "just"
+      },
+      {
+        "type": "phrase",
+        "text": "feel so",
+        "cost": 2,
+        "id": "feel_so"
+      },
+      {
+        "type": "phrase",
+        "text": "far away",
+        "cost": 2,
+        "id": "far_away"
+      },
+      {
+        "type": "phrase",
+        "text": "sometimes.",
+        "cost": 1,
+        "id": "sometimes"
+      }
+    ],
+    "sponsor_success_delta": 0,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
+    }
+  },
+  "crush_L011": {
+    "speaker": "son",
+    "expr": "sad",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I just wonder",
+        "cost": 3,
+        "id": "just_wonder"
+      },
+      {
+        "type": "phrase",
+        "text": "if",
+        "cost": 1,
+        "id": "if"
+      },
+      {
+        "type": "phrase",
+        "text": "there will ever be",
+        "cost": 4,
+        "id": "ever_be"
+      },
+      {
+        "type": "phrase",
+        "text": "a time",
+        "cost": 2,
+        "id": "a_time"
+      },
+      {
+        "type": "phrase",
+        "text": "I feel happy",
+        "cost": 3,
+        "id": "feel_happy"
+      },
+      {
+        "type": "phrase",
+        "text": "again.",
+        "cost": 1,
+        "id": "again"
+      }
+    ],
+    "sponsor_success_delta": 0,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
+    }
+  },
+  "crush_L012": {
     "speaker": "son",
     "expr": "nervous",
     "segments": [
@@ -356,10 +446,10 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     }
   },
-  "crush_L010": {
+  "crush_L013": {
     "speaker": "son",
     "expr": "nervous",
     "segments": [
@@ -372,11 +462,11 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP IS JUST SODA-MN GOOD!"
     },
     "required_delivery": "sponsor"
   },
-  "crush_L011": {
+  "crush_L014": {
     "speaker": "son",
     "expr": "shy",
     "segments": [
@@ -385,70 +475,32 @@
         "text": "Do I?",
         "cost": 2,
         "id": "do_i"
-      },
-      {
-        "type": "phrase",
-        "text": "hnf",
-        "cost": 1,
-        "id": "hnf"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "SAM’S SODA POP WILL PUT A SMILE ON YOUR FACE, GUARANTEED!"
     }
   },
-  "crush_L012": {
-    "speaker": "son",
-    "expr": "shy",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "I said nothin’.",
-        "cost": 3,
-        "id": "said_nothing"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L013": {
-    "speaker": "son",
-    "expr": "shy",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "hnf",
-        "cost": 1,
-        "id": "hnf"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L014": {
+  "crush_L015": {
     "speaker": "son",
     "expr": "neutral",
     "segments": [
       {
         "type": "phrase",
-        "text": "One.",
+        "text": "One",
         "cost": 1,
         "id": "one"
       },
       {
         "type": "phrase",
-        "text": "Two.",
+        "text": "two",
         "cost": 1,
         "id": "two"
       },
       {
         "type": "phrase",
-        "text": "Three.",
+        "text": "three.",
         "cost": 1,
         "id": "three"
       }
@@ -458,7 +510,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L015": {
+  "crush_L016": {
     "speaker": "son",
     "expr": "neutral",
     "segments": [
@@ -471,23 +523,7 @@
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L016": {
-    "speaker": "son",
-    "expr": "shy",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "…",
-        "cost": 1,
-        "id": "post_jingle_response"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "BOP TO THE TOP WITH SAM’S SODA POP!"
     }
   },
   "crush_L017": {
@@ -496,30 +532,30 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
+        "text": "I did at first…",
+        "cost": 4,
+        "id": "did_at_first"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "YOU! CAN’T! STOP! SAM’S SODA POP!"
     }
   },
   "crush_L018": {
     "speaker": "son",
-    "expr": "neutral",
+    "expr": "nervous",
     "segments": [
       {
         "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
+        "text": "Sorry, I didn’t mean to overshare…",
+        "cost": 6,
+        "id": "sorry_overshare"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "PRICES BE DROPPIN’ WHILE SAM’S SODA POPPIN’!"
     }
   },
   "crush_L019": {
@@ -528,49 +564,17 @@
     "segments": [
       {
         "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
+        "text": "Of course I want to talk to you.",
+        "cost": 8,
+        "id": "want_to_talk"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "EVERY SINGLE DROP OF SAM’S SODA POP IS THE CREAM OF THE CROP!"
     }
   },
   "crush_L020": {
-    "speaker": "son",
-    "expr": "shy",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L021": {
-    "speaker": "son",
-    "expr": "shy",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L022": {
     "speaker": "son",
     "expr": "shy",
     "segments": [
@@ -606,14 +610,14 @@
       },
       {
         "type": "phrase",
-        "text": "Please don’t make me jingle for that too…",
+        "text": "Please don’t make me jingle for that too...",
         "cost": 8,
         "id": "please"
       }
     ],
     "sponsor_success_delta": 0,
     "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+      "sponsor_text": "OH MAN, I GOTTA COP THAT SAM’S SODA POP!"
     }
   }
 }
