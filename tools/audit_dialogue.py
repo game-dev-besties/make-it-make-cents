@@ -670,11 +670,10 @@ class EpisodeAuditor:
                 yield CaseKey("silence", (), 0)
             else:
                 yield CaseKey("normal", kept, cost)
-        if state.budget == 0:
-            if "pity" in recovery and not state.pity_used:
-                yield CaseKey("pity", (), 0)
-            if "sponsor" in recovery and not state.sponsor_used:
-                yield CaseKey("sponsor", (), 0)
+        if "pity" in recovery and not state.pity_used:
+            yield CaseKey("pity", (), 0)
+        if "sponsor" in recovery and not state.sponsor_used:
+            yield CaseKey("sponsor", (), 0)
 
     def _apply_delivery(
         self,

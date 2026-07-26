@@ -396,9 +396,30 @@ func _run() -> void:
 
 	var silence: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
 	root.add_child(silence)
-	silence.setup([{"type": "phrase", "id": "only", "text": "Anything", "cost": 1}], 4, "Dad")
+	silence.setup(
+		[{"type": "phrase", "id": "only", "text": "Anything", "cost": 1}],
+		4,
+		"Dad",
+		{"can_use_pity": true, "can_use_sponsor": true},
+	)
 	await process_frame
-	(silence.get_node("%Chips").get_child(0) as Button).button_pressed = false
+	_assert(
+		not silence.get_node("%RecoveryBox").visible,
+		"alternative responses should stay hidden while words remain selected",
+	)
+	(silence.get_node("%Chips").get_child(0) as Button).set_pressed_no_signal(false)
+	silence.call("_recompute")
+	_assert(
+		silence.get_node("%RecoveryBox").visible,
+		"alternative responses should appear when no words remain selected",
+	)
+	_assert(silence.get_node("%SilenceButton").visible, "no response should always be available")
+	_assert(silence.get_node("%PityButton").visible, "available hnf should appear for an empty response")
+	_assert(silence.get_node("%SponsorButton").visible, "available sponsor should appear for an empty response")
+	_assert(
+		not silence.get_node("%ConfirmButton").visible,
+		"the duplicate silence confirmation should hide beside alternative responses",
+	)
 	silence.call("_on_confirm")
 	_assert(silence.result.delivery_mode == &"silence", "all removed phrases should resolve as silence")
 	_assert(silence.result.cost == 0, "silence should be free")
@@ -513,10 +534,9 @@ func _run() -> void:
 		{"delivery_mode": &"normal", "kept_text": "three taxed words", "cost": 3},
 	)
 	_assert(stats.remaining_budget() == 2, "normal delivery should spend its phrase cost")
-	stats.spend(2)
 	var sponsor_result := {"delivery_mode": &"sponsor", "kept_text": "Sponsor", "cost": 0}
 	phrase_event.call("_apply_delivery", stats, sponsor_result)
-	_assert(stats.remaining_budget() == 3, "sponsor delivery should grant three budget")
+	_assert(stats.remaining_budget() == 5, "sponsor delivery should grant three budget before empty")
 	_assert(stats.sponsor_used, "sponsor recovery should be one-time state")
 	_assert(stats.dad_success == 2, "sponsor delivery should tank the speaker's success score")
 	stats.free()

@@ -41,6 +41,7 @@ dad (neutral): Okay, here’s how she works.
 dad (happy): Good morning, Moneybot.
 dad (happy): Moneybot, say hi to my son.
 penny: Hi, son of Dad.
+@recovery none
 son (shy): [Hello,]{id=hello} [my name is Percy.]{id=name} [I am]{id=i_am} [pleased to be]{id=pleased} [here]{id=here} [in your beautiful country.]{id=beautiful}
 
 if delivery("silence"):
@@ -62,6 +63,7 @@ son (nervous): S-scary…
 # Tutorial 2 — silence is always an option.
 dad (neutral): Okay, try this one.
 dad (neutral): The customs officer asks whether you have anything to declare.
+@recovery none
 son (neutral): [No,]{id=no} [I don’t]{id=dont} [think]{id=think} [so.]{id=so} [What counts]{id=what_counts} [as a declaration?]{id=declaration}
 
 if delivery("silence"):

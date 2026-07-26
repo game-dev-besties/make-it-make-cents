@@ -33,13 +33,14 @@ func _test_budget_and_recovery() -> void:
 	var state: GameStateStore = GAME_STATE_SCRIPT.new()
 	state.begin_cutscene(5)
 	_check(state.remaining_budget() == 5, "A cutscene should start with its episode budget.")
-	_check(not state.can_use_pity(), "Pity should only appear after the budget reaches zero.")
-	_check(state.spend(8) == 5, "Spending should never overdraw the remaining budget.")
-	_check(state.remaining_budget() == 0, "Spending the available words should reach zero.")
-	_check(state.use_pity(), "The one-time pity grunt should be usable at zero.")
+	_check(state.can_use_pity(), "Pity should be available before the budget reaches zero.")
+	_check(state.can_use_sponsor(), "Sponsor should be available before the budget reaches zero.")
+	_check(state.use_pity(), "The one-time pity grunt should be usable with budget remaining.")
 	_check(not state.use_pity(), "The pity grunt should only be usable once per cutscene.")
-	_check(state.use_sponsor(3), "The one-time sponsor should be usable at zero.")
-	_check(state.remaining_budget() == 3, "The sponsor should replenish three words.")
+	_check(state.use_sponsor(3), "The one-time sponsor should be usable with budget remaining.")
+	_check(state.remaining_budget() == 8, "The sponsor should replenish three words.")
+	_check(state.spend(10) == 8, "Spending should never overdraw the remaining budget.")
+	_check(state.remaining_budget() == 0, "Spending the available words should reach zero.")
 	_check(state.apply_sponsor_penalty(&"dad"), "Sponsor penalties should resolve family speakers.")
 	_check(state.dad_success == 2, "A sponsor read should tank the speaker's success score.")
 	_check(not state.use_sponsor(3), "The sponsor should only be usable once per cutscene.")
@@ -510,6 +511,10 @@ func _test_campaign_and_stage() -> void:
 		_check(
 			"budget_set 0" in timeline_text,
 			"Chapter 1 should explicitly enter zero-budget practice.",
+		)
+		_check(
+			timeline_text.count("recovery_policy none") >= 2,
+			"Chapter 1 should hide untaught recovery responses in its first two lessons.",
 		)
 		_check(
 			"recovery_policy pity" in timeline_text,

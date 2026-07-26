@@ -247,11 +247,6 @@ func _rebuild() -> void:
 			var is_free := _segment_cost(segment) == 0
 			chip.set_pressed_no_signal(is_free)
 			chip.disabled = not is_free
-	_recovery_box.visible = is_out_of_budget
-	_confirm_button.visible = (
-		not is_out_of_budget
-		or (_cost() == 0 and not _assemble().is_empty())
-	)
 	_pity_button.visible = _can_use_pity
 	_sponsor_button.visible = _can_use_sponsor
 	_pity_button.text = '"%s"  /  $0' % _pity_text
@@ -595,6 +590,8 @@ func _recompute() -> void:
 	var cost := _cost()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
+	_recovery_box.visible = kept_text.is_empty()
+	_confirm_button.visible = not kept_text.is_empty()
 	_confirm_button.disabled = over_budget
 	if over_budget:
 		_confirm_button.text = "Cut $%d more  /  $%d" % [cost - _budget, cost]
@@ -783,7 +780,9 @@ func _recovery_description() -> String:
 		choices.append("use your one pity grunt")
 	if _can_use_sponsor:
 		choices.append("read a sponsor message for $3")
-	return "No budget. %s." % ", ".join(choices)
+	if _budget <= 0:
+		return "No budget. %s." % ", ".join(choices)
+	return "Other responses: %s." % ", ".join(choices)
 
 
 func _on_confirm() -> void:

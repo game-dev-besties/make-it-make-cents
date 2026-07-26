@@ -284,7 +284,7 @@ theme_override_styles/normal = SubResource("RecoveryNormal")
 theme_override_styles/pressed = SubResource("RecoveryHover")
 theme_override_styles/hover = SubResource("RecoveryHover")
 theme_override_styles/focus = SubResource("RecoveryFocusNone")
-text = "Say nothing  /  $0"
+text = "No response  /  $0"
 
 [node name="PityButton" type="Button" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/RecoveryBox/RecoveryButtons" unique_id=1996207804]
 unique_name_in_owner = true

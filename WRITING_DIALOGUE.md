@@ -298,8 +298,15 @@ The amount must be a nonnegative whole number. This emits:
 budget_set 0
 ```
 
-Use `@recovery` immediately before a phrase-cut line to choose which one-time
-recovery buttons that line offers:
+After the tutorial, silence is available on every phrase-cut prompt. The
+one-time pity and sponsor responses are also available on every prompt until
+used, regardless of the remaining word budget. To keep the phrase editor
+uncluttered, these alternatives appear after the player cuts every phrase from
+the pending response.
+
+Use `@recovery` immediately before a phrase-cut line to override which one-time
+response buttons that line offers. This is primarily useful while teaching
+the responses in the tutorial:
 
 ```md
 @recovery sponsor, pity

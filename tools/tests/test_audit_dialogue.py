@@ -16,12 +16,12 @@ class DialogueAuditTests(unittest.TestCase):
     def test_enumerates_every_reachable_selection_and_state(self) -> None:
         self.assertEqual(
             [len(question["cases"]) for question in self.report["questions"]],
-            [32, 16, 128, 34, 514],
+            [34, 18, 130, 34, 514],
         )
-        self.assertGreater(self.report["summary"]["raw_paths"], 100_000_000)
+        self.assertGreater(self.report["summary"]["raw_paths"], 250_000_000)
         self.assertGreater(
             self.report["summary"]["final_mechanical_states"],
-            2_500,
+            8_000,
         )
         self.assertEqual(
             self.report["summary"]["reachable_deliveries"],
@@ -36,9 +36,16 @@ class DialogueAuditTests(unittest.TestCase):
         self.assertNotIn(("PHRASE_LINE_COUNT", None), findings)
         for line_id in ("dad_L001", "dad_L002", "dad_L003", "dad_L004"):
             self.assertNotIn(("DEFAULT_FALLS_THROUGH", line_id), findings)
-        self.assertIn(("UNREACHABLE_DELIVERY", "dad_L001"), findings)
+        for line_id in (
+            "dad_L001",
+            "dad_L002",
+            "dad_L003",
+            "dad_L004",
+            "dad_L005",
+        ):
+            self.assertNotIn(("UNREACHABLE_DELIVERY", line_id), findings)
+            self.assertIn(("RECOVERY_FALLS_THROUGH", line_id), findings)
         self.assertIn(("MINIMAL_FALLBACK_SELECTIONS", "dad_L005"), findings)
-        self.assertIn(("RECOVERY_FALLS_THROUGH", "dad_L005"), findings)
         self.assertNotIn(("POSITIVE_OUTCOME_LOW_SUCCESS", None), findings)
         self.assertIn(("NEGATIVE_OUTCOME_HIGH_SUCCESS", None), findings)
         q5_fallbacks = next(

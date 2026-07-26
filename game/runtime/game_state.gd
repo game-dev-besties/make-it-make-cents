@@ -246,7 +246,7 @@ func remaining_budget() -> int:
 
 
 func can_use_pity() -> bool:
-	return _cutscene_open and remaining_budget() == 0 and not pity_used
+	return _cutscene_open and not pity_used
 
 
 func use_pity() -> bool:
@@ -257,7 +257,7 @@ func use_pity() -> bool:
 
 
 func can_use_sponsor() -> bool:
-	return _cutscene_open and remaining_budget() == 0 and not sponsor_used
+	return _cutscene_open and not sponsor_used
 
 
 func use_sponsor(credit: int) -> bool:
