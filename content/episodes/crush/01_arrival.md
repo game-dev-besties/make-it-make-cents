@@ -39,7 +39,7 @@ son (shy): [I’m]{id=im} [Percy.]{id=percy}
 
 if delivery("sponsor"):
   crush (nervous): ...Okay. Prrrrrretty sure your name is Percy. The teacher introduced you, like, four hours ago.
-  son.success += 1
+  SET clem_failure_count = 1
 elif delivery("silence") or delivery("pity"):
   crush (nervous): Y-you don’t have to say your name. I know it’s Percy. The teacher introduced you, like, four hours ago.
   SET clem_failure_count = 1
@@ -51,9 +51,6 @@ else:
 
 son (shy): (She remembered? But she wasn’t even looking at me.)
 
-if delivery("sponsor"):
-  -> first_jingle
-
 crush (neutral): Anyway, that phone call, what was that about? That bully was too busy braying at his stupid Ohio jokes for me to even ask til now.
 
 @sponsor_score 0
@@ -62,24 +59,33 @@ son (nervous): [My grandma.]{id=my_grandma} [Grandma wanted to know if I had foo
 
 if delivery("sponsor"):
   crush (happy): Ha…okay. Funny. I probably shouldn’t have tried to pry, it’s just…
-  son.success += 1
+  if flag("clem_failure_count") == 0:
+    SET clem_failure_count = 1
+  elif flag("clem_failure_count") == 1:
+    SET clem_failure_count = 2
+  else:
+    SET clem_failure_count = 3
 elif delivery("silence") or delivery("pity"):
   crush (neutral): It’s okay. I know all about wanting to keep things private. Sometimes I just feel like…
   if flag("clem_failure_count") == 0:
     SET clem_failure_count = 1
-  else:
+  elif flag("clem_failure_count") == 1:
     SET clem_failure_count = 2
+  else:
+    SET clem_failure_count = 3
 elif delivery("normal"):
   CHECK grandma_ignored == true as percy_ignored_someone_who_cares_about_him:
     crush (nervous): And you let it ring out?!
     crush (nervous): When someone cares enough about you to check up on you, how could you ignore them like that?
-    son.success += 1
+    if flag("clem_failure_count") == 0:
+      SET clem_failure_count = 1
+    elif flag("clem_failure_count") == 1:
+      SET clem_failure_count = 2
+    else:
+      SET clem_failure_count = 3
 
   CHECK grandma_ignored == false as percy_answered_grandmas_call:
     crush (neutral): That’s nice, I wish I had that.
-
-if delivery("sponsor"):
-  -> first_jingle
 
 crush (neutral): My dad barely acknowledges my existence.
 crush (neutral): He’s really good at his line of work—he treats it as the most important thing any man can do.
@@ -117,10 +123,8 @@ CHECK dad_offended_interviewer == "soda" as clem_describes_the_soda_candidate:
       SET clem_failure_count = 3
   elif delivery("sponsor"):
     crush (happy): Yeah, just like that! That was a really good impression.
-    -> first_jingle
   else:
     crush (nervous): Um…not really sure I understood that? I hope I’m not boring you. I just don’t really have anyone to talk to.
-    son.success += 1
     if flag("clem_failure_count") == 0:
       SET clem_failure_count = 1
     elif flag("clem_failure_count") == 1:
@@ -149,11 +153,14 @@ CHECK dad_offended_interviewer == "butts" as clem_describes_the_butts_candidate:
       SET clem_failure_count = 3
   elif delivery("sponsor"):
     crush (nervous): Oh, um…cool. Nice of you to share, I guess.
-    son.success += 1
-    -> first_jingle
+    if flag("clem_failure_count") == 0:
+      SET clem_failure_count = 1
+    elif flag("clem_failure_count") == 1:
+      SET clem_failure_count = 2
+    else:
+      SET clem_failure_count = 3
   else:
     crush (nervous): Um…not really sure I understood that? I hope I’m not boring you. I just don’t really have anyone to talk to.
-    son.success += 1
     if flag("clem_failure_count") == 0:
       SET clem_failure_count = 1
     elif flag("clem_failure_count") == 1:

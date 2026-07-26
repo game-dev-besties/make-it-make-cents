@@ -123,7 +123,12 @@ elif delivery("sponsor"):
 @sponsor_text "OH MAN, I GOTTA COP THAT SAM’S SODA POP!"
 son (shy): [Yes.]{id=yes} [Three words at a time]{id=three_words} [for]{id=for} [as long as]{id=as_long} [you’ll let me.]{id=let_me} [Please don’t make me jingle for that too...]{id=please}
 
-if delivery("silence") or delivery("pity") or delivery("sponsor"):
+if delivery("pity"):
+  crush (nervous): ...yes? That’s a yeah, right?
+  crush (happy): …Okay. Okay, good. I’m glad.
+  SET got_the_girl = "yes"
+  -> end
+elif delivery("silence") or delivery("sponsor"):
   crush (nervous): You didn’t have to do the jingle at all! You could’ve just grunted!
 else:
   crush (nervous): You didn’t need to spend any money! You could’ve just grunted!

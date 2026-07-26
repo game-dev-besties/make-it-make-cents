@@ -8,9 +8,7 @@ son (nervous): [My dad uprooted us.]{id=uprooted} [He sold everything we had.]{i
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -39,9 +37,7 @@ son (nervous): [My grandma is sick.]{id=grandma_sick} [And Ohio couldn’t help 
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -60,9 +56,7 @@ elif kept("grandma_sick") or kept("ohio_couldnt_help") or kept("medical_experts"
   if kept("grandma_sick") or kept("ohio_couldnt_help"):
     SET son_mentioned_grandma_sick = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -84,9 +78,7 @@ son (sad): [I’m mad…no, I’m sad.]{id=mixed_emotion} [I just don’t want t
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -104,9 +96,7 @@ elif kept("mixed_emotion") or (kept("dont_want") and kept("feel_like_this")) or 
     SET percy_opened_up = true
   SET son_mentioned_mixed_feelings = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -128,9 +118,7 @@ son (sad): [The thing is]{id=the_thing_is} [I know why he did it]{id=know_why} [
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -148,9 +136,7 @@ elif kept("know_why") or (kept("stay_mad") and kept("gave_up") and kept("for_you
     SET percy_opened_up = true
   SET son_mentioned_mixed_feelings = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -172,9 +158,7 @@ son (sad): [I don’t know...]{id=dont_know} [I just wish]{id=just_wish} [everyt
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -190,11 +174,8 @@ elif kept("dont_know") or (kept("just_wish") and kept("normal")) or (kept("dont_
   crush (neutral): Go on…
   if not flag("percy_opened_up"):
     SET percy_opened_up = true
-  SET son_mentioned_mixed_feelings = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -216,9 +197,7 @@ son (sad): [Like, is it]{id=like_is_it} [before Mom left?]{id=before_mom} [Or be
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -236,11 +215,8 @@ elif (kept("like_is_it") and kept("before_mom")) or (kept("or_before") and kept(
     SET percy_opened_up = true
   if kept("or_before") and kept("grandma_got_sick"):
     SET son_mentioned_grandma_sick = true
-  SET son_mentioned_mixed_feelings = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -262,9 +238,7 @@ son (sad): [I just wonder]{id=just_wonder} [if]{id=if} [there will ever be]{id=e
 if delivery("sponsor"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
-  if flag("percy_opened_up"):
-    -> required_jingle
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:
@@ -280,11 +254,8 @@ elif (kept("feel_happy") and kept_count() == 1) or (kept("feel_happy") and kept(
   crush (neutral): Go on…
   if not flag("percy_opened_up"):
     SET percy_opened_up = true
-  SET son_mentioned_mixed_feelings = true
 else:
-  if flag("percy_opened_up"):
-    crush (nervous): …What?
-  elif flag("clem_failure_count") == 0:
+  if flag("clem_failure_count") == 0:
     crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
     SET clem_failure_count = 1
   elif flag("clem_failure_count") == 1:

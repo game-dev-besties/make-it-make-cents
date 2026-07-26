@@ -12,6 +12,8 @@ from tools.audit_dialogue import (
     format_delivery_parts,
 )
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 
 class PhraseTextFormatterTests(unittest.TestCase):
     def test_shared_formatting_fixtures(self) -> None:
@@ -46,6 +48,79 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             ],
             "The Dad audit should have no structural errors.",
         )
+        for question in report["questions"]:
+            pity_branches = {
+                tuple(case["branches"])
+                for case in question["cases"]
+                if case["delivery"] == "pity"
+            }
+            silence_branches = {
+                tuple(case["branches"])
+                for case in question["cases"]
+                if case["delivery"] == "silence"
+            }
+            self.assertEqual(
+                pity_branches,
+                silence_branches,
+                f"{question['line_id']} should treat grunting as silence.",
+            )
+
+        weakness = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == ["have", "no", "experience", "but", "fast"]
+        )
+
+        def weakness_case(*kept_ids: str) -> dict:
+            return next(
+                case
+                for case in weakness["cases"]
+                if case["delivery"] == "normal"
+                and case["kept"] == list(kept_ids)
+            )
+
+        no_experience = weakness_case("have", "no", "experience")
+        self.assertEqual(no_experience["branches"], [2])
+        self.assertEqual(
+            no_experience["authored_actions"],
+            ["dad.success -= 1"],
+        )
+
+        experience = weakness_case("have", "experience")
+        self.assertEqual(experience["branches"], [4])
+        self.assertCountEqual(
+            experience["authored_actions"],
+            ["dad.success -= 1", "dad.silly += 1"],
+        )
+
+        for kept_ids in (("fast",), ("have", "experience", "fast")):
+            fast = weakness_case(*kept_ids)
+            self.assertEqual(fast["branches"], [3])
+            self.assertEqual(
+                fast["authored_actions"],
+                ["dad.success -= 2"],
+            )
+
+        for kept_ids in (
+            ("have", "no", "but"),
+            ("have", "but"),
+            ("no", "but"),
+        ):
+            butts = weakness_case(*kept_ids)
+            self.assertEqual(butts["branches"], [5])
+            self.assertCountEqual(
+                butts["authored_actions"],
+                [
+                    "dad.success -= 2",
+                    "dad.silly += 2",
+                    'maybe SET dad_offended_interviewer = "butts"',
+                ],
+            )
+
+        no_weakness = weakness_case("no")
+        self.assertEqual(no_weakness["branches"], [6])
+        self.assertFalse(no_weakness["authored_actions"])
 
     def test_grandma_budget_supports_one_full_answer_plus_participation(
         self,
@@ -433,20 +508,55 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 "please",
             ]
         )
-        for orphan_id in ("for", "as_long"):
-            selection = next(
-                case
-                for case in confession["cases"]
-                if (
-                    case["delivery"] == "normal"
-                    and case["kept"] == [orphan_id]
-                )
-            )
+        for case in confession["cases"]:
+            if case["delivery"] == "pity":
+                expected_branch = [0]
+            elif case["delivery"] in {"silence", "sponsor"}:
+                expected_branch = [1]
+            elif case["delivery"] == "normal":
+                expected_branch = [2]
+            else:
+                continue
             self.assertEqual(
-                selection["branches"],
-                [1],
-                f"{orphan_id} now follows the authored paid-word response.",
+                case["branches"],
+                expected_branch,
+                (
+                    f"The confession follow-up should preserve its authored "
+                    f"{case['delivery']} response for {case['kept']}."
+                ),
             )
+
+    def test_crush_first_jingle_is_confined_to_the_opening_up_rail(self) -> None:
+        crush_dir = PROJECT_ROOT / "content" / "episodes" / "crush"
+        jump_sources = {
+            source.name
+            for source in crush_dir.glob("*.md")
+            if "-> first_jingle" in source.read_text(encoding="utf-8")
+        }
+        self.assertEqual(jump_sources, {"02_opening_up.md"})
+
+        arrival = (crush_dir / "01_arrival.md").read_text(encoding="utf-8")
+        self.assertNotIn("son.success += 1", arrival)
+        self.assertIn('if flag("clem_failure_count") >= 3:', arrival)
+
+        opening_up = (crush_dir / "02_opening_up.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn('if flag("percy_opened_up"):', opening_up)
+        self.assertIn('if budget() == 0 and flag("percy_opened_up"):', opening_up)
+
+        post_jingle = (crush_dir / "04_post_jingle.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            'if delivery("pity"):\n'
+            '  crush (nervous): ...yes? That’s a yeah, right?\n'
+            '  crush (happy): …Okay. Okay, good. I’m glad.\n'
+            '  SET got_the_girl = "yes"\n'
+            "  -> end\n"
+            'elif delivery("silence") or delivery("sponsor"):',
+            post_jingle,
+        )
 
     def test_neighbors_chapter_audit_covers_every_ending_combination(self) -> None:
         report = audit_episode(
