@@ -17,6 +17,6 @@ description = "Grandma tries to make herself understood at a neighborhood clinic
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/grandma/dialogue.dtl"
 phrase_data_path = "res://content/episodes/grandma/phrases.json"
-word_budget = 70
+word_budget = 40
 score_owner = &"grandma"
 routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])

@@ -46,6 +46,132 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             "The Dad audit should have no structural errors.",
         )
 
+    def test_grandma_budget_supports_one_full_answer_plus_participation(
+        self,
+    ) -> None:
+        report = audit_episode("grandma", expected_phrase_lines=5)
+        pressure = report["budget_pressure"]
+
+        self.assertEqual(pressure["initial_budget"], 40)
+        self.assertEqual(pressure["implemented_full_cost"], 75)
+        self.assertEqual(pressure["largest_single_full_cost"], 23)
+        self.assertEqual(
+            pressure["implemented_cheapest_non_silent_total"],
+            5,
+        )
+        self.assertEqual(
+            pressure["one_full_plus_cheapest_non_silent_minimum"],
+            27,
+        )
+        self.assertEqual(
+            pressure[
+                "headroom_over_one_full_plus_cheapest_non_silent"
+            ],
+            13,
+        )
+        self.assertFalse(
+            [
+                finding
+                for finding in report["findings"]
+                if finding["code"] in {
+                    "BUDGET_BELOW_ONE_FULL_MINIMUM",
+                    "FULL_SELECTION_UNREACHABLE",
+                }
+            ],
+            "Every Grandma prompt should remain eligible as the one complete "
+            "answer.",
+        )
+
+    def test_budget_findings_cover_static_floor_and_effective_zero(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            episodes_dir = Path(temporary_directory)
+            episode_dir = episodes_dir / "budget"
+            episode_dir.mkdir()
+            (episode_dir / "episode.tres").write_text(
+                "\n".join(
+                    [
+                        '[gd_resource type="Resource" format=3]',
+                        "",
+                        "[resource]",
+                        "word_budget = 3",
+                        'score_owner = &"son"',
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (episode_dir / "script.md").write_text(
+                "\n".join(
+                    [
+                        '@speaker_name son "Percy"',
+                        '@speaker_name dad "Dad"',
+                        "",
+                        "son: [FIRST]{id=first} [ANSWER]{id=answer}",
+                        'if delivery("sponsor"):',
+                        "  dad: Sponsor.",
+                        "else:",
+                        "  dad: First response.",
+                        "",
+                        (
+                            "son: [SECOND]{id=second} "
+                            "[LONG ANSWER]{id=long_answer}"
+                        ),
+                        'if delivery("sponsor"):',
+                        "  dad: Sponsor.",
+                        "else:",
+                        "  dad: Second response.",
+                        "-> end",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            below_floor = audit_episode(
+                "budget",
+                episodes_dir=episodes_dir,
+            )
+            unreachable_full = audit_episode(
+                "budget",
+                initial_budget_override=1,
+                episodes_dir=episodes_dir,
+            )
+            never_forced = audit_episode(
+                "budget",
+                initial_budget_override=10,
+                episodes_dir=episodes_dir,
+            )
+
+        self.assertEqual(
+            below_floor["budget_pressure"][
+                "one_full_plus_cheapest_non_silent_minimum"
+            ],
+            4,
+        )
+        self.assertIn(
+            "BUDGET_BELOW_ONE_FULL_MINIMUM",
+            {
+                finding["code"]
+                for finding in below_floor["findings"]
+            },
+        )
+        self.assertIn(
+            "FULL_SELECTION_UNREACHABLE",
+            {
+                finding["code"]
+                for finding in unreachable_full["findings"]
+            },
+        )
+        self.assertIn(
+            "BUDGET_NEVER_DEPLETES",
+            {
+                finding["code"]
+                for finding in never_forced["findings"]
+            },
+        )
+
     def test_crush_chapter_audit_covers_conditional_prompt_variants(self) -> None:
         report = audit_episode(
             "crush",
