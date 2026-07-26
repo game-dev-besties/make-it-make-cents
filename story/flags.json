@@ -31,6 +31,48 @@
           "description": "Dad mentioned his family during the interview."
         }
       ]
+    },
+    {
+      "name": "son_said_soda",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not shill Sam's Soda Pop to the bully."
+        },
+        {
+          "value": true,
+          "description": "Percy shilled Sam's Soda Pop while talking to the bully."
+        }
+      ]
+    },
+    {
+      "name": "grandma_ignored",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy answered Grandma's call."
+        },
+        {
+          "value": true,
+          "description": "Percy ignored Grandma's call."
+        }
+      ]
+    },
+    {
+      "name": "son_defended_self",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Percy did not successfully defend himself from the bully."
+        },
+        {
+          "value": true,
+          "description": "Percy successfully defended himself from the bully."
+        }
+      ]
     }
   ]
 }

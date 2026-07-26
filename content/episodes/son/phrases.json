@@ -1,1 +1,215 @@
-{}
+{
+  "son_L001": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "The only",
+        "cost": 2,
+        "id": "only"
+      },
+      {
+        "type": "phrase",
+        "text": "dumb",
+        "cost": 1,
+        "id": "dumb"
+      },
+      {
+        "type": "phrase",
+        "text": "thing",
+        "cost": 1,
+        "id": "thing"
+      },
+      {
+        "type": "phrase",
+        "text": "around here",
+        "cost": 2,
+        "id": "around"
+      },
+      {
+        "type": "phrase",
+        "text": "is",
+        "cost": 1,
+        "id": "is"
+      },
+      {
+        "type": "phrase",
+        "text": "your face.",
+        "cost": 2,
+        "id": "face"
+      }
+    ],
+    "recovery": {
+      "sponsor_text": "I NEVER LEAVE THE HOUSE WITHOUT SAM’S SODA POP!"
+    }
+  },
+  "son_L002": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I can",
+        "cost": 2,
+        "id": "i_can"
+      },
+      {
+        "type": "phrase",
+        "text": "speak",
+        "cost": 1,
+        "id": "speak"
+      },
+      {
+        "type": "phrase",
+        "text": "better",
+        "cost": 1,
+        "id": "better"
+      },
+      {
+        "type": "phrase",
+        "text": "than",
+        "cost": 1,
+        "id": "than"
+      },
+      {
+        "type": "phrase",
+        "text": "you.",
+        "cost": 1,
+        "id": "you"
+      },
+      {
+        "type": "phrase",
+        "text": "You have",
+        "cost": 2,
+        "id": "you_have"
+      },
+      {
+        "type": "phrase",
+        "text": "the vocabulary of",
+        "cost": 3,
+        "id": "vocabulary"
+      },
+      {
+        "type": "phrase",
+        "text": "a brick.",
+        "cost": 2,
+        "id": "brick"
+      }
+    ],
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP BE POPPING ALL THE TIME!"
+    }
+  },
+  "son_L003": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "What’s wrong with",
+        "cost": 3,
+        "id": "whats_wrong"
+      },
+      {
+        "type": "phrase",
+        "text": "Ohio?",
+        "cost": 1,
+        "id": "ohio"
+      },
+      {
+        "type": "phrase",
+        "text": "Ohio is",
+        "cost": 2,
+        "id": "ohio_is"
+      },
+      {
+        "type": "phrase",
+        "text": "not",
+        "cost": 1,
+        "id": "not"
+      },
+      {
+        "type": "phrase",
+        "text": "that bad.",
+        "cost": 2,
+        "id": "bad"
+      }
+    ],
+    "recovery": {
+      "sponsor_text": "SAAAAAM’S SODA POP! AVAILABLE IN A STORE NEAR YOU!"
+    }
+  },
+  "son_L004": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Hello?",
+        "cost": 1,
+        "id": "hello"
+      },
+      {
+        "type": "phrase",
+        "text": "Grandma?",
+        "cost": 1,
+        "id": "grandma"
+      }
+    ],
+    "recovery": {
+      "sponsor_text": "POP POP POP! WHAT’S THAT? MUST BE SAM’S SODA POP!"
+    }
+  },
+  "son_L005": {
+    "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "My balance is completely, utterly, absolutely, fine. It has literally never been better.",
+        "cost": 13,
+        "id": "balance"
+      },
+      {
+        "type": "phrase",
+        "text": "I’m",
+        "cost": 1,
+        "id": "im"
+      },
+      {
+        "type": "phrase",
+        "text": "not",
+        "cost": 1,
+        "id": "not"
+      },
+      {
+        "type": "phrase",
+        "text": "stupid,",
+        "cost": 1,
+        "id": "stupid"
+      },
+      {
+        "type": "phrase",
+        "text": "I wouldn’t",
+        "cost": 2,
+        "id": "wouldnt"
+      },
+      {
+        "type": "phrase",
+        "text": "blow it all",
+        "cost": 3,
+        "id": "blow"
+      },
+      {
+        "type": "phrase",
+        "text": "on you.",
+        "cost": 2,
+        "id": "on_you"
+      }
+    ],
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP IS CHEAPER THAN EVER BEFORE! ONLY $9.99 A CASE!"
+    }
+  }
+}

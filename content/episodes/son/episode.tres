@@ -9,14 +9,14 @@ script = ExtResource("3_route")
 next_episode_id = &"grandma"
 
 [resource]
-resource_name = "SonAsksOutAGirl"
+resource_name = "SonGetsBullied"
 script = ExtResource("1_episode")
 id = &"son"
-title = "Percy Asks Out Clementine"
-description = "Percy meets Clementine at the park and tries to ask her out."
+title = "Chapter 3: Son Gets Bullied"
+description = "Percy's first day at school turns into a battle of words with a bully."
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/son/dialogue.dtl"
 phrase_data_path = "res://content/episodes/son/phrases.json"
-word_budget = 80
+word_budget = 13
 score_owner = &"son"
 routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])

@@ -16,6 +16,7 @@ const PHRASE_TEXT_FORMATTER := preload("res://ui/phrase_cut/phrase_text_formatte
 
 const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
+const MIN_PHRASE_BUTTON_HEIGHT := 46.0
 const HORIZONTAL_GUTTER := 48.0
 const MONEYBOT_COMPANION_MIN_WIDTH := 1080.0
 const MONEYBOT_COMPANION_MIN_HEIGHT := 540.0
@@ -662,6 +663,52 @@ func _refresh_chip_presentation() -> void:
 				'Cut: "%s" will be omitted, saving $%d. Click to restore it.'
 				% [phrase_text, phrase_cost]
 			)
+	_fit_phrase_buttons_to_row()
+
+
+func _fit_phrase_buttons_to_row() -> void:
+	var maximum_width := _phrase_button_row_width()
+	if maximum_width <= 0.0:
+		return
+	for chip: Button in _phrase_buttons:
+		chip.autowrap_mode = TextServer.AUTOWRAP_OFF
+		chip.custom_minimum_size = Vector2(0.0, MIN_PHRASE_BUTTON_HEIGHT)
+		if _natural_phrase_button_width(chip) <= maximum_width:
+			continue
+		chip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		chip.custom_minimum_size.x = maximum_width
+
+
+func _phrase_button_row_width() -> float:
+	var width := _panel.custom_minimum_size.x
+	var panel_style := _panel.get_theme_stylebox("panel")
+	if panel_style != null:
+		width -= (
+			panel_style.get_margin(SIDE_LEFT)
+			+ panel_style.get_margin(SIDE_RIGHT)
+		)
+	width -= (
+		_panel_margin.get_theme_constant("margin_left")
+		+ _panel_margin.get_theme_constant("margin_right")
+	)
+	return maxf(1.0, width)
+
+
+func _natural_phrase_button_width(chip: Button) -> float:
+	var font := chip.get_theme_font("font")
+	var font_size := chip.get_theme_font_size("font_size")
+	var text_width := font.get_string_size(
+		chip.text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1.0,
+		font_size,
+	).x
+	var style_name := "disabled" if chip.disabled else (
+		"pressed" if chip.button_pressed else "normal"
+	)
+	var style := chip.get_theme_stylebox(style_name)
+	var style_width := 0.0 if style == null else style.get_minimum_size().x
+	return ceilf(text_width + style_width)
 
 
 func _formatted_segment_texts() -> Dictionary:
@@ -737,6 +784,7 @@ func _update_panel_width() -> void:
 		"margin_right",
 		COMPANION_SAFE_MARGIN_RIGHT if show_companion else COMPACT_SAFE_MARGIN,
 	)
+	_fit_phrase_buttons_to_row()
 	call_deferred("_position_companion")
 
 

@@ -30,6 +30,7 @@ gdscript/warnings/untyped_declaration=1
 [dialogic]
 
 directories/dch_directory={
+"bully": "res://content/characters/bully/bully.dch",
 "crush": "res://content/characters/crush/crush.dch",
 "dad": "res://content/characters/dad/dad.dch",
 "doctor": "res://content/characters/doctor/doctor.dch",

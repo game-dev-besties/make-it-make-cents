@@ -17,6 +17,7 @@ func _run() -> void:
 	await _test_initial_recovery_choices()
 	await _test_zero_budget_state()
 	await _test_dynamic_phrase_labels()
+	await _test_long_phrase_wraps_inside_panel()
 
 	if _failures.is_empty():
 		print("Phrase-choice behavior checks passed.")
@@ -111,6 +112,46 @@ func _test_dynamic_phrase_labels() -> void:
 	answer_chip.set_pressed_no_signal(true)
 	overlay.call("_recompute")
 	_check(no_chip.text == "No,", "Restoring a continuation should restore its comma.")
+	overlay.queue_free()
+	await process_frame
+
+
+func _test_long_phrase_wraps_inside_panel() -> void:
+	root.size = Vector2i(1152, 648)
+	var overlay: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
+	root.add_child(overlay)
+	overlay.setup(
+		[
+			{
+				"type": "phrase",
+				"id": "balance",
+				"text": (
+					"My balance is completely, utterly, absolutely, fine. "
+					+ "It has literally never been better."
+				),
+				"cost": 13,
+			},
+			{"type": "phrase", "id": "im", "text": "I’m", "cost": 1},
+		],
+		13,
+		"Percy",
+	)
+	await process_frame
+
+	var chips := overlay.get_node("%Chips") as FlowContainer
+	var balance_chip := chips.get_child(0) as Button
+	_check(
+		balance_chip.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART,
+		"The long balance phrase should enable word wrapping.",
+	)
+	_check(
+		balance_chip.size.x <= chips.size.x + 0.5,
+		"The long balance phrase should remain inside the phrase row.",
+	)
+	_check(
+		balance_chip.size.y > 46.0,
+		"The long balance phrase should grow vertically when it wraps.",
+	)
 	overlay.queue_free()
 	await process_frame
 
