@@ -1291,6 +1291,58 @@ class EpisodeAuditor:
                 changes.append(f"{flag}={value}")
         return ", ".join(changes) if changes else "no state change"
 
+    def _budget_pressure(self) -> dict:
+        full_cost_by_line = {
+            question.line_id: question.full_cost
+            for question in self.questions.values()
+        }
+        cheapest_non_silent_cost_by_line = {
+            question.line_id: min(
+                int(phrase["cost"])
+                for phrase in question.phrases
+            )
+            for question in self.questions.values()
+        }
+        total_full_cost = sum(full_cost_by_line.values())
+        total_cheapest_non_silent = sum(
+            cheapest_non_silent_cost_by_line.values()
+        )
+        largest_single_full_cost = max(
+            full_cost_by_line.values(),
+            default=0,
+        )
+        one_full_plus_cheapest_non_silent_minimum = max(
+            (
+                total_cheapest_non_silent
+                + question.full_cost
+                - cheapest_non_silent_cost_by_line[question.line_id]
+            )
+            for question in self.questions.values()
+        ) if self.questions else 0
+        return {
+            "initial_budget": self.initial_budget,
+            "implemented_full_cost": total_full_cost,
+            "headroom_over_all_full": self.initial_budget - total_full_cost,
+            "largest_single_full_cost": largest_single_full_cost,
+            "headroom_over_largest_single_full": (
+                self.initial_budget - largest_single_full_cost
+            ),
+            "implemented_cheapest_non_silent_total": (
+                total_cheapest_non_silent
+            ),
+            "one_full_plus_cheapest_non_silent_minimum": (
+                one_full_plus_cheapest_non_silent_minimum
+            ),
+            "headroom_over_one_full_plus_cheapest_non_silent": (
+                self.initial_budget
+                - one_full_plus_cheapest_non_silent_minimum
+            ),
+            "full_cost_by_line": full_cost_by_line,
+            "cheapest_non_silent_cost_by_line": (
+                cheapest_non_silent_cost_by_line
+            ),
+        }
+
     def _build_report(self, frontier: Frontier) -> dict:
         completed_frontier = {
             state: reach
@@ -1311,17 +1363,8 @@ class EpisodeAuditor:
             else:
                 existing.paths += reach.paths
 
-        findings = self._findings(final_states)
-        total_full_cost = sum(
-            question.full_cost for question in self.questions.values()
-        )
-        cheapest_lines = [
-            min(
-                int(phrase["cost"])
-                for phrase in question.phrases
-            )
-            for question in self.questions.values()
-        ]
+        budget_pressure = self._budget_pressure()
+        findings = self._findings(final_states, budget_pressure)
         return {
             "episode": self.episode_id,
             "assumptions": {
@@ -1383,16 +1426,7 @@ class EpisodeAuditor:
                     }
                 ),
             },
-            "budget_pressure": {
-                "initial_budget": self.initial_budget,
-                "implemented_full_cost": total_full_cost,
-                "headroom_over_all_full": self.initial_budget - total_full_cost,
-                "implemented_cheapest_non_silent_total": sum(cheapest_lines),
-                "full_cost_by_line": {
-                    question.line_id: question.full_cost
-                    for question in self.questions.values()
-                },
-            },
+            "budget_pressure": budget_pressure,
             "findings": findings,
             "questions": [
                 self._question_to_dict(question)
@@ -1414,6 +1448,7 @@ class EpisodeAuditor:
     def _findings(
         self,
         final_states: Mapping[tuple[object, ...], Reach],
+        budget_pressure: Mapping[str, object],
     ) -> list[dict]:
         findings: list[dict] = []
 
@@ -1429,6 +1464,30 @@ class EpisodeAuditor:
                     "message": (
                         f"Expected {self.expected_phrase_lines} phrase prompts "
                         f"but found {len(self._phrase_ids)}."
+                    ),
+                }
+            )
+
+        one_full_minimum = int(
+            budget_pressure[
+                "one_full_plus_cheapest_non_silent_minimum"
+            ]
+        )
+        if self.questions and self.initial_budget < one_full_minimum:
+            shortfall = one_full_minimum - self.initial_budget
+            findings.append(
+                {
+                    "severity": "medium",
+                    "code": "BUDGET_BELOW_ONE_FULL_MINIMUM",
+                    "kind": "heuristic",
+                    "message": (
+                        f"Starting budget ${self.initial_budget} is "
+                        f"${shortfall} below the static ${one_full_minimum} "
+                        "minimum for keeping every prompt eligible as the one "
+                        "complete answer while making the cheapest non-silent "
+                        "selection on every other prompt. Sponsor credit and "
+                        "scripted budget changes may still make those routes "
+                        "reachable."
                     ),
                 }
             )
@@ -1451,6 +1510,34 @@ class EpisodeAuditor:
             )
 
         for question in self.questions.values():
+            full = CaseKey(
+                "normal",
+                tuple(range(len(question.phrases))),
+                question.full_cost,
+            )
+            if question.cases and full not in question.cases:
+                input_min = min(question.input_budgets)
+                input_max = max(question.input_budgets)
+                incoming_budget = (
+                    f"${input_min}"
+                    if input_min == input_max
+                    else f"${input_min}–${input_max}"
+                )
+                findings.append(
+                    {
+                        "severity": "medium",
+                        "code": "FULL_SELECTION_UNREACHABLE",
+                        "kind": "exact",
+                        "line_id": question.line_id,
+                        "message": (
+                            f"The complete ${question.full_cost} selection is "
+                            "unreachable from every enumerated incoming state "
+                            f"(incoming budget: {incoming_budget}). Review "
+                            "whether forced cutting or recovery is intentional."
+                        ),
+                    }
+                )
+
             if question.response_if_line is None:
                 if question.unconditional_response is None:
                     findings.append(
@@ -1555,11 +1642,6 @@ class EpisodeAuditor:
                     }
                 )
 
-            full = CaseKey(
-                "normal",
-                tuple(range(len(question.phrases))),
-                question.full_cost,
-            )
             if (
                 full in question.cases
                 and else_index is not None
@@ -1682,7 +1764,6 @@ class EpisodeAuditor:
                     }
                 )
 
-        final_budgets = [key[0] for key in final_states]
         recovery_referenced = any(
             re.search(
                 r"""\bdelivery\(\s*(['"])(?:pity|sponsor)\1\s*\)""",
@@ -1693,15 +1774,14 @@ class EpisodeAuditor:
             for condition, _body, _line in question.response_branches
             if condition is not None
         )
-        recovery_reachable = any(
-            question.available_deliveries & {"pity", "sponsor"}
+        effective_zero_reached = any(
+            0 in question.input_budgets
             for question in self.questions.values()
         )
         if (
             recovery_referenced
-            and not recovery_reachable
-            and final_budgets
-            and min(final_budgets) > 0
+            and self.questions
+            and not effective_zero_reached
         ):
             findings.append(
                 {
@@ -1709,9 +1789,9 @@ class EpisodeAuditor:
                     "code": "BUDGET_NEVER_DEPLETES",
                     "kind": "heuristic",
                     "message": (
-                        f"Even the highest-spend enumerated path ends with "
-                        f"${min(final_budgets)}; zero-budget recovery never "
-                        "becomes available."
+                        "No phrase prompt is reached at effective $0; recovery "
+                        "remains voluntarily available, but budget pressure "
+                        "never forces it."
                     ),
                 }
             )
@@ -2227,6 +2307,19 @@ def _format_markdown(report: dict, *, include_states: bool) -> str:
         (
             "- Cheapest non-silent choice on every implemented prompt: "
             f"${pressure['implemented_cheapest_non_silent_total']} total"
+        ),
+        (
+            "- Largest single complete answer: "
+            f"${pressure['largest_single_full_cost']} "
+            "(budget headroom: "
+            f"${pressure['headroom_over_largest_single_full']})"
+        ),
+        (
+            "- One complete answer plus the cheapest non-silent choice on "
+            "every other prompt: "
+            f"${pressure['one_full_plus_cheapest_non_silent_minimum']} "
+            "minimum (budget headroom: "
+            f"${pressure['headroom_over_one_full_plus_cheapest_non_silent']})"
         ),
         "",
     ]
