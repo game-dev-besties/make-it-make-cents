@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
 [ext_resource type="Texture2D" uid="uid://dqu4mnltidwgr" path="res://content/episodes/grandma/doctor_office.jpg" id="2_doctor_office"]
+[ext_resource type="PackedScene" path="res://game/components/moneybot_companion.tscn" id="3_moneybot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 bg_color = Color(0.08, 0.2, 0.2, 0.9)
@@ -91,6 +92,14 @@ character_id = &"doctor"
 actor_name = "Doctor"
 expression = "neutral"
 accent_color = Color(0.36, 0.8, 0.73, 1)
+
+[node name="Moneybot" parent="Effects" index="0" instance=ExtResource("3_moneybot")]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 150.0
+offset_right = 520.0
+offset_bottom = 306.0
+idle_phase = 0.9
 
 [node name="StageTitle" parent="." index="4"]
 text = "Tuesday morning - neighborhood clinic"

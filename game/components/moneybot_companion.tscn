@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/components/moneybot_companion.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://8xkkcni4b74t" path="res://content/characters/penny/moneybot.png" id="2_moneybot"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_moneybot"]
+atlas = ExtResource("2_moneybot")
+region = Rect2(381, 270, 343, 411)
+
+[node name="MoneybotCompanion" type="Control"]
+custom_minimum_size = Vector2(120, 144)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 120.0
+offset_bottom = 144.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="MotionRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Shadow" type="TextureRect" parent="MotionRoot"]
+self_modulate = Color(0.08, 0.07, 0.08, 0.3)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 5.0
+offset_right = 3.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_moneybot")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Sprite" type="TextureRect" parent="MotionRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_moneybot")
+expand_mode = 1
+stretch_mode = 5

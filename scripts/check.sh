@@ -41,6 +41,8 @@ run_godot_checked --headless --editor --path . --quit
 run_godot_checked --headless --path . \
   --script res://ui/phrase_cut/tests/test_phrase_cut_overlay.gd
 run_godot_checked --headless --path . \
+  --script res://tests/moneybot_companion_test.gd
+run_godot_checked --headless --path . \
   --script res://tests/dialogic_content_validation_test.gd
 run_godot_checked --headless --path . \
   --script res://tests/stats_schema_test.gd

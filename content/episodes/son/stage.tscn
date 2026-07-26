@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
 [ext_resource type="Texture2D" uid="uid://isn8ttlma4ku" path="res://content/episodes/son/park.png" id="2_park"]
-[ext_resource type="Texture2D" uid="uid://8xkkcni4b74t" path="res://content/characters/penny/moneybot.png" id="3_moneybot"]
+[ext_resource type="PackedScene" path="res://game/components/moneybot_companion.tscn" id="3_moneybot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_call"]
 bg_color = Color(0.075, 0.13, 0.19, 0.97)
@@ -120,16 +120,13 @@ actor_name = "Bully"
 expression = "neutral"
 accent_color = Color(0.86, 0.35, 0.29, 1)
 
-[node name="PennyBot" type="TextureRect" parent="Effects" index="0"]
+[node name="PennyBot" parent="Effects" index="0" instance=ExtResource("3_moneybot")]
 layout_mode = 0
-offset_left = 490.0
-offset_top = 306.0
-offset_right = 662.0
-offset_bottom = 510.0
-mouse_filter = 2
-texture = ExtResource("3_moneybot")
-expand_mode = 1
-stretch_mode = 5
+offset_left = 506.0
+offset_top = 172.0
+offset_right = 646.0
+offset_bottom = 340.0
+idle_phase = 0.54
 
 [node name="IncomingCall" type="Panel" parent="Effects" index="1"]
 modulate = Color(1, 1, 1, 0)
