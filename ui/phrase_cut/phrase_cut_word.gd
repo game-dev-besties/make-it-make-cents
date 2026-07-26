@@ -26,8 +26,8 @@ var _prepared_is_cut := true
 var _strike_draw_color := STRIKE_COLOR
 var _strike_connection_left := 0.0
 var _strike_connection_right := 0.0
-var _animation_text_color := Color.WHITE
 var _text_color_held := false
+var _press_text_color_held := false
 var _held_text_colors: Dictionary = {}
 var _held_color_was_overridden: Dictionary = {}
 var _strike_tween: Tween
@@ -36,6 +36,10 @@ var _pulse_tween: Tween
 
 func _ready() -> void:
 	toggled.connect(func(_is_kept: bool) -> void: queue_redraw())
+	if not button_down.is_connected(_on_button_down):
+		button_down.connect(_on_button_down)
+	if not button_up.is_connected(_on_button_up):
+		button_up.connect(_on_button_up)
 	mouse_entered.connect(_on_hover_changed.bind(true))
 	mouse_exited.connect(_on_hover_changed.bind(false))
 
@@ -43,6 +47,35 @@ func _ready() -> void:
 func _on_hover_changed(hovering: bool) -> void:
 	_is_hovering = hovering
 	queue_redraw()
+
+
+func _on_button_down() -> void:
+	if disabled or _text_color_held:
+		return
+	# Latch before BaseButton toggles so its new state never gets one frame to
+	# draw with the post-click color while the companion is still approaching.
+	_hold_text_color(_current_text_color())
+	_press_text_color_held = true
+
+
+func _on_button_up() -> void:
+	if _press_text_color_held:
+		call_deferred("_release_unclaimed_press_text_color")
+
+
+func _release_unclaimed_press_text_color() -> void:
+	if not _press_text_color_held:
+		return
+	_press_text_color_held = false
+	_release_text_color_hold()
+
+
+func _current_text_color() -> Color:
+	if button_pressed:
+		return get_theme_color(
+			"font_hover_pressed_color" if _is_hovering else "font_pressed_color",
+		)
+	return get_theme_color("font_hover_color" if _is_hovering else "font_color")
 
 
 func set_strike_connection_left(extension: float) -> void:
@@ -106,14 +139,20 @@ func _draw() -> void:
 func prepare_strike_animation(is_cut: bool, left_to_right: bool) -> void:
 	if is_instance_valid(_strike_tween):
 		_strike_tween.kill()
-	_release_text_color_hold()
+	var has_press_color_hold := _press_text_color_held and _text_color_held
+	if has_press_color_hold:
+		# Claim the pre-toggle latch so button_up's deferred cleanup leaves it
+		# in place until play_prepared_strike() runs at impact.
+		_press_text_color_held = false
+	else:
+		_release_text_color_hold()
 	_prepared_is_cut = is_cut
 	_strike_left_to_right = left_to_right
 	_strike_draw_color = STRIKE_COLOR
-	_animation_text_color = get_theme_color("font_color")
 	_strike_progress = 0.0 if is_cut else 1.0
 	_strike_animation_active = true
-	_hold_previous_text_color()
+	if not has_press_color_hold:
+		_hold_previous_text_color()
 	queue_redraw()
 
 
@@ -145,11 +184,17 @@ func _finish_strike_animation() -> void:
 
 
 func _hold_previous_text_color() -> void:
+	# The button has already toggled, so explicitly keep the color from its
+	# previous state until the companion reaches the word.
 	var held_color := (
-		STRIKE_COLOR
+		get_theme_color("font_pressed_color")
 		if _prepared_is_cut
-		else _animation_text_color
+		else get_theme_color("font_color")
 	)
+	_hold_text_color(held_color)
+
+
+func _hold_text_color(held_color: Color) -> void:
 	_held_text_colors.clear()
 	_held_color_was_overridden.clear()
 	for color_name: StringName in TEXT_COLOR_STATES:
@@ -171,6 +216,7 @@ func _release_text_color_hold() -> void:
 	_held_text_colors.clear()
 	_held_color_was_overridden.clear()
 	_text_color_held = false
+	_press_text_color_held = false
 
 
 func _play_impact_pulse() -> void:
