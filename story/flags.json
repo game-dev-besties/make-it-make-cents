@@ -178,19 +178,41 @@
       "values": [
         {
           "value": 0,
-          "description": "Percy has not yet failed to engage with Clem."
+          "description": "Percy has not yet failed a Part I conversation beat."
         },
         {
           "value": 1,
-          "description": "Percy has failed to engage with Clem once."
+          "description": "Percy has failed one Part I conversation beat."
         },
         {
           "value": 2,
-          "description": "Percy has failed to engage with Clem twice."
+          "description": "Percy has failed two Part I conversation beats."
         },
         {
           "value": 3,
-          "description": "Percy has failed to engage with Clem three times."
+          "description": "Percy has failed three Part I conversation beats."
+        }
+      ]
+    },
+    {
+      "name": "clem_overshare_failure_count",
+      "default": 0,
+      "values": [
+        {
+          "value": 0,
+          "description": "Percy has not yet failed an overshare response."
+        },
+        {
+          "value": 1,
+          "description": "Percy has failed one overshare response."
+        },
+        {
+          "value": 2,
+          "description": "Percy has failed two overshare responses."
+        },
+        {
+          "value": 3,
+          "description": "Percy has failed three overshare responses."
         }
       ]
     },

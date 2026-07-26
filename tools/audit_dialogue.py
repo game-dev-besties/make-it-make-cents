@@ -133,6 +133,7 @@ class PhraseMemory:
     delivery: str
     cost: int
     text: str
+    could_afford_speech: bool
 
 
 @dataclass(frozen=True)
@@ -367,6 +368,12 @@ class ConditionEvaluator:
                 return self.flags[str(argument)]
             if function == "budget":
                 return self.state.budget
+            if function == "could_afford_speech":
+                return (
+                    self.phrase.could_afford_speech
+                    if self.phrase is not None
+                    else False
+                )
             if self.phrase is None:
                 if function == "kept_count":
                     return 0
@@ -877,6 +884,10 @@ class EpisodeAuditor:
                     delivery=case.delivery,
                     cost=case.cost,
                     text=self._case_text(phrases, case),
+                    could_afford_speech=any(
+                        int(phrase["cost"]) <= state.budget
+                        for phrase in phrases
+                    ),
                 )
                 next_state = replace(next_state, phrase=phrase_memory)
                 selection = self._case_label(question, case)

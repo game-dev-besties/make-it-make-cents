@@ -177,6 +177,7 @@ Add these to `story/flags.json`:
 - `son_mentioned_sold_everything: bool`
 - `son_mentioned_grandma_sick: bool`
 - `son_mentioned_mixed_feelings: bool`
+- `clem_overshare_failure_count: 0 | 1 | 2 | 3`
 - `got_the_girl: "unresolved" | "no" | "baited" | "yes"`
 
 Use `unresolved` as the enum default. It lets old saves fall back to the
@@ -262,17 +263,18 @@ On normal delivery with only dependent fragments, say `...What?`.
 
 Silence, grunt, and incoherent paid fragments all advance the same failure
 counter, even after Percy has opened up. The third failure sets
-`got_the_girl = "no"` and ends the scene. On the first disclosure, a voluntary
-sponsor response while Percy could still afford either offered phrase is
-another failed attempt and the conversation continues. The cheapest chip costs
-`$4`, so a post-sponsor balance of `$3` through `$6` proves his prior balance
-could not submit any speech; that jingle begins Part II without discarding the
-remainder. On later disclosures, a sponsor response enters the first-jingle
-reveal only after at least one earlier coherent disclosure has set
-`percy_opened_up`; otherwise it follows the ordinary failure ladder. If Percy
-communicates coherently and reaches exact zero, enter the required-jingle beat;
-its first prompt still accepts silence, grunt, or sponsor, while a refusal
-advances to the prompt where only the jingle can continue.
+`got_the_girl = "no"` and ends the scene. This ladder uses
+`clem_overshare_failure_count`, separate from Part I's `clem_failure_count`, so
+earlier awkward answers do not skip the first overshare warning or lose their
+own tally. `could_afford_speech()` records whether the balance before a delivery
+could afford at least one chip on that prompt. A jingle begins Part II whenever
+that value is false, without discarding a positive remainder. On the first
+disclosure, an affordable voluntary jingle is another failed attempt. On later
+disclosures, a jingle also begins Part II after at least one earlier coherent
+disclosure has set `percy_opened_up`; otherwise it follows the ordinary failure
+ladder. If Percy communicates coherently and reaches exact zero, enter the
+required-jingle beat; its first prompt still accepts silence, grunt, or sponsor,
+while a refusal advances to the prompt where only the jingle can continue.
 
 After all seven prompts, if no jingle occurred, use the polite exit and set
 `got_the_girl = "no"`. This is the conservative-player failure described in
@@ -326,10 +328,10 @@ Search candidate budgets and choose one satisfying these acceptance rules:
    can still reach the explicit no-jingle failure.
 3. No successful `got_the_girl = "yes"` path skips
    `girl_heard_jingle = true`.
-4. A first-disclosure sponsor response begins Part II only when the preceding
-   balance could not afford its cheapest chip. The insufficient positive
-   remainder remains intact; an earlier voluntary sponsor is a strike instead
-   of an early romantic reveal.
+4. Any overshare sponsor response begins Part II when the preceding balance
+   could not afford a single chip. The insufficient positive remainder remains
+   intact; an affordable first-disclosure sponsor is a strike instead of an
+   early romantic reveal.
 5. Repeated post-jingle sponsor credit cannot become family savings.
 
 The outline's "guarantee" is therefore conditional on talking enough; it

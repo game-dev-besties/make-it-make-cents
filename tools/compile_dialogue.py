@@ -67,7 +67,15 @@ OUTSIDE_PHRASE_RE = re.compile(r"^[\s,.;:!?…—-]*$")
 
 DELIVERY_MODES = frozenset({"normal", "silence", "pity", "sponsor"})
 CONDITION_FUNCTIONS = frozenset(
-    {"kept", "removed", "kept_count", "delivery", "flag", "budget"}
+    {
+        "kept",
+        "removed",
+        "kept_count",
+        "delivery",
+        "flag",
+        "budget",
+        "could_afford_speech",
+    }
 )
 RECOVERY_MODE_ORDER = ("pity", "sponsor")
 RECOVERY_MODES = frozenset(RECOVERY_MODE_ORDER)
@@ -654,7 +662,8 @@ class ScriptParser:
                 _fail(
                     line,
                     "conditions only support comparisons, and/or/not, stats, "
-                    "flags, budget, kept/removed/kept_count, and delivery",
+                    "flags, budget, affordability, kept/removed/kept_count, "
+                    "and delivery",
                 )
             if isinstance(node, ast.Attribute):
                 if not isinstance(node.value, ast.Name):
@@ -673,7 +682,7 @@ class ScriptParser:
                     _fail(line, f"unknown condition helper `{function}`")
                 if node.keywords:
                     _fail(line, f"`{function}` does not accept named arguments")
-                if function in {"kept_count", "budget"}:
+                if function in {"kept_count", "budget", "could_afford_speech"}:
                     if node.args:
                         _fail(line, f"`{function}()` takes no arguments")
                 else:
@@ -970,6 +979,11 @@ def _translate_condition(condition: str, allowed_stats: Iterable[str]) -> str:
     translated = re.sub(
         r"(?<![\w.])budget\(\)",
         "GameStats.remaining_budget()",
+        translated,
+    )
+    translated = re.sub(
+        r"(?<![\w.])could_afford_speech\(\)",
+        "PhraseMemory.could_afford_speech()",
         translated,
     )
     return translated

@@ -168,6 +168,8 @@ Available helpers are:
 - `kept("id")` and `removed("id")`
 - `kept_count()`
 - `budget()` for the current remaining word budget
+- `could_afford_speech()` for whether the pre-delivery balance could afford at
+  least one phrase chip
 - `delivery("normal")`, `delivery("silence")`, `delivery("pity")`, and
   `delivery("sponsor")`
 

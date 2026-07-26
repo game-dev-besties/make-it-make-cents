@@ -9,6 +9,7 @@ SET son_mentioned_sold_everything = false
 SET son_mentioned_grandma_sick = false
 SET son_mentioned_mixed_feelings = false
 SET clem_failure_count = 0
+SET clem_overshare_failure_count = 0
 SET got_the_girl = "unresolved"
 
 CHECK son_defended_self == true as percy_spent_everything_defending_himself:

@@ -82,6 +82,7 @@ func _execute() -> void:
 	_active_overlay = ui
 	_overlay().add_child(ui)
 	var budget: int = int(game_stats.call("remaining_budget"))
+	var could_afford_speech := _could_afford_speech(segments, budget)
 	var recovery_data: Dictionary = _recovery_data(data)
 	var recovery_policy: Dictionary = phrase_cut.consume_recovery_policy()
 	var speaker_name := speaker
@@ -129,7 +130,7 @@ func _execute() -> void:
 		dialogic.Inputs.auto_skip.enabled = false
 
 	_apply_delivery(game_stats, result, data)
-	_record_phrase_memory(segments, result)
+	_record_phrase_memory(segments, result, could_afford_speech)
 	var sponsor_jingle_started := (
 		StringName(result.get("delivery_mode", &""))
 		== PhraseCutOverlay.DELIVERY_SPONSOR
@@ -279,6 +280,31 @@ func _policy_allows(policy: Dictionary, key: String) -> bool:
 	return bool(policy.get(key, true))
 
 
+func _could_afford_speech(segments: Array, budget: int) -> bool:
+	var fixed_cost := 0
+	var has_fixed_text := false
+	var cheapest_phrase := -1
+	for raw_segment: Variant in segments:
+		if not raw_segment is Dictionary:
+			continue
+		var segment := raw_segment as Dictionary
+		var text := String(segment.get("text", "")).strip_edges()
+		var cost := maxi(0, int(segment.get("cost", 0)))
+		match String(segment.get("type", "phrase")):
+			"fixed":
+				fixed_cost += cost
+				has_fixed_text = has_fixed_text or not text.is_empty()
+			"phrase":
+				if (
+					not text.is_empty()
+					and (cheapest_phrase < 0 or cost < cheapest_phrase)
+				):
+					cheapest_phrase = cost
+	if has_fixed_text:
+		return fixed_cost <= budget
+	return cheapest_phrase >= 0 and fixed_cost + cheapest_phrase <= budget
+
+
 func _apply_delivery(
 	game_stats: Node,
 	result: Dictionary,
@@ -326,7 +352,11 @@ func _fall_back_to_silence(result: Dictionary) -> void:
 	result["cost"] = 0
 
 
-func _record_phrase_memory(segments: Array, result: Dictionary) -> void:
+func _record_phrase_memory(
+	segments: Array,
+	result: Dictionary,
+	could_afford_speech: bool,
+) -> void:
 	var known_ids: Array = []
 	for segment_value: Variant in segments:
 		if segment_value is Dictionary and segment_value.get("type") == "phrase" and segment_value.has("id"):
@@ -335,10 +365,11 @@ func _record_phrase_memory(segments: Array, result: Dictionary) -> void:
 	if phrase_memory != null and phrase_memory.has_method("set_line"):
 		phrase_memory.call(
 			"set_line",
-			known_ids,
-			result.get("kept_ids", []),
-			StringName(result.get("delivery_mode", PhraseCutOverlay.DELIVERY_NORMAL)),
-		)
+				known_ids,
+				result.get("kept_ids", []),
+				StringName(result.get("delivery_mode", PhraseCutOverlay.DELIVERY_NORMAL)),
+				could_afford_speech,
+			)
 
 
 func _speak_with_dialogic(text: String, character: DialogicCharacter) -> void:

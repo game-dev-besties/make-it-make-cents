@@ -8,6 +8,7 @@ story_flag_set {"name":"son_mentioned_sold_everything","value":false}
 story_flag_set {"name":"son_mentioned_grandma_sick","value":false}
 story_flag_set {"name":"son_mentioned_mixed_feelings","value":false}
 story_flag_set {"name":"clem_failure_count","value":0}
+story_flag_set {"name":"clem_overshare_failure_count","value":0}
 story_flag_set {"name":"got_the_girl","value":"unresolved"}
 if GameStats.story_flag_equals("son_defended_self", true):
 	story_flag_check {"name":"son_defended_self","operator":"==","expected":true,"branch":"percy_spent_everything_defending_himself"}
@@ -172,33 +173,33 @@ if GameStats.get_story_flag("clem_failure_count") >= 3:
 \crush (neutral): Your turn. You’ve barely talked this whole time, and I don’t like it.
 label disclosure_uprooted
 phrase_cut son (nervous) crush_L005
-if PhraseMemory.delivery_is("sponsor") and GameStats.remaining_budget() <= 6:
+if PhraseMemory.delivery_is("sponsor") and not PhraseMemory.could_afford_speech():
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("sponsor"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.kept("uprooted") or PhraseMemory.kept("sold_everything"):
@@ -211,19 +212,19 @@ elif PhraseMemory.kept("uprooted") or PhraseMemory.kept("sold_everything"):
 		story_flag_set {"name":"son_mentioned_sold_everything","value":true}
 label disclosure_grandma
 phrase_cut son (nervous) crush_L006
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.kept("grandma_sick") or PhraseMemory.kept("ohio_couldnt_help") or PhraseMemory.kept("medical_experts"):
@@ -233,34 +234,34 @@ elif PhraseMemory.kept("grandma_sick") or PhraseMemory.kept("ohio_couldnt_help")
 	if PhraseMemory.kept("grandma_sick") or PhraseMemory.kept("ohio_couldnt_help"):
 		story_flag_set {"name":"son_mentioned_grandma_sick","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 label disclosure_feelings
 phrase_cut son (sad) crush_L007
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.kept("mixed_emotion") or (PhraseMemory.kept("dont_want") and PhraseMemory.kept("feel_like_this")) or PhraseMemory.kept("not_mad_at_him") or PhraseMemory.kept("mad_at_situation"):
@@ -269,34 +270,34 @@ elif PhraseMemory.kept("mixed_emotion") or (PhraseMemory.kept("dont_want") and P
 		story_flag_set {"name":"percy_opened_up","value":true}
 	story_flag_set {"name":"son_mentioned_mixed_feelings","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 label disclosure_sacrifice
 phrase_cut son (sad) crush_L008
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.kept("know_why") or (PhraseMemory.kept("stay_mad") and PhraseMemory.kept("gave_up") and PhraseMemory.kept("for_you")):
@@ -305,34 +306,34 @@ elif PhraseMemory.kept("know_why") or (PhraseMemory.kept("stay_mad") and PhraseM
 		story_flag_set {"name":"percy_opened_up","value":true}
 	story_flag_set {"name":"son_mentioned_mixed_feelings","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 label disclosure_normal
 phrase_cut son (sad) crush_L009
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif PhraseMemory.kept("dont_know") or (PhraseMemory.kept("just_wish") and PhraseMemory.kept("normal")) or (PhraseMemory.kept("dont_even_know") and PhraseMemory.kept("what_normal_is")):
@@ -340,34 +341,34 @@ elif PhraseMemory.kept("dont_know") or (PhraseMemory.kept("just_wish") and Phras
 	if not GameStats.get_story_flag("percy_opened_up"):
 		story_flag_set {"name":"percy_opened_up","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 label disclosure_before
 phrase_cut son (sad) crush_L010
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif (PhraseMemory.kept("like_is_it") and PhraseMemory.kept("before_mom")) or (PhraseMemory.kept("or_before") and PhraseMemory.kept("grandma_got_sick")) or (PhraseMemory.kept("those_moments") and PhraseMemory.kept("feel_so") and PhraseMemory.kept("far_away")):
@@ -377,34 +378,34 @@ elif (PhraseMemory.kept("like_is_it") and PhraseMemory.kept("before_mom")) or (P
 	if PhraseMemory.kept("or_before") and PhraseMemory.kept("grandma_got_sick"):
 		story_flag_set {"name":"son_mentioned_grandma_sick","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 label disclosure_happiness
 phrase_cut son (sad) crush_L011
-if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
+if PhraseMemory.delivery_is("sponsor") and (GameStats.get_story_flag("percy_opened_up") or not PhraseMemory.could_afford_speech()):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): ...Do you just not want to talk to me? I’ll give you one more chance…
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Okay, well, if you’re just not gonna say anything…
 		\crush (nervous): I’m just gonna go.
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 elif (PhraseMemory.kept("feel_happy") and PhraseMemory.kept_count() == 1) or (PhraseMemory.kept("feel_happy") and PhraseMemory.kept("again") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("just_wonder") and PhraseMemory.kept("if") and PhraseMemory.kept("ever_be") and PhraseMemory.kept("a_time") and PhraseMemory.kept("feel_happy")):
@@ -412,17 +413,17 @@ elif (PhraseMemory.kept("feel_happy") and PhraseMemory.kept_count() == 1) or (Ph
 	if not GameStats.get_story_flag("percy_opened_up"):
 		story_flag_set {"name":"percy_opened_up","value":true}
 else:
-	if GameStats.get_story_flag("clem_failure_count") == 0:
+	if GameStats.get_story_flag("clem_overshare_failure_count") == 0:
 		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
-		story_flag_set {"name":"clem_failure_count","value":1}
-	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		story_flag_set {"name":"clem_overshare_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_overshare_failure_count") == 1:
 		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
-		story_flag_set {"name":"clem_failure_count","value":2}
+		story_flag_set {"name":"clem_overshare_failure_count","value":2}
 	else:
 		\crush (nervous): Um, that didn’t really make much sense…
 		\crush (nervous): I guess we’re not that similar after all.
 		\crush (nervous): See you around…
-		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"clem_overshare_failure_count","value":3}
 		story_flag_set {"name":"got_the_girl","value":"no"}
 		[end_timeline]
 if GameStats.remaining_budget() == 0 and GameStats.get_story_flag("percy_opened_up"):

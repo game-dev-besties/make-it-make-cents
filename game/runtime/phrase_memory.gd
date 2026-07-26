@@ -5,12 +5,19 @@ extends Node
 var _known: Dictionary = {}
 var _kept: Dictionary = {}
 var _delivery_mode: StringName = &""
+var _could_afford_speech := false
 
 
-func set_line(known_ids: Array, kept_ids: Array, delivery_mode: StringName = &"normal") -> void:
+func set_line(
+	known_ids: Array,
+	kept_ids: Array,
+	delivery_mode: StringName = &"normal",
+	could_afford_speech: bool = false,
+) -> void:
 	_known.clear()
 	_kept.clear()
 	_delivery_mode = delivery_mode
+	_could_afford_speech = could_afford_speech
 	for raw_id: Variant in known_ids:
 		_known[String(raw_id)] = true
 	for raw_id: Variant in kept_ids:
@@ -39,3 +46,7 @@ func kept_count() -> int:
 
 func known_count() -> int:
 	return _known.size()
+
+
+func could_afford_speech() -> bool:
+	return _could_afford_speech

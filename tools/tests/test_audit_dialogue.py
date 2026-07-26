@@ -294,7 +294,10 @@ class ChapterAuditSmokeTests(unittest.TestCase):
         failure_exits = [
             state
             for state in report["final_states"]
-            if state["flags"]["clem_failure_count"] == 3
+            if (
+                state["flags"]["clem_failure_count"] == 3
+                or state["flags"]["clem_overshare_failure_count"] == 3
+            )
         ]
         self.assertTrue(
             failure_exits,
@@ -546,21 +549,30 @@ class ChapterAuditSmokeTests(unittest.TestCase):
         arrival = (crush_dir / "01_arrival.md").read_text(encoding="utf-8")
         self.assertNotIn("son.success += 1", arrival)
         self.assertIn('if flag("clem_failure_count") >= 3:', arrival)
+        self.assertIn(
+            "SET clem_failure_count = 0\n"
+            "SET clem_overshare_failure_count = 0\n",
+            arrival,
+        )
+        self.assertNotIn("SET clem_failure_count = 0\ncrush", arrival)
 
         opening_up = (crush_dir / "02_opening_up.md").read_text(
             encoding="utf-8"
         )
         self.assertNotIn('if flag("percy_opened_up"):', opening_up)
         self.assertIn('if budget() == 0 and flag("percy_opened_up"):', opening_up)
+        self.assertNotIn('flag("clem_failure_count")', opening_up)
+        self.assertIn('flag("clem_overshare_failure_count")', opening_up)
         self.assertIn(
-            'if delivery("sponsor") and budget() <= 6:\n'
+            'if delivery("sponsor") and not could_afford_speech():\n'
             "  -> first_jingle\n"
             'elif delivery("sponsor"):\n',
             opening_up,
         )
         self.assertEqual(
             opening_up.count(
-                'if delivery("sponsor") and flag("percy_opened_up"):\n'
+                'if delivery("sponsor") and '
+                '(flag("percy_opened_up") or not could_afford_speech()):\n'
                 "  -> first_jingle"
             ),
             6,

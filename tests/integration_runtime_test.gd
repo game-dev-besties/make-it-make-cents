@@ -5,6 +5,7 @@ extends SceneTree
 ## deliberately excluded because they are better covered by playtesting.
 
 const GAME_STATE_SCRIPT := preload("res://game/runtime/game_state.gd")
+const PHRASE_MEMORY_SCRIPT := preload("res://game/runtime/phrase_memory.gd")
 const DIALOGUE_HUD_SCENE := preload("res://ui/dialogue/dialogue_hud.tscn")
 
 var _failures: Array[String] = []
@@ -16,6 +17,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_test_budget_and_recovery()
+	_test_phrase_affordability_memory()
 	_test_campaign_totals()
 	_test_state_round_trip()
 	_test_story_flags_and_history()
@@ -55,6 +57,35 @@ func _test_budget_and_recovery() -> void:
 	state.begin_cutscene(2)
 	_check(state.can_use_pity() and state.can_use_sponsor(), "Recovery should be available.")
 	state.free()
+
+
+func _test_phrase_affordability_memory() -> void:
+	var phrase_event := DialogicPhraseCutEvent.new()
+	var phrases: Array = [
+		{"type": "phrase", "text": "Four words cost four", "cost": 4},
+		{"type": "phrase", "text": "Five words cost five now", "cost": 5},
+	]
+	_check(
+		not bool(phrase_event.call("_could_afford_speech", phrases, 2)),
+		"A balance below every phrase cost should count as unable to speak.",
+	)
+	_check(
+		bool(phrase_event.call("_could_afford_speech", phrases, 4)),
+		"A balance covering one phrase should count as able to speak.",
+	)
+
+	var memory: Node = PHRASE_MEMORY_SCRIPT.new()
+	memory.call("set_line", ["first", "second"], [], &"sponsor", false)
+	_check(
+		not bool(memory.call("could_afford_speech")),
+		"Phrase memory should retain pre-jingle unaffordability.",
+	)
+	memory.call("set_line", ["first", "second"], [], &"sponsor", true)
+	_check(
+		bool(memory.call("could_afford_speech")),
+		"Phrase memory should retain pre-jingle affordability.",
+	)
+	memory.free()
 
 
 func _test_campaign_totals() -> void:

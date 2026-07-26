@@ -176,6 +176,21 @@ else:
         )
         self.assertIn("if GameStats.remaining_budget() == 0:", artifact.timeline)
 
+    def test_affordability_condition_reads_the_pre_delivery_phrase_state(self) -> None:
+        artifact = self.compile(
+            """\
+if delivery("sponsor") and not could_afford_speech():
+  dad: Forced jingle.
+else:
+  dad: Voluntary jingle.
+"""
+        )
+        self.assertIn(
+            'if PhraseMemory.delivery_is("sponsor") '
+            "and not PhraseMemory.could_afford_speech():",
+            artifact.timeline,
+        )
+
     def test_recovery_none_emits_an_explicit_empty_policy(self) -> None:
         artifact = self.compile(
             """\
