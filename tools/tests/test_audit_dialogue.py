@@ -158,7 +158,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             "answer.",
         )
 
-    def test_budget_findings_cover_static_floor_and_effective_zero(
+    def test_budget_findings_cover_static_floor_and_preserved_remainder(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -191,7 +191,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                         "  dad: First response.",
                         "",
                         (
-                            "son: [SECOND]{id=second} "
+                            "son: [SECOND RESPONSE]{id=second} "
                             "[LONG ANSWER]{id=long_answer}"
                         ),
                         'if delivery("sponsor"):',
@@ -224,7 +224,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             below_floor["budget_pressure"][
                 "one_full_plus_cheapest_non_silent_minimum"
             ],
-            4,
+            5,
         )
         self.assertIn(
             "BUDGET_BELOW_ONE_FULL_MINIMUM",
@@ -239,6 +239,14 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 finding["code"]
                 for finding in unreachable_full["findings"]
             },
+        )
+        self.assertIn(
+            1,
+            {
+                state["budget"]
+                for state in unreachable_full["final_states"]
+            },
+            "An unaffordable positive remainder should remain available.",
         )
         self.assertIn(
             "BUDGET_NEVER_DEPLETES",
@@ -402,7 +410,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
             self.assertEqual(
                 selection["branches"],
-                [2],
+                [3],
                 f"{independent_id} should count as opening up.",
             )
         grandma_disclosure = next(
@@ -544,6 +552,20 @@ class ChapterAuditSmokeTests(unittest.TestCase):
         )
         self.assertNotIn('if flag("percy_opened_up"):', opening_up)
         self.assertIn('if budget() == 0 and flag("percy_opened_up"):', opening_up)
+        self.assertIn(
+            'if delivery("sponsor") and budget() <= 6:\n'
+            "  -> first_jingle\n"
+            'elif delivery("sponsor"):\n',
+            opening_up,
+        )
+        self.assertEqual(
+            opening_up.count(
+                'if delivery("sponsor") and flag("percy_opened_up"):\n'
+                "  -> first_jingle"
+            ),
+            6,
+        )
+        self.assertNotIn("@budget 0", opening_up)
 
         post_jingle = (crush_dir / "04_post_jingle.md").read_text(
             encoding="utf-8"

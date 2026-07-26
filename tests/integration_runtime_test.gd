@@ -16,7 +16,6 @@ func _init() -> void:
 
 func _run() -> void:
 	_test_budget_and_recovery()
-	_test_effective_zero_affordability()
 	_test_campaign_totals()
 	_test_state_round_trip()
 	_test_story_flags_and_history()
@@ -55,44 +54,6 @@ func _test_budget_and_recovery() -> void:
 
 	state.begin_cutscene(2)
 	_check(state.can_use_pity() and state.can_use_sponsor(), "Recovery should be available.")
-	state.free()
-
-
-func _test_effective_zero_affordability() -> void:
-	var state: GameStateStore = GAME_STATE_SCRIPT.new()
-	var phrase_event := DialogicPhraseCutEvent.new()
-	state.begin_cutscene(1)
-	var budget: int = phrase_event.call(
-		"_reserve_unaffordable_remainder",
-		state,
-		[{"type": "phrase", "text": "Two words", "cost": 2}],
-		1,
-	)
-	_check(budget == 0, "An unaffordable positive remainder should become zero.")
-	_check(state.remaining_budget() == 0, "Effective zero should update the real budget.")
-	_check(
-		state.cutscene_reserved_savings == 1,
-		"An unaffordable cash remainder should be reserved as savings.",
-	)
-	_check(state.use_sponsor(3), "Sponsor should remain available after effective zero.")
-	_check(
-		state.remaining_budget() == 3,
-		"Sponsor should provide exactly three words after effective zero.",
-	)
-	state.end_cutscene()
-	_check(
-		state.money_total_saved == 1,
-		"Sponsor credit should not be saved with the reserved cash remainder.",
-	)
-
-	state.begin_cutscene(1)
-	budget = phrase_event.call(
-		"_reserve_unaffordable_remainder",
-		state,
-		[{"type": "phrase", "text": "Free", "cost": 0}],
-		1,
-	)
-	_check(budget == 1, "A zero-cost spoken phrase should prevent effective zero.")
 	state.free()
 
 

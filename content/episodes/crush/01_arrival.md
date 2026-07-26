@@ -123,6 +123,12 @@ CHECK dad_offended_interviewer == "soda" as clem_describes_the_soda_candidate:
       SET clem_failure_count = 3
   elif delivery("sponsor"):
     crush (happy): Yeah, just like that! That was a really good impression.
+    if flag("clem_failure_count") == 0:
+      SET clem_failure_count = 1
+    elif flag("clem_failure_count") == 1:
+      SET clem_failure_count = 2
+    else:
+      SET clem_failure_count = 3
   else:
     crush (nervous): Um…not really sure I understood that? I hope I’m not boring you. I just don’t really have anyone to talk to.
     if flag("clem_failure_count") == 0:

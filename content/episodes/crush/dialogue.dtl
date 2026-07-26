@@ -108,6 +108,12 @@ if GameStats.story_flag_equals("dad_offended_interviewer", "soda"):
 			story_flag_set {"name":"clem_failure_count","value":3}
 	elif PhraseMemory.delivery_is("sponsor"):
 		\crush (happy): Yeah, just like that! That was a really good impression.
+		if GameStats.get_story_flag("clem_failure_count") == 0:
+			story_flag_set {"name":"clem_failure_count","value":1}
+		elif GameStats.get_story_flag("clem_failure_count") == 1:
+			story_flag_set {"name":"clem_failure_count","value":2}
+		else:
+			story_flag_set {"name":"clem_failure_count","value":3}
 	else:
 		\crush (nervous): Um…not really sure I understood that? I hope I’m not boring you. I just don’t really have anyone to talk to.
 		if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -166,8 +172,22 @@ if GameStats.get_story_flag("clem_failure_count") >= 3:
 \crush (neutral): Your turn. You’ve barely talked this whole time, and I don’t like it.
 label disclosure_uprooted
 phrase_cut son (nervous) crush_L005
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.remaining_budget() <= 6:
 	goto_label first_jingle
+elif PhraseMemory.delivery_is("sponsor"):
+	if GameStats.get_story_flag("clem_failure_count") == 0:
+		\crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
+		story_flag_set {"name":"clem_failure_count","value":1}
+	elif GameStats.get_story_flag("clem_failure_count") == 1:
+		\crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
+		story_flag_set {"name":"clem_failure_count","value":2}
+	else:
+		\crush (nervous): Um, that didn’t really make much sense…
+		\crush (nervous): I guess we’re not that similar after all.
+		\crush (nervous): See you around…
+		story_flag_set {"name":"clem_failure_count","value":3}
+		story_flag_set {"name":"got_the_girl","value":"no"}
+		[end_timeline]
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
 		\crush (neutral): Don’t be shy! I’m here to listen.
@@ -191,7 +211,7 @@ elif PhraseMemory.kept("uprooted") or PhraseMemory.kept("sold_everything"):
 		story_flag_set {"name":"son_mentioned_sold_everything","value":true}
 label disclosure_grandma
 phrase_cut son (nervous) crush_L006
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -228,7 +248,7 @@ else:
 		[end_timeline]
 label disclosure_feelings
 phrase_cut son (sad) crush_L007
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -264,7 +284,7 @@ else:
 		[end_timeline]
 label disclosure_sacrifice
 phrase_cut son (sad) crush_L008
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -300,7 +320,7 @@ else:
 		[end_timeline]
 label disclosure_normal
 phrase_cut son (sad) crush_L009
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -335,7 +355,7 @@ else:
 		[end_timeline]
 label disclosure_before
 phrase_cut son (sad) crush_L010
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -372,7 +392,7 @@ else:
 		[end_timeline]
 label disclosure_happiness
 phrase_cut son (sad) crush_L011
-if PhraseMemory.delivery_is("sponsor"):
+if PhraseMemory.delivery_is("sponsor") and GameStats.get_story_flag("percy_opened_up"):
 	goto_label first_jingle
 elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
 	if GameStats.get_story_flag("clem_failure_count") == 0:
@@ -410,7 +430,6 @@ if GameStats.remaining_budget() == 0 and GameStats.get_story_flag("percy_opened_
 else:
 	goto_label polite_exit
 label required_jingle
-budget_set 0
 recovery_policy pity,sponsor
 phrase_cut son (nervous) crush_L012
 if PhraseMemory.delivery_is("sponsor"):
@@ -419,7 +438,6 @@ else:
 	\crush (neutral): Go on…
 	goto_label forced_jingle
 label forced_jingle
-budget_set 0
 recovery_policy pity,sponsor
 phrase_cut son (nervous) crush_L013
 if PhraseMemory.delivery_is("sponsor"):

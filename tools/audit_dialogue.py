@@ -805,22 +805,6 @@ class EpisodeAuditor:
     ) -> Frontier:
         frontier = _clear_phrase_and_collapse(frontier)
         phrases = tuple(statement["phrases"])
-        normalized_frontier: Frontier = {}
-        cheapest_delivery = min(
-            (int(phrase["cost"]) for phrase in phrases),
-            default=-1,
-        )
-        for state, reach in frontier.items():
-            normalized_state = (
-                replace(state, budget=0)
-                if (
-                    state.budget > 0
-                    and cheapest_delivery > state.budget
-                )
-                else state
-            )
-            _add(normalized_frontier, normalized_state, reach)
-        frontier = normalized_frontier
         line = statement["line"]
         line_id = self._phrase_ids[id(statement)]
         question = self.questions.get(line_id)

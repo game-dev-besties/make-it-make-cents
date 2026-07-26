@@ -82,7 +82,6 @@ func _execute() -> void:
 	_active_overlay = ui
 	_overlay().add_child(ui)
 	var budget: int = int(game_stats.call("remaining_budget"))
-	budget = _reserve_unaffordable_remainder(game_stats, segments, budget)
 	var recovery_data: Dictionary = _recovery_data(data)
 	var recovery_policy: Dictionary = phrase_cut.consume_recovery_policy()
 	var speaker_name := speaker
@@ -278,45 +277,6 @@ func _recovery_available(game_stats: Node, method: StringName) -> bool:
 
 func _policy_allows(policy: Dictionary, key: String) -> bool:
 	return bool(policy.get(key, true))
-
-
-func _reserve_unaffordable_remainder(
-	game_stats: Node,
-	segments: Array,
-	budget: int,
-) -> int:
-	if budget <= 0:
-		return budget
-	var cheapest_delivery := _cheapest_nonempty_delivery_cost(segments)
-	if cheapest_delivery < 0 or cheapest_delivery <= budget:
-		return budget
-	if not game_stats.has_method("set_remaining_budget"):
-		return budget
-	return int(game_stats.call("set_remaining_budget", 0))
-
-
-func _cheapest_nonempty_delivery_cost(segments: Array) -> int:
-	var fixed_cost := 0
-	var has_fixed_text := false
-	var cheapest_phrase := -1
-	for raw_segment: Variant in segments:
-		if not raw_segment is Dictionary:
-			continue
-		var segment := raw_segment as Dictionary
-		var text := String(segment.get("text", "")).strip_edges()
-		if text.is_empty():
-			continue
-		var cost := maxi(0, int(segment.get("cost", 0)))
-		match String(segment.get("type", "phrase")):
-			"fixed":
-				has_fixed_text = true
-				fixed_cost += cost
-			"phrase":
-				if cheapest_phrase < 0 or cost < cheapest_phrase:
-					cheapest_phrase = cost
-	if has_fixed_text:
-		return fixed_cost
-	return cheapest_phrase
 
 
 func _apply_delivery(

@@ -13,20 +13,18 @@ supports:
 - score changes;
 - labels, jumps, stage cues, expressions, and split source files.
 
-It is not quite adequate for the intended zero-budget interaction. Two small,
-general-purpose runtime behavior changes are needed:
+It is not quite adequate for the intended zero-budget interaction. One small,
+general-purpose runtime behavior change is needed:
 
 1. Outside the staged tutorial, grunt and sponsor responses must always be
    available on every phrase prompt that permits them. They are currently each
    limited to one use per episode.
-2. A positive balance that cannot afford any offered phrase must become an
-   effective `$0` state before the overlay opens. This is the outline's
-   `$0 {silence, grunt, jingle}` edge case and ensures that the next sponsor
-   response leaves Percy with exactly three spendable words.
 
 No new general dialogue engine, local-variable system, or custom Chapter 4
 minigame is warranted. One small read-only `budget()` condition helper is
-useful for choosing between the required-jingle and polite-exit paths.
+useful for choosing between the required-jingle and polite-exit paths. A
+positive balance remains positive even when no offered phrase is affordable;
+the UI simply disables the unaffordable chips.
 
 The branch auditor needs two general-purpose additions for this chapter:
 
@@ -109,35 +107,7 @@ Implementation surface:
 Keep the internal delivery names `pity` and `sponsor` for compatibility.
 Chapter prose can call them a grunt and a jingle.
 
-### 2. Effective zero when no phrase is affordable
-
-Before showing a phrase overlay, compute the cheapest non-empty, payable
-phrase chunk.
-
-If the real balance is positive but below that cost:
-
-1. call `GameStateStore.set_remaining_budget(0)`;
-2. preserve the removed non-sponsor dollars as reserved savings, as the current
-   method already does;
-3. open the ordinary zero-budget overlay;
-4. disable paid phrase chips and show the `$0` recovery copy.
-
-Do this in the phrase event, not only in the UI, so the displayed balance and
-the actual budget cannot disagree. Zero-cost speakable chunks remain usable
-and must prevent effective exhaustion.
-
-This also solves the Part II accounting invariant:
-
-```text
-unspendable remainder -> reserved savings -> actual balance $0
-sponsor jingle        -> +$3 sponsor credit
-next paid sentence    -> at most three words
-```
-
-Apply this behavior globally; it is a general correction to phrase
-affordability, not Chapter 4 special casing.
-
-### 3. Budget condition around retries
+### 2. Budget condition around retries
 
 Add `budget()` to writer conditions as a read-only shorthand for
 `GameStats.remaining_budget()`. After the final opening-up prompt, use it to
@@ -238,7 +208,7 @@ Arrival and prior-chapter checks
        coherent phrase: remember topic, percy_opened_up = true, "Go on..."
        silence/grunt/orphans: advance the shared failure counter
        third failure:   cold exit
-       effective zero after opening up: required-jingle retry
+       exact zero after opening up: required-jingle retry
        enough money left after all seven: polite failure
   -> first jingle
        empathy + Dad soda/butts/none reaction
@@ -264,9 +234,8 @@ Arrival and prior-chapter checks
 - Set the chapter budget only after the money handoff.
 - Phrase-cut the name and Grandma explanation normally.
 - Sponsor responses before the opening-up rail do not enter the romantic
-  first-jingle reveal. The outline's annotated `+1` responses increment
-  `clem_failure_count` and the conversation continues; the soda-candidate
-  "good impression" response is the authored exception with no strike.
+  first-jingle reveal. Every one increments `clem_failure_count` and the
+  conversation continues.
 - Only reveal the caring caller to Clem when Percy retains `my_grandma` or
   the complete `She wanted to know if I had food` thought. Other grammatical
   recombinations, including `It was food`, get `...What?` and must not make
@@ -293,11 +262,17 @@ On normal delivery with only dependent fragments, say `...What?`.
 
 Silence, grunt, and incoherent paid fragments all advance the same failure
 counter, even after Percy has opened up. The third failure sets
-`got_the_girl = "no"` and ends the scene. A sponsor response during this
-section enters the first-jingle reveal. If Percy communicates coherently and
-reaches effective zero, enter the required-jingle beat; its first prompt still
-accepts silence, grunt, or sponsor, while a refusal advances to the prompt
-where only the jingle can continue.
+`got_the_girl = "no"` and ends the scene. On the first disclosure, a voluntary
+sponsor response while Percy could still afford either offered phrase is
+another failed attempt and the conversation continues. The cheapest chip costs
+`$4`, so a post-sponsor balance of `$3` through `$6` proves his prior balance
+could not submit any speech; that jingle begins Part II without discarding the
+remainder. On later disclosures, a sponsor response enters the first-jingle
+reveal only after at least one earlier coherent disclosure has set
+`percy_opened_up`; otherwise it follows the ordinary failure ladder. If Percy
+communicates coherently and reaches exact zero, enter the required-jingle beat;
+its first prompt still accepts silence, grunt, or sponsor, while a refusal
+advances to the prompt where only the jingle can continue.
 
 After all seven prompts, if no jingle occurred, use the polite exit and set
 `got_the_girl = "no"`. This is the conservative-player failure described in
@@ -346,13 +321,15 @@ Tune the amount after all phrase boundaries and coherent predicates exist.
 Search candidate budgets and choose one satisfying these acceptance rules:
 
 1. A player who communicates coherent information through the intended
-   sequence reaches effective zero and the first jingle.
+   sequence reaches exact zero and the first jingle.
 2. A player who repeatedly uses silence, grunt, or extremely cheap fragments
    can still reach the explicit no-jingle failure.
 3. No successful `got_the_girl = "yes"` path skips
    `girl_heard_jingle = true`.
-4. The first sponsor response in the opening-up rail always begins Part III
-   with exactly `$3`, including the positive-but-unaffordable edge case.
+4. A first-disclosure sponsor response begins Part II only when the preceding
+   balance could not afford its cheapest chip. The insufficient positive
+   remainder remains intact; an earlier voluntary sponsor is a strike instead
+   of an early romantic reveal.
 5. Repeated post-jingle sponsor credit cannot become family savings.
 
 The outline's "guarantee" is therefore conditional on talking enough; it
@@ -397,15 +374,16 @@ Keep automated coverage focused on the shared behavior:
 - assert that `@required_delivery sponsor` compiles into the next phrase line
   and visibly disables every competing delivery;
 - assert repeated grunt and sponsor use in the existing runtime test;
-- assert the positive-but-unaffordable effective-zero conversion there too;
+- assert that the auditor preserves a positive-but-unaffordable remainder;
 - run the existing content resource/timeline validation for the new episode.
 
 No separate hand-authored Chapter 4 branch matrix is necessary. The auditor
-varies the four incoming flags and verifies reachability of all 22 prompts and
+varies the four incoming flags and verifies reachability of all 20 prompts and
 the `no`, `baited`, and `yes` outcomes. Focused semantic assertions cover the
 phone-call disclosure, orphan classification, required-jingle lock, and final
 confession. During content review, still play one tariff-empathy path and one
-positive-but-unaffordable path to check presentation and feel.
+positive-but-unaffordable path to confirm the remainder is retained and the
+first-overshare jingle gate feels right.
 
 ### Final validation
 
@@ -415,7 +393,7 @@ Run:
 python3 tools/compile_dialogue.py
 python3 tools/compile_dialogue.py --check
 python3 tools/audit_dialogue.py crush \
-  --expect-phrase-lines 22 \
+  --expect-phrase-lines 20 \
   --vary-flag son_defended_self \
   --vary-flag grandma_ignored \
   --vary-flag dad_mentioned_family \
@@ -425,13 +403,14 @@ bash scripts/check.sh
 
 The audit reports bounded histories for `jingle_confession_answer`; that is an
 intentional retry cycle, not an ending.
-Manually confirm the stage walk/back-away cues, exact `$3` post-jingle balance,
-and neighbors callback while reviewing the representative endings.
+Manually confirm the stage walk/back-away cues, preserved remainder plus `$3`
+sponsor credit, and neighbors callback while reviewing the representative
+endings.
 
 ## Recommended implementation order
 
-1. Make recovery responses repeatable outside tutorial gating, add
-   effective-zero behavior, and cover both in the existing runtime checks.
+1. Make recovery responses repeatable outside tutorial gating and cover the
+   repeatable behavior in the existing runtime checks.
 2. Add the Chapter 4 flags and scaffold the episode/stage/campaign route.
 3. Author the four source files and compile them.
 4. Tune the initial budget against compiled phrase costs.

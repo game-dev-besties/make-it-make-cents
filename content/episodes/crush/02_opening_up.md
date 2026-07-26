@@ -5,8 +5,24 @@
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (nervous): [My dad uprooted us.]{id=uprooted} [He sold everything we had.]{id=sold_everything}
 
-if delivery("sponsor"):
+# Sponsor has already added $3 here. At $6 or less, the prior balance
+# was below the $4 cheapest disclosure and Percy could not submit speech.
+if delivery("sponsor") and budget() <= 6:
   -> first_jingle
+elif delivery("sponsor"):
+  if flag("clem_failure_count") == 0:
+    crush (nervous): Oh…I don’t think I got that? I’m still listening though, go on.
+    SET clem_failure_count = 1
+  elif flag("clem_failure_count") == 1:
+    crush (nervous): Sorry…you’re not making any sense right now…maybe try again one last time?
+    SET clem_failure_count = 2
+  else:
+    crush (nervous): Um, that didn’t really make much sense…
+    crush (nervous): I guess we’re not that similar after all.
+    crush (nervous): See you around…
+    SET clem_failure_count = 3
+    SET got_the_girl = "no"
+    -> end
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
     crush (neutral): Don’t be shy! I’m here to listen.
@@ -34,7 +50,7 @@ elif kept("uprooted") or kept("sold_everything"):
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (nervous): [My grandma is sick.]{id=grandma_sick} [And Ohio couldn’t help her]{id=ohio_couldnt_help} [and this country has the right medical experts]{id=medical_experts} [so here we are.]{id=here_we_are}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -75,7 +91,7 @@ else:
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (sad): [I’m mad…no, I’m sad.]{id=mixed_emotion} [I just don’t want to]{id=dont_want} [feel like this.]{id=feel_like_this} [I’m not mad at him]{id=not_mad_at_him} [I’m mad at the situation.]{id=mad_at_situation}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -115,7 +131,7 @@ else:
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (sad): [The thing is]{id=the_thing_is} [I know why he did it]{id=know_why} [and that’s so much worse]{id=much_worse} [because]{id=because} [how do you stay mad]{id=stay_mad} [at someone who gave up so much]{id=gave_up} [for you?]{id=for_you}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -155,7 +171,7 @@ else:
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (sad): [I don’t know...]{id=dont_know} [I just wish]{id=just_wish} [everything was just…normal.]{id=normal} [But I don’t even know]{id=dont_even_know} [what normal is anymore.]{id=what_normal_is}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -194,7 +210,7 @@ else:
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (sad): [Like, is it]{id=like_is_it} [before Mom left?]{id=before_mom} [Or before]{id=or_before} [Grandma got sick?]{id=grandma_got_sick} [Those moments]{id=those_moments} [just]{id=just} [feel so]{id=feel_so} [far away]{id=far_away} [sometimes.]{id=sometimes}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -235,7 +251,7 @@ else:
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
 son (sad): [I just wonder]{id=just_wonder} [if]{id=if} [there will ever be]{id=ever_be} [a time]{id=a_time} [I feel happy]{id=feel_happy} [again.]{id=again}
 
-if delivery("sponsor"):
+if delivery("sponsor") and flag("percy_opened_up"):
   -> first_jingle
 elif delivery("silence") or delivery("pity"):
   if flag("clem_failure_count") == 0:
@@ -275,7 +291,6 @@ else:
   -> polite_exit
 
 ## required_jingle
-@budget 0
 @recovery pity,sponsor
 @sponsor_score 0
 @sponsor_text "SAM’S SODA POP IS JUST SODA-MN GOOD!"
@@ -288,7 +303,6 @@ else:
   -> forced_jingle
 
 ## forced_jingle
-@budget 0
 @recovery pity,sponsor
 @required_delivery sponsor
 @sponsor_score 0
