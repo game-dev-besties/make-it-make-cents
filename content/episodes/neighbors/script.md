@@ -37,18 +37,20 @@ else:
   @cue hosts_enter
 @wait 0.5
 
-interviewer (nervous): You…!
-
-CHECK dad_offended_interviewer == "soda" as dad_offended_the_interviewer_with_soda:
-  interviewer (nervous): …
-  interviewer (neutral): Are you here for more soda?
-
-CHECK dad_offended_interviewer == "butts" as dad_offended_the_interviewer_with_butts:
-  interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
-
-CHECK dad_offended_interviewer == "none" as dad_did_not_offend_the_interviewer:
-  interviewer (happy): Our new hire! What a coincidence!
-  interviewer (happy): Welcome to the family, neighbor!
+if flag("dad_offended_interviewer") == "soda":
+  CHECK dad_offended_interviewer == "soda" as dad_offended_the_interviewer_with_soda:
+    interviewer (nervous): …
+    interviewer (neutral): Are you here for more soda?
+elif flag("dad_offended_interviewer") == "butts":
+  CHECK dad_offended_interviewer == "butts" as dad_offended_the_interviewer_with_butts:
+    interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
+elif flag("dad_offended_interviewer") == "none":
+  CHECK dad_offended_interviewer == "none" as dad_did_not_offend_the_interviewer:
+    interviewer (happy): Our new hire! What a coincidence!
+    interviewer (happy): Welcome to the family, neighbor!
+else:
+  interviewer (nervous): You were the candidate I interviewed today…
+  interviewer (neutral): I sure hope this conversation will go better than the last…
 
 if flag("got_the_girl") == "yes":
   @cue grandma_returns_connected

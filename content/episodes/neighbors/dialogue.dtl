@@ -31,18 +31,23 @@ if GameStats.get_story_flag("got_the_girl") == "yes":
 else:
 	presentation_cue hosts_enter
 [wait time="0.5"]
-\interviewer (nervous): You…!
-if GameStats.story_flag_equals("dad_offended_interviewer", "soda"):
-	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"soda","branch":"dad_offended_the_interviewer_with_soda"}
-	\interviewer (nervous): …
-	\interviewer (neutral): Are you here for more soda?
-if GameStats.story_flag_equals("dad_offended_interviewer", "butts"):
-	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"butts","branch":"dad_offended_the_interviewer_with_butts"}
-	\interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
-if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
-	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_did_not_offend_the_interviewer"}
-	\interviewer (happy): Our new hire! What a coincidence!
-	\interviewer (happy): Welcome to the family, neighbor!
+if GameStats.get_story_flag("dad_offended_interviewer") == "soda":
+	if GameStats.story_flag_equals("dad_offended_interviewer", "soda"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"soda","branch":"dad_offended_the_interviewer_with_soda"}
+		\interviewer (nervous): …
+		\interviewer (neutral): Are you here for more soda?
+elif GameStats.get_story_flag("dad_offended_interviewer") == "butts":
+	if GameStats.story_flag_equals("dad_offended_interviewer", "butts"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"butts","branch":"dad_offended_the_interviewer_with_butts"}
+		\interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
+elif GameStats.get_story_flag("dad_offended_interviewer") == "none":
+	if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_did_not_offend_the_interviewer"}
+		\interviewer (happy): Our new hire! What a coincidence!
+		\interviewer (happy): Welcome to the family, neighbor!
+else:
+	\interviewer (nervous): You were the candidate I interviewed today…
+	\interviewer (neutral): I sure hope this conversation will go better than the last…
 if GameStats.get_story_flag("got_the_girl") == "yes":
 	presentation_cue grandma_returns_connected
 else:

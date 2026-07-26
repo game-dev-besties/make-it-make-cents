@@ -177,6 +177,94 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             "answer.",
         )
 
+    def test_grandma_opening_question_matches_authored_outcomes(self) -> None:
+        report = audit_episode("grandma", expected_phrase_lines=5)
+        opening = next(
+            question
+            for question in report["questions"]
+            if [phrase["id"] for phrase in question["phrases"]]
+            == [
+                "why_dont_you",
+                "wild_guess",
+                "lady",
+                "im",
+                "at_a",
+                "doctors_office",
+            ]
+        )
+
+        def opening_case(*kept_ids: str) -> dict:
+            return next(
+                case
+                for case in opening["cases"]
+                if case["delivery"] == "normal"
+                and case["kept"] == list(kept_ids)
+            )
+
+        all_answer = opening_case(
+            "why_dont_you",
+            "wild_guess",
+            "lady",
+            "im",
+            "at_a",
+            "doctors_office",
+        )
+        self.assertEqual(all_answer["branches"], [2])
+        self.assertEqual(
+            all_answer["authored_actions"],
+            ["grandma.success -= 2"],
+        )
+
+        for kept_ids in (
+            ("wild_guess",),
+            ("why_dont_you", "wild_guess"),
+            ("wild_guess", "lady"),
+        ):
+            wild_guess = opening_case(*kept_ids)
+            self.assertEqual(wild_guess["branches"], [3])
+            self.assertEqual(
+                wild_guess["authored_actions"],
+                ["grandma.success += 2"],
+            )
+
+        lady = opening_case("lady")
+        self.assertEqual(lady["branches"], [4])
+        self.assertFalse(lady["authored_actions"])
+
+        for kept_ids in (
+            ("doctors_office",),
+            ("at_a", "doctors_office"),
+            ("im", "at_a", "doctors_office"),
+        ):
+            doctors_office = opening_case(*kept_ids)
+            self.assertEqual(doctors_office["branches"], [5])
+            self.assertEqual(
+                doctors_office["authored_actions"],
+                ["grandma.success -= 1"],
+            )
+
+        self.assertEqual(
+            [branch["response"] for branch in opening["branches"][2:6]],
+            [
+                (
+                    "Ha, I-I guess you’re right…wow, wasn’t expecting such "
+                    "a…strong voice of yours."
+                ),
+                (
+                    "Oh. Well, I suppose you’re here to talk about the "
+                    "medication we called about."
+                ),
+                (
+                    "A lady…brought you here? That’s very nice of her. Tell "
+                    "her I said thank you."
+                ),
+                (
+                    "Yes…that’s where we are right now. Nevermind, it’s not "
+                    "important. That was just for pleasantries."
+                ),
+            ],
+        )
+
     def test_budget_findings_cover_static_floor_and_preserved_remainder(
         self,
     ) -> None:
