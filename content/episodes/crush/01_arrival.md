@@ -1,4 +1,4 @@
-# Chapter 4: Son Talks 2 Gril
+# Chapter 4: Percy and Clementine
 
 @speaker_name crush "Clementine"
 SET son_showed_tariff_empathy = false

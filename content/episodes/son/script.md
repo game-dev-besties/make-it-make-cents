@@ -1,4 +1,4 @@
-# Chapter 3: Son Gets Bullied
+# Chapter 3: Percy's Opponent
 
 SET son_said_soda = false
 SET grandma_ignored = false
