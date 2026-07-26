@@ -24,6 +24,52 @@ Generated files are committed so a fresh Godot checkout opens without a
 separate content bootstrap. Do not edit `dialogue.dtl` or `phrases.json` by
 hand when the folder has a `script.md`.
 
+## Auditing branches and budgets
+
+Compilation proves that dialogue is valid, but it does not prove that its
+responses are complete or enjoyable. Run the branch auditor while drafting a
+phrase-cut episode:
+
+```sh
+python3 tools/audit_dialogue.py dad
+```
+
+The Markdown report groups every reachable phrase selection by response and
+flags exact reachability problems alongside writer-review heuristics. It
+surfaces:
+
+- all selectable phrase subsets and the branch each one reaches;
+- compressed budget, stat, recovery, and story-flag states after every prompt;
+- unreachable and shadowed responses;
+- catch-all responses that absorb most selections;
+- an all-kept default sentence that unexpectedly reaches `else`;
+- large score changes caused by toggling one phrase;
+- inaccessible pity or sponsor responses; and
+- suspiciously low or high scores reaching a named outcome.
+
+Use `--include-states` to put every compressed state into the Markdown report,
+or `--format json` for tooling and custom queries. Counts are exhaustive
+combinatorial paths, not predictions about how frequently players will make
+each choice.
+
+Budget experiments do not require editing the episode resource:
+
+```sh
+python3 tools/audit_dialogue.py dad --budget 40
+```
+
+If an outline specifies how many phrase prompts the finished scene should
+contain, make missing content explicit:
+
+```sh
+python3 tools/audit_dialogue.py dad --expect-phrase-lines 5
+```
+
+The auditor currently provides exact path counts for loop-free scripts.
+Episodes with retry `->` jumps are rejected rather than reported
+incompletely. Findings marked `EXACT` are mechanical facts; findings marked
+`HEURISTIC` are review prompts and do not make the build fail.
+
 ### Splitting a long episode
 
 `script.md` remains the default and is all most episodes need. To split one
