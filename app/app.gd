@@ -34,8 +34,12 @@ const HUD_CONTROL_GAP := 10.0
 @onready var title_screen: Control = %TitleScreen
 @onready var start_button: TextureButton = %StartButton
 @onready var play_indicator: Label = %PlayIndicator
+@onready var paused_run_actions: VBoxContainer = %PausedRunActions
+@onready var resume_button: Button = %ResumeButton
+@onready var play_again_button: Button = %PlayAgainButton
 @onready var credits_button: TextureButton = %CreditsButton
 @onready var credits_back_button: TextureButton = %CreditsBackButton
+@onready var stage_host: StageHost = %StageHost
 @onready var hud_status_panel: Panel = %HudStatusPanel
 @onready var episode_label: Label = %EpisodeLabel
 @onready var budget_label: Label = %BudgetLabel
@@ -60,10 +64,12 @@ var _history_box: Control = null
 var _budget_visible_before_history := false
 var _hud_visible_before_history := false
 var _credits_active := false
+var _run_parked_on_title := false
+var _title_action_in_progress := false
 
 
 func _ready() -> void:
-	campaign_player.set_stage_host(%StageHost as StageHost)
+	campaign_player.set_stage_host(stage_host)
 	campaign_player.set_game_state(game_state)
 	campaign_player.set_dialogic(dialogic_node)
 	campaign_player.episode_started.connect(_on_episode_started)
@@ -74,6 +80,7 @@ func _ready() -> void:
 	campaign_player.integration_warning.connect(_on_integration_warning)
 	game_state.budget_changed.connect(_on_budget_changed)
 	_configure_developer_tools()
+	_refresh_title_actions()
 	_style_episode_picker_popup()
 	_ensure_history_box_connection()
 	resized.connect(_apply_responsive_layout)
@@ -91,8 +98,30 @@ func _process(_delta: float) -> void:
 
 func _on_start_button_pressed() -> void:
 	status_label.text = ""
+	if _run_parked_on_title:
+		_resume_campaign()
+		return
 	if campaign_player.start_campaign(CAMPAIGN):
 		title_screen.hide()
+
+
+func _on_resume_button_pressed() -> void:
+	_resume_campaign()
+
+
+func _on_play_again_button_pressed() -> void:
+	if not _run_parked_on_title or _title_action_in_progress:
+		return
+	_title_action_in_progress = true
+	_refresh_title_actions()
+	status_label.text = ""
+	await campaign_player.abort_campaign()
+	_set_dialogic_paused(false)
+	_title_action_in_progress = false
+	if campaign_player.start_campaign(CAMPAIGN):
+		title_screen.hide()
+		return
+	_refresh_title_actions()
 
 
 func _on_credits_button_pressed() -> void:
@@ -100,6 +129,7 @@ func _on_credits_button_pressed() -> void:
 	title_art.hide()
 	start_button.hide()
 	play_indicator.hide()
+	paused_run_actions.hide()
 	credits_button.hide()
 	credits_heading.show()
 	credits_body.show()
@@ -109,12 +139,11 @@ func _on_credits_button_pressed() -> void:
 func _show_main_title() -> void:
 	_credits_active = false
 	title_art.show()
-	start_button.show()
-	play_indicator.show()
 	credits_button.show()
 	credits_heading.hide()
 	credits_body.hide()
 	credits_back_button.hide()
+	_refresh_title_actions()
 
 
 func _on_credits_back_button_pressed() -> void:
@@ -139,6 +168,7 @@ func _on_play_episode_button_pressed() -> void:
 
 
 func _on_episode_started(episode: EpisodeDefinition) -> void:
+	_run_parked_on_title = false
 	episode_label.text = "CURRENT CHAPTER  /  %s" % episode.title
 	budget_label.show()
 	hud_status_panel.show()
@@ -156,6 +186,7 @@ func _on_episode_transition_requested(episode: EpisodeDefinition) -> void:
 
 
 func _on_campaign_finished() -> void:
+	_run_parked_on_title = false
 	episode_label.text = "The story is complete."
 	budget_label.hide()
 	hud_status_panel.hide()
@@ -166,12 +197,9 @@ func _on_campaign_finished() -> void:
 
 
 func _on_campaign_aborted() -> void:
+	_run_parked_on_title = false
 	episode_label.text = ""
-	budget_label.hide()
-	hud_status_panel.hide()
-	back_to_title_button.hide()
-	history_button.hide()
-	return_to_game_button.hide()
+	_hide_game_hud()
 	title_screen.show()
 	_show_main_title()
 
@@ -180,7 +208,89 @@ func _on_back_to_title_button_pressed() -> void:
 	var history: Object = dialogic_node.call("get_subsystem", "History")
 	if history != null and history.has_method("close_history"):
 		history.call("close_history")
-	await campaign_player.abort_campaign()
+	if campaign_player.current_episode == null:
+		return
+	_run_parked_on_title = true
+	_set_dialogic_paused(true)
+	_set_dialogic_layout_visible(false)
+	_set_stage_presentation_active(false)
+	_hide_game_hud()
+	status_label.text = ""
+	title_screen.show()
+	_show_main_title()
+
+
+func _resume_campaign() -> void:
+	if not _run_parked_on_title or campaign_player.current_episode == null:
+		return
+	_run_parked_on_title = false
+	status_label.text = ""
+	title_screen.hide()
+	budget_label.show()
+	hud_status_panel.show()
+	back_to_title_button.show()
+	history_button.visible = _history_box != null and is_instance_valid(_history_box)
+	return_to_game_button.hide()
+	_set_stage_presentation_active(true)
+	_set_dialogic_layout_visible(true)
+	_set_dialogic_paused(false)
+	_layout_active_cutscene_header()
+
+
+func _refresh_title_actions() -> void:
+	var can_resume := _run_parked_on_title and campaign_player.current_episode != null
+	start_button.visible = not can_resume
+	start_button.disabled = _title_action_in_progress
+	play_indicator.visible = not can_resume
+	paused_run_actions.visible = can_resume
+	resume_button.disabled = _title_action_in_progress
+	play_again_button.disabled = _title_action_in_progress
+	developer_tools.visible = OS.is_debug_build() and not can_resume
+	if can_resume and not _title_action_in_progress:
+		resume_button.call_deferred("grab_focus")
+
+
+func _hide_game_hud() -> void:
+	episode_label.hide()
+	budget_label.hide()
+	hud_status_panel.hide()
+	back_to_title_button.hide()
+	history_button.hide()
+	return_to_game_button.hide()
+
+
+func _set_dialogic_paused(should_pause: bool) -> void:
+	if is_instance_valid(dialogic_node):
+		dialogic_node.set("paused", should_pause)
+
+
+func _set_dialogic_layout_visible(should_show: bool) -> void:
+	if not is_instance_valid(dialogic_node):
+		return
+	if not dialogic_node.call("has_subsystem", "Styles"):
+		return
+	var styles: Object = dialogic_node.call("get_subsystem", "Styles")
+	if styles == null or not styles.call("has_active_layout_node"):
+		return
+	var layout: Node = styles.call("get_layout_node")
+	if layout == null:
+		return
+	layout.process_mode = (
+		Node.PROCESS_MODE_INHERIT
+		if should_show
+		else Node.PROCESS_MODE_DISABLED
+	)
+	layout.set("visible", should_show)
+
+
+func _set_stage_presentation_active(should_process: bool) -> void:
+	if not is_instance_valid(stage_host.current_presentation):
+		return
+	stage_host.current_presentation.process_mode = (
+		Node.PROCESS_MODE_INHERIT
+		if should_process
+		else Node.PROCESS_MODE_DISABLED
+	)
 
 
 func _on_history_button_pressed() -> void:

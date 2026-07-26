@@ -19,15 +19,29 @@ func _run() -> void:
 	await process_frame
 
 	var start_button := app.get_node_or_null("%StartButton") as BaseButton
+	var title_screen := app.get_node_or_null("%TitleScreen") as Control
+	var back_to_title_button := app.get_node_or_null("%BackToTitleButton") as BaseButton
+	var paused_run_actions := app.get_node_or_null("%PausedRunActions") as Control
+	var resume_button := app.get_node_or_null("%ResumeButton") as BaseButton
+	var play_again_button := app.get_node_or_null("%PlayAgainButton") as BaseButton
 	var stage_host := app.get_node_or_null("%StageHost") as StageHost
 	var campaign_player := app.get_node_or_null("%CampaignPlayer") as CampaignPlayer
 	var chapter_transition := app.get_node_or_null("%ChapterTransition") as ChapterTransition
 	var soundtrack := app.get_node_or_null("%Soundtrack") as AudioStreamPlayer
+	var game_stats := root.get_node_or_null("GameStats") as GameStateStore
+	var dialogic := root.get_node_or_null("Dialogic") as DialogicGameHandler
 	var has_startup_path := (
 		start_button != null
+		and title_screen != null
+		and back_to_title_button != null
+		and paused_run_actions != null
+		and resume_button != null
+		and play_again_button != null
 		and stage_host != null
 		and campaign_player != null
 		and chapter_transition != null
+		and game_stats != null
+		and dialogic != null
 	)
 	_check(has_startup_path, "The app should expose its playable startup path.")
 	_check(
@@ -52,6 +66,66 @@ func _run() -> void:
 		_check(
 			stage_host.current_presentation != null,
 			"Completing the transition should mount the opening stage.",
+		)
+		var opening_episode := campaign_player.current_episode
+		var opening_presentation_id := stage_host.current_presentation.get_instance_id()
+		game_stats.son_silly = 4
+		game_stats.spend(1)
+		var paused_budget := game_stats.remaining_budget()
+		back_to_title_button.pressed.emit()
+		await process_frame
+		_check(
+			title_screen.visible
+			and paused_run_actions.visible
+			and resume_button.visible
+			and play_again_button.visible,
+			"Return to Title should offer Resume and Play Again.",
+		)
+		_check(
+			campaign_player.current_episode == opening_episode
+			and stage_host.current_presentation != null
+			and stage_host.current_presentation.get_instance_id() == opening_presentation_id
+			and stage_host.current_presentation.process_mode == Node.PROCESS_MODE_DISABLED
+			and game_stats.remaining_budget() == paused_budget
+			and game_stats.son_silly == 4,
+			"Returning to the title should preserve the active run.",
+		)
+		_check(
+			dialogic.paused,
+			"Returning to the title should pause the active dialogue.",
+		)
+		resume_button.pressed.emit()
+		await process_frame
+		_check(
+			not title_screen.visible
+			and not dialogic.paused
+			and campaign_player.current_episode == opening_episode
+			and stage_host.current_presentation != null
+			and stage_host.current_presentation.get_instance_id() == opening_presentation_id
+			and stage_host.current_presentation.process_mode == Node.PROCESS_MODE_INHERIT
+			and game_stats.remaining_budget() == paused_budget,
+			"Resume should continue the same run from the same state.",
+		)
+
+		back_to_title_button.pressed.emit()
+		await process_frame
+		play_again_button.pressed.emit()
+		for wait_frame: int in range(30):
+			if chapter_transition.visible:
+				break
+			await process_frame
+		_check(
+			chapter_transition.visible and game_stats.son_silly == 0,
+			"Play Again should reset the run and show the opening transition.",
+		)
+		chapter_transition.skip()
+		await process_frame
+		await process_frame
+		_check(
+			campaign_player.current_episode != null
+			and stage_host.current_presentation != null
+			and stage_host.current_presentation.get_instance_id() != opening_presentation_id,
+			"Play Again should mount a fresh opening stage.",
 		)
 		await campaign_player.abort_campaign()
 		await process_frame

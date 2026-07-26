@@ -25,6 +25,9 @@
 [ext_resource type="Texture2D" uid="uid://b8v6udeo7gwma" path="res://ui/title/back_overlay.png" id="26_back_overlay"]
 [ext_resource type="PackedScene" path="res://ui/chapter_transition/chapter_transition.tscn" id="27_chapter_transition"]
 [ext_resource type="AudioStream" uid="uid://bbqwtymq1lg6v" path="res://audio/music/legendary_disco_main.mp3" id="28_main_soundtrack"]
+[ext_resource type="StyleBox" path="res://ui/theme/return_to_title_normal.tres" id="29_restart_normal"]
+[ext_resource type="StyleBox" path="res://ui/theme/return_to_title_hover.tres" id="30_restart_hover"]
+[ext_resource type="StyleBox" path="res://ui/theme/return_to_title_focus.tres" id="31_restart_focus"]
 
 [sub_resource type="FontVariation" id="FontVariation_credits_names"]
 base_font = ExtResource("22_credits_font")
@@ -140,7 +143,7 @@ offset_top = 7.0
 offset_right = -85.0
 offset_bottom = 47.0
 grow_horizontal = 2
-tooltip_text = "End this run and return to the title screen. You can restart any chapter there."
+tooltip_text = "Pause this run and return to the title screen."
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
@@ -197,16 +200,19 @@ text = "Return to Game"
 unique_name_in_owner = true
 script = ExtResource("2_campaign_player")
 
-[node name="TitleScreen" type="Control" parent="." unique_id=2046593670]
+[node name="TitleLayer" type="CanvasLayer" parent="." unique_id=1675889693]
+layer = 200
+
+[node name="TitleScreen" type="Control" parent="TitleLayer" unique_id=2046593670]
 unique_name_in_owner = true
-layout_mode = 1
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BaseColor" type="ColorRect" parent="TitleScreen" unique_id=389877682]
+[node name="BaseColor" type="ColorRect" parent="TitleLayer/TitleScreen" unique_id=389877682]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -216,14 +222,14 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.992157, 0.984314, 0.956863, 1)
 
-[node name="TitleCanvas" type="Control" parent="TitleScreen" unique_id=1352008405]
+[node name="TitleCanvas" type="Control" parent="TitleLayer/TitleScreen" unique_id=1352008405]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 
-[node name="TitleBackground" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=761875315]
+[node name="TitleBackground" type="TextureRect" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=761875315]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -235,7 +241,7 @@ mouse_filter = 2
 texture = ExtResource("16_title_background")
 expand_mode = 1
 
-[node name="TitleArt" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=1916746959]
+[node name="TitleArt" type="TextureRect" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=1916746959]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 0
@@ -247,7 +253,7 @@ mouse_filter = 2
 texture = ExtResource("18_title_overlay")
 expand_mode = 1
 
-[node name="StartButton" type="TextureButton" parent="TitleScreen/TitleCanvas" unique_id=1715812916]
+[node name="StartButton" type="TextureButton" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=1715812916]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 0
@@ -262,7 +268,7 @@ ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
-[node name="PlayIndicator" type="Label" parent="TitleScreen/TitleCanvas" unique_id=888945109]
+[node name="PlayIndicator" type="Label" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=888945109]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 212.0
@@ -279,7 +285,63 @@ horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("24_play_indicator")
 
-[node name="CreditsHeading" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=1797142644]
+[node name="PausedRunActions" type="VBoxContainer" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=220884318]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 212.0
+offset_top = 451.0
+offset_right = 510.0
+offset_bottom = 594.0
+theme_override_constants/separation = 8
+
+[node name="PausedLabel" type="Label" parent="TitleLayer/TitleScreen/TitleCanvas/PausedRunActions" unique_id=1257556085]
+custom_minimum_size = Vector2(0, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_colors/font_outline_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("17_title_font")
+theme_override_font_sizes/font_size = 22
+text = "RUN PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="TitleLayer/TitleScreen/TitleCanvas/PausedRunActions" unique_id=1482956963]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+tooltip_text = "Continue from the exact point where you left off."
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = ExtResource("6_primary_button")
+theme_override_styles/pressed = ExtResource("10_primary_hover")
+theme_override_styles/hover = ExtResource("10_primary_hover")
+theme_override_styles/focus = ExtResource("7_focus")
+text = "Resume"
+
+[node name="PlayAgainButton" type="Button" parent="TitleLayer/TitleScreen/TitleCanvas/PausedRunActions" unique_id=1615144070]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+tooltip_text = "End the paused run and restart the story from the beginning."
+theme_override_colors/font_color = Color(0.431373, 0.12549, 0.0862745, 1)
+theme_override_colors/font_focus_color = Color(0.431373, 0.12549, 0.0862745, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = ExtResource("29_restart_normal")
+theme_override_styles/pressed = ExtResource("30_restart_hover")
+theme_override_styles/hover = ExtResource("30_restart_hover")
+theme_override_styles/focus = ExtResource("31_restart_focus")
+text = "Play Again"
+
+[node name="CreditsHeading" type="TextureRect" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=1797142644]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1
@@ -292,7 +354,7 @@ mouse_filter = 2
 texture = ExtResource("23_credits_heading")
 expand_mode = 1
 
-[node name="CreditsBody" type="TextureRect" parent="TitleScreen/TitleCanvas" unique_id=202936815]
+[node name="CreditsBody" type="TextureRect" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=202936815]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1
@@ -305,7 +367,7 @@ mouse_filter = 2
 texture = SubResource("AtlasTexture_player_credits")
 expand_mode = 1
 
-[node name="StatusLabel" type="Label" parent="TitleScreen/TitleCanvas" unique_id=557643815]
+[node name="StatusLabel" type="Label" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=557643815]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 100.0
@@ -321,7 +383,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="PennybotCredits" type="Control" parent="TitleScreen/TitleCanvas" unique_id=135748281]
+[node name="PennybotCredits" type="Control" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=135748281]
 unique_name_in_owner = true
 anchors_preset = 0
 offset_left = 716.0
@@ -332,7 +394,7 @@ rotation = 0.139626
 pivot_offset = Vector2(129, 75)
 mouse_filter = 2
 
-[node name="CreditsButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits" unique_id=812168572]
+[node name="CreditsButton" type="TextureButton" parent="TitleLayer/TitleScreen/TitleCanvas/PennybotCredits" unique_id=812168572]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 0
@@ -347,7 +409,7 @@ ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
-[node name="CreditsBackButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits" unique_id=624778955]
+[node name="CreditsBackButton" type="TextureButton" parent="TitleLayer/TitleScreen/TitleCanvas/PennybotCredits" unique_id=624778955]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1
@@ -363,7 +425,7 @@ ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
-[node name="TitleFramePaper" type="Panel" parent="TitleScreen/TitleCanvas" unique_id=1096632264]
+[node name="TitleFramePaper" type="Panel" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=1096632264]
 z_index = 20
 layout_mode = 1
 anchors_preset = 15
@@ -374,7 +436,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("TitleFramePaper")
 
-[node name="TitleFrameInk" type="Panel" parent="TitleScreen/TitleCanvas" unique_id=169745253]
+[node name="TitleFrameInk" type="Panel" parent="TitleLayer/TitleScreen/TitleCanvas" unique_id=169745253]
 z_index = 20
 layout_mode = 1
 anchors_preset = 15
@@ -389,7 +451,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("TitleFrameInk")
 
-[node name="DeveloperTools" type="VBoxContainer" parent="TitleScreen" unique_id=438741980]
+[node name="DeveloperTools" type="VBoxContainer" parent="TitleLayer/TitleScreen" unique_id=438741980]
 unique_name_in_owner = true
 visible = false
 z_index = 30
@@ -403,10 +465,10 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8
 
-[node name="Separator" type="HSeparator" parent="TitleScreen/DeveloperTools" unique_id=1162151089]
+[node name="Separator" type="HSeparator" parent="TitleLayer/TitleScreen/DeveloperTools" unique_id=1162151089]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="TitleScreen/DeveloperTools" unique_id=1809211383]
+[node name="Label" type="Label" parent="TitleLayer/TitleScreen/DeveloperTools" unique_id=1809211383]
 custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.0745098, 0.247059, 0.345098, 1)
@@ -417,7 +479,7 @@ theme_override_font_sizes/font_size = 14
 text = "Developer playtest — debug builds only"
 autowrap_mode = 2
 
-[node name="EpisodePicker" type="OptionButton" parent="TitleScreen/DeveloperTools" unique_id=1485440068]
+[node name="EpisodePicker" type="OptionButton" parent="TitleLayer/TitleScreen/DeveloperTools" unique_id=1485440068]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Start directly at an episode without changing the campaign's normal opening."
@@ -435,7 +497,7 @@ theme_override_styles/disabled = ExtResource("12_dropdown_normal")
 theme_override_styles/focus = ExtResource("7_focus")
 fit_to_longest_item = false
 
-[node name="PlayEpisodeButton" type="Button" parent="TitleScreen/DeveloperTools" unique_id=152920818]
+[node name="PlayEpisodeButton" type="Button" parent="TitleLayer/TitleScreen/DeveloperTools" unique_id=152920818]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
@@ -451,12 +513,14 @@ theme_override_styles/hover = ExtResource("10_primary_hover")
 theme_override_styles/focus = ExtResource("7_focus")
 text = "Play selected episode"
 
-[node name="ChapterTransition" parent="." instance=ExtResource("27_chapter_transition")]
+[node name="ChapterTransition" parent="." unique_id=292185543 instance=ExtResource("27_chapter_transition")]
 
 [connection signal="pressed" from="HistoryControls/BackToTitleButton" to="." method="_on_back_to_title_button_pressed"]
 [connection signal="pressed" from="HistoryControls/HistoryButton" to="." method="_on_history_button_pressed"]
 [connection signal="pressed" from="HistoryControls/ReturnToGameButton" to="." method="_on_return_to_game_button_pressed"]
-[connection signal="pressed" from="TitleScreen/TitleCanvas/StartButton" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="TitleScreen/TitleCanvas/PennybotCredits/CreditsButton" to="." method="_on_credits_button_pressed"]
-[connection signal="pressed" from="TitleScreen/TitleCanvas/PennybotCredits/CreditsBackButton" to="." method="_on_credits_back_button_pressed"]
-[connection signal="pressed" from="TitleScreen/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/TitleCanvas/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/TitleCanvas/PausedRunActions/ResumeButton" to="." method="_on_resume_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/TitleCanvas/PausedRunActions/PlayAgainButton" to="." method="_on_play_again_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/TitleCanvas/PennybotCredits/CreditsButton" to="." method="_on_credits_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/TitleCanvas/PennybotCredits/CreditsBackButton" to="." method="_on_credits_back_button_pressed"]
+[connection signal="pressed" from="TitleLayer/TitleScreen/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]
