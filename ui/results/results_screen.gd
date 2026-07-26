@@ -50,10 +50,7 @@ func present(game_state: GameStateStore) -> void:
 	if game_state == null:
 		return
 
-	dad_good_outcome = game_state.story_flag_equals(
-		&"dad_offended_interviewer",
-		"none",
-	)
+	dad_good_outcome = game_state.story_flag_equals(&"dad_got_job", true)
 	grandma_good_outcome = game_state.story_flag_equals(
 		&"got_prescription",
 		true,

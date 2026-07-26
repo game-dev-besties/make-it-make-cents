@@ -63,6 +63,7 @@ func _run() -> void:
 		var grandma_good := bool(outcome_mask & 2)
 		var son_good := bool(outcome_mask & 4)
 		var good_count := int(dad_good) + int(grandma_good) + int(son_good)
+		state.set_story_flag(&"dad_got_job", dad_good)
 		state.set_story_flag(
 			&"dad_offended_interviewer",
 			"none" if dad_good else "soda",
@@ -122,6 +123,15 @@ func _run() -> void:
 			)
 			% outcome_mask,
 		)
+
+	state.set_story_flag(&"dad_got_job", false)
+	state.set_story_flag(&"dad_offended_interviewer", "none")
+	screen.present(state)
+	await process_frame
+	_check(
+		not screen.dad_good_outcome,
+		"Not offending the interviewer should not imply that Dad was hired.",
+	)
 
 	var all_label_text := ""
 	for label: Label in screen.find_children("*", "Label", true, false):

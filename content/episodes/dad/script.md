@@ -3,6 +3,7 @@
 ## intro
 @cue dad_enters
 SET dad_offended_interviewer = "none"
+SET dad_got_job = false
 SET dad_mentioned_family = false
 interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 
@@ -182,6 +183,7 @@ interviewer: Well then, that concludes our interview. As for your position…
 
 if dad.success >= 5 and flag("dad_offended_interviewer") == "none":
   CHECK dad_offended_interviewer == "none" as dad_got_the_job:
+    SET dad_got_job = true
     interviewer: You got the job!
     interviewer: We need more people with your humor and creativity around. You belong here!
     interviewer: You start tomorrow!

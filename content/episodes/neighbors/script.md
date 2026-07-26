@@ -37,20 +37,21 @@ else:
   @cue hosts_enter
 @wait 0.5
 
-if flag("dad_offended_interviewer") == "soda":
+if flag("dad_got_job"):
+  CHECK dad_got_job == true as dad_arrives_as_new_hire:
+    interviewer (happy): Our new hire! What a coincidence!
+    interviewer (happy): Welcome to the family, neighbor!
+elif flag("dad_offended_interviewer") == "soda":
   CHECK dad_offended_interviewer == "soda" as dad_offended_the_interviewer_with_soda:
     interviewer (nervous): …
     interviewer (neutral): Are you here for more soda?
 elif flag("dad_offended_interviewer") == "butts":
   CHECK dad_offended_interviewer == "butts" as dad_offended_the_interviewer_with_butts:
     interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
-elif flag("dad_offended_interviewer") == "none":
-  CHECK dad_offended_interviewer == "none" as dad_did_not_offend_the_interviewer:
-    interviewer (happy): Our new hire! What a coincidence!
-    interviewer (happy): Welcome to the family, neighbor!
 else:
-  interviewer (nervous): You were the candidate I interviewed today…
-  interviewer (neutral): I sure hope this conversation will go better than the last…
+  CHECK dad_got_job == false as dad_arrives_without_job:
+    interviewer (nervous): You were the candidate I interviewed today…
+    interviewer (neutral): I sure hope this conversation will go better than the last…
 
 if flag("got_the_girl") == "yes":
   @cue grandma_returns_connected
@@ -105,7 +106,7 @@ CHECK got_prescription == false as grandma_resented_the_doctor:
 son (surprised): W-woah there, Grandma. That was pretty loud. This place has changed you.
 grandma (neutral): HAS IT? I DIDN’T REALIZE.
 
-if flag("dad_offended_interviewer") == "none":
+if flag("dad_got_job"):
   if flag("got_the_girl") == "yes":
     if flag("got_prescription"):
       dad (happy): Huh, so since it seems that all of us are happy here…

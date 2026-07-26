@@ -2,6 +2,7 @@
 label intro
 presentation_cue dad_enters
 story_flag_set {"name":"dad_offended_interviewer","value":"none"}
+story_flag_set {"name":"dad_got_job","value":false}
 story_flag_set {"name":"dad_mentioned_family","value":false}
 \interviewer: Hmm. Thanks for taking the time to interview with us today. Why don’t you tell me a little bit about yourself?
 label question_1
@@ -161,6 +162,7 @@ label outcome
 if GameStats.dad_success >= 5 and GameStats.get_story_flag("dad_offended_interviewer") == "none":
 	if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
 		story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_got_the_job"}
+		story_flag_set {"name":"dad_got_job","value":true}
 		\interviewer: You got the job!
 		\interviewer: We need more people with your humor and creativity around. You belong here!
 		\interviewer: You start tomorrow!

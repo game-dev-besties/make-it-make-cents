@@ -150,6 +150,7 @@ func _run() -> void:
 		game_stats.delivery_grunts_said = 1
 		game_stats.delivery_nothings_said = 4
 		game_stats.set_story_flag(&"dad_offended_interviewer", "none")
+		game_stats.set_story_flag(&"dad_got_job", true)
 		game_stats.set_story_flag(&"got_prescription", true)
 		game_stats.set_story_flag(&"got_the_girl", "no")
 		game_stats.set_story_flag(&"family_stays", true)

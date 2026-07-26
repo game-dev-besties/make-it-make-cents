@@ -19,6 +19,20 @@
       ]
     },
     {
+      "name": "dad_got_job",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Dad was not hired by Paperbox, Inc."
+        },
+        {
+          "value": true,
+          "description": "Dad was hired by Paperbox, Inc."
+        }
+      ]
+    },
+    {
       "name": "dad_mentioned_family",
       "default": false,
       "values": [

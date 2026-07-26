@@ -128,6 +128,7 @@ func _test_state_round_trip() -> void:
 	original.dad_silly = 4
 	original.set_value(&"dad_job_result", "creative_hire")
 	original.set_story_flag(&"dad_offended_interviewer", "soda")
+	original.set_story_flag(&"dad_got_job", true)
 	original.set_story_flag(&"dad_mentioned_family", true)
 	original.record_delivery(&"sponsor")
 	original.record_delivery(&"pity")
@@ -155,6 +156,10 @@ func _test_state_round_trip() -> void:
 		"Save data should preserve enum story flags.",
 	)
 	_check(
+		restored.get_story_flag(&"dad_got_job"),
+		"Save data should preserve Dad's job outcome.",
+	)
+	_check(
 		restored.get_story_flag(&"dad_mentioned_family"),
 		"Save data should preserve boolean story flags.",
 	)
@@ -162,6 +167,10 @@ func _test_state_round_trip() -> void:
 	_check(
 		restored.get_story_flag(&"dad_offended_interviewer") == "none",
 		"A new game should restore flag defaults.",
+	)
+	_check(
+		not restored.get_story_flag(&"dad_got_job"),
+		"A new game should clear Dad's job outcome.",
 	)
 	_check(
 		not restored.get_story_flag(&"dad_mentioned_family"),

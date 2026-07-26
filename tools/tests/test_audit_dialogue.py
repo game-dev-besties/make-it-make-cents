@@ -48,6 +48,17 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             ],
             "The Dad audit should have no structural errors.",
         )
+        for state in report["final_states"]:
+            flags = state["flags"]
+            expected_hire = (
+                state["stats"]["dad.success"] >= 5
+                and flags["dad_offended_interviewer"] == "none"
+            )
+            self.assertEqual(
+                flags["dad_got_job"],
+                expected_hire,
+                f"Wrong Dad job outcome for final state: {state}",
+            )
         for question in report["questions"]:
             pity_branches = {
                 tuple(case["branches"])
@@ -696,21 +707,22 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             "neighbors",
             expected_phrase_lines=0,
             vary_flags=(
+                "dad_got_job",
                 "dad_offended_interviewer",
                 "got_the_girl",
                 "got_prescription",
             ),
         )
         self.assertEqual(report["summary"]["phrase_lines"], 0)
-        self.assertEqual(report["summary"]["raw_paths"], 24)
-        self.assertEqual(len(report["final_states"]), 24)
+        self.assertEqual(report["summary"]["raw_paths"], 48)
+        self.assertEqual(len(report["final_states"]), 48)
         self.assertFalse(report["findings"])
 
         for state in report["final_states"]:
             flags = state["flags"]
             happy_family_members = sum(
                 (
-                    flags["dad_offended_interviewer"] == "none",
+                    flags["dad_got_job"],
                     flags["got_the_girl"] == "yes",
                     flags["got_prescription"],
                 )
