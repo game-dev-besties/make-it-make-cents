@@ -270,7 +270,7 @@ func _play_chip_action(chip: Button, is_cut: bool) -> void:
 	if is_instance_valid(_companion_action_tween):
 		_companion_action_tween.kill()
 		if is_instance_valid(_pending_action_chip):
-			_pending_action_chip.call("play_prepared_strike")
+			_play_prepared_chip_strike(_pending_action_chip)
 		_companion_action_tween = null
 		_pending_action_chip = null
 		_is_companion_acting = false
@@ -286,9 +286,10 @@ func _play_chip_action(chip: Button, is_cut: bool) -> void:
 		travel_direction = Vector2.LEFT
 	var left_to_right := travel_direction.x >= 0.0
 	chip.call("prepare_strike_animation", is_cut, left_to_right)
+	chip.set_meta(&"strike_is_cut", is_cut)
 
 	if not _moneybot_companion.visible:
-		chip.call("play_prepared_strike")
+		_play_prepared_chip_strike(chip)
 		_spawn_impact_sparks(
 			_word_impact_point(word_rect, travel_direction),
 			travel_direction,
@@ -456,10 +457,15 @@ func _on_chip_impact(
 	travel_direction: Vector2,
 ) -> void:
 	if is_instance_valid(chip):
-		chip.call("play_prepared_strike")
+		_play_prepared_chip_strike(chip)
 	if chip == _pending_action_chip:
 		_pending_action_chip = null
 	_spawn_impact_sparks(impact_point, travel_direction)
+
+
+func _play_prepared_chip_strike(chip: Button) -> void:
+	chip.call("play_prepared_strike")
+	Sfx.play_word_action(bool(chip.get_meta(&"strike_is_cut", true)))
 
 
 func _spawn_impact_sparks(impact_point: Vector2, travel_direction: Vector2) -> void:
@@ -656,7 +662,7 @@ func _update_panel_width() -> void:
 		if is_instance_valid(_companion_action_tween):
 			_companion_action_tween.kill()
 		if is_instance_valid(_pending_action_chip):
-			_pending_action_chip.call("play_prepared_strike")
+			_play_prepared_chip_strike(_pending_action_chip)
 		_companion_action_tween = null
 		_pending_action_chip = null
 		_is_companion_acting = false
@@ -789,6 +795,7 @@ func _recovery_description() -> String:
 func _on_confirm() -> void:
 	var kept_text := _assemble()
 	var delivery_mode := DELIVERY_SILENCE if kept_text.is_empty() else DELIVERY_NORMAL
+	Sfx.play(Sfx.UI_CONFIRM, -5.0)
 	_resolve(_kept_ids(), kept_text, delivery_mode, _cost())
 
 

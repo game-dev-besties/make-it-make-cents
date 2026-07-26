@@ -17,9 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameState="*res://game/runtime/game_state.gd"
 Dialogic="*uid://ds2q0uclmolvu"
 GameStats="*res://game/runtime/game_state.gd"
 PhraseMemory="*res://game/runtime/phrase_memory.gd"
+Sfx="*res://game/audio/procedural_sfx.gd"
 
 [debug]
 
