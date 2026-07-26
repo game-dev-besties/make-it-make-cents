@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://8b8pub13gufk" path="res://ui/title/play_indicator.gd" id="24_play_indicator"]
 [ext_resource type="Texture2D" uid="uid://cw0f35awdk1hx" path="res://ui/title/player_credits_overlay.png" id="25_player_credits"]
 [ext_resource type="Texture2D" uid="uid://b8v6udeo7gwma" path="res://ui/title/back_overlay.png" id="26_back_overlay"]
+[ext_resource type="PackedScene" path="res://ui/chapter_transition/chapter_transition.tscn" id="27_chapter_transition"]
 
 [sub_resource type="FontVariation" id="FontVariation_credits_names"]
 base_font = ExtResource("22_credits_font")
@@ -442,6 +443,8 @@ theme_override_styles/pressed = ExtResource("10_primary_hover")
 theme_override_styles/hover = ExtResource("10_primary_hover")
 theme_override_styles/focus = ExtResource("7_focus")
 text = "Play selected episode"
+
+[node name="ChapterTransition" parent="." instance=ExtResource("27_chapter_transition")]
 
 [connection signal="pressed" from="HistoryControls/BackToTitleButton" to="." method="_on_back_to_title_button_pressed"]
 [connection signal="pressed" from="HistoryControls/HistoryButton" to="." method="_on_history_button_pressed"]

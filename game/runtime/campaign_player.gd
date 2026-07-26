@@ -3,6 +3,7 @@ extends Node
 ## Coordinates campaign content, stage presentation, state mutation, and Dialogic.
 
 signal episode_started(episode: EpisodeDefinition)
+signal episode_transition_requested(episode: EpisodeDefinition)
 signal episode_finished(episode: EpisodeDefinition)
 signal dialogue_finished(episode: EpisodeDefinition)
 signal exit_requested(exit_id: StringName)
@@ -22,6 +23,7 @@ var _dialogic_node: Node
 var _dialogic_text_subsystem: Node
 var _dialogic_background_subsystem: Node
 var _assigned_stage_host: StageHost
+var _pending_episode: EpisodeDefinition
 
 
 func _ready() -> void:
@@ -88,6 +90,29 @@ func play_episode(episode: EpisodeDefinition) -> bool:
 	if host == null:
 		integration_warning.emit("CampaignPlayer needs a StageHost assigned to 'stage_host'.")
 		return false
+	if (
+		episode.show_title_transition
+		and not get_signal_connection_list(&"episode_transition_requested").is_empty()
+	):
+		_pending_episode = episode
+		episode_transition_requested.emit(episode)
+		return true
+	return _begin_episode(episode)
+
+
+## Called by the application shell after its chapter card has completed.
+func continue_pending_episode(episode: EpisodeDefinition) -> bool:
+	if episode == null or episode != _pending_episode:
+		return false
+	_pending_episode = null
+	return _begin_episode(episode)
+
+
+func _begin_episode(episode: EpisodeDefinition) -> bool:
+	var host := _get_stage_host()
+	if host == null:
+		integration_warning.emit("CampaignPlayer needs a StageHost assigned to 'stage_host'.")
+		return false
 	current_episode = episode
 	if game_state != null:
 		game_state.apply_episode(episode)
@@ -143,6 +168,7 @@ func _close_campaign_state() -> void:
 	if current_episode != null and game_state != null:
 		game_state.end_cutscene()
 	current_episode = null
+	_pending_episode = null
 
 
 func validate_campaign_definition(definition: CampaignDefinition = campaign) -> PackedStringArray:

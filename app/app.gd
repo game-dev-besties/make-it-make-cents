@@ -44,6 +44,7 @@ const HUD_CONTROL_GAP := 10.0
 @onready var return_to_game_button: Button = %ReturnToGameButton
 @onready var status_label: Label = %StatusLabel
 @onready var campaign_player: CampaignPlayer = %CampaignPlayer
+@onready var chapter_transition: ChapterTransition = %ChapterTransition
 @onready var developer_tools: VBoxContainer = %DeveloperTools
 @onready var episode_picker: OptionButton = %EpisodePicker
 @onready var play_episode_button: Button = %PlayEpisodeButton
@@ -66,6 +67,7 @@ func _ready() -> void:
 	campaign_player.set_game_state(game_state)
 	campaign_player.set_dialogic(dialogic_node)
 	campaign_player.episode_started.connect(_on_episode_started)
+	campaign_player.episode_transition_requested.connect(_on_episode_transition_requested)
 	campaign_player.campaign_finished.connect(_on_campaign_finished)
 	campaign_player.campaign_aborted.connect(_on_campaign_aborted)
 	campaign_player.validation_failed.connect(_on_validation_failed)
@@ -146,6 +148,11 @@ func _on_episode_started(episode: EpisodeDefinition) -> void:
 	history_button.visible = _history_box != null and is_instance_valid(_history_box)
 	_on_budget_changed(game_state.remaining_budget(), game_state.remaining_budget())
 	_layout_active_cutscene_header()
+
+
+func _on_episode_transition_requested(episode: EpisodeDefinition) -> void:
+	await chapter_transition.present(episode.title)
+	campaign_player.continue_pending_episode(episode)
 
 
 func _on_campaign_finished() -> void:

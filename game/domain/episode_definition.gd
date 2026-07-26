@@ -5,6 +5,8 @@ extends Resource
 @export var id: StringName
 @export var title := ""
 @export_multiline var description := ""
+## Shows the episode title on the reusable black chapter card before staging it.
+@export var show_title_transition := false
 @export var presentation_scene: PackedScene
 @export_file("*.dtl") var dialogue_timeline_path := ""
 @export_file("*.json") var phrase_data_path := ""

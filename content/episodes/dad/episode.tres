@@ -14,6 +14,7 @@ script = ExtResource("1_episode")
 id = &"dad"
 title = "Chapter 2: Dad's Job Interview"
 description = "Dad goes to a job interview, not yet knowing the Interviewer will become his neighbor."
+show_title_transition = true
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/dad/dialogue.dtl"
 phrase_data_path = "res://content/episodes/dad/phrases.json"
