@@ -21,12 +21,6 @@ var cutscene_sponsor_credit := 0
 var pity_used := false
 var sponsor_used := false
 
-var crush_fondness := 0
-var crush_creeped_out := 0
-var interviewer_impression := 0
-var interviewer_weirded_out := 0
-var doctor_patience := 0
-var doctor_concern := 0
 var intro_grandma_praised_for_silence := false
 var intro_pills_confiscated := false
 var son_success := 5:
@@ -67,12 +61,6 @@ func reset_for_new_game() -> void:
 	sponsor_used = false
 	_cutscene_open = false
 	_values.clear()
-	crush_fondness = 0
-	crush_creeped_out = 0
-	interviewer_impression = 0
-	interviewer_weirded_out = 0
-	doctor_patience = 0
-	doctor_concern = 0
 	intro_grandma_praised_for_silence = false
 	intro_pills_confiscated = false
 	son_success = 5
@@ -244,12 +232,6 @@ func to_dictionary() -> Dictionary:
 		"cutscene_open": _cutscene_open,
 		"pity_used": pity_used,
 		"sponsor_used": sponsor_used,
-		"crush_fondness": crush_fondness,
-		"crush_creeped_out": crush_creeped_out,
-		"interviewer_impression": interviewer_impression,
-		"interviewer_weirded_out": interviewer_weirded_out,
-		"doctor_patience": doctor_patience,
-		"doctor_concern": doctor_concern,
 		"intro_grandma_praised_for_silence": intro_grandma_praised_for_silence,
 		"intro_pills_confiscated": intro_pills_confiscated,
 		"son_success": son_success,
@@ -278,12 +260,6 @@ func load_dictionary(data: Dictionary) -> void:
 	sponsor_used = bool(data.get("sponsor_used", false))
 	if not sponsor_used:
 		cutscene_sponsor_credit = 0
-	crush_fondness = int(data.get("crush_fondness", 0))
-	crush_creeped_out = int(data.get("crush_creeped_out", 0))
-	interviewer_impression = int(data.get("interviewer_impression", 0))
-	interviewer_weirded_out = int(data.get("interviewer_weirded_out", 0))
-	doctor_patience = int(data.get("doctor_patience", 0))
-	doctor_concern = int(data.get("doctor_concern", 0))
 	intro_grandma_praised_for_silence = bool(
 		data.get(
 			"intro_grandma_praised_for_silence",

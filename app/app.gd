@@ -19,11 +19,19 @@ const PAPER_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
 ## while it's open. Keep in sync with that file's HideHistory/HistoryBox rects.
 const HISTORY_MODAL_LEFT_INSET := 74.0
 const HISTORY_MODAL_RING_CLEARANCE := 20.0
-const HISTORY_ROW_TOP := 85.0
-const HISTORY_ROW_BOTTOM := 116.0
+const HISTORY_ROW_TOP := 82.0
+const HISTORY_ROW_BOTTOM := 123.0
 const HISTORY_RETURN_TO_GAME_LEFT_INSET := 313.0
 const BACK_TO_TITLE_GAP := 10.0
-const BACK_TO_TITLE_WIDTH := 150.0
+const HISTORY_CHAPTER_GAP := 16.0
+const BACK_TO_TITLE_WIDTH := 180.0
+const COMPACT_BACK_TO_TITLE_WIDTH := 150.0
+const COMPACT_HISTORY_CHAPTER_TOP := 48.0
+const COMPACT_HISTORY_CHAPTER_BOTTOM := 81.0
+const HISTORY_BUTTON_LEFT_INSET := 104.0
+const HUD_BUTTON_TOP := 7.0
+const COMPACT_RETURN_BUTTON_TOP := 46.0
+const HUD_BUTTON_HEIGHT := 31.0
 
 @onready var title_screen: Control = %TitleScreen
 @onready var start_button: Button = %StartButton
@@ -46,6 +54,7 @@ const BACK_TO_TITLE_WIDTH := 150.0
 
 var _history_box: Control = null
 var _budget_visible_before_history := false
+var _hud_visible_before_history := false
 
 
 func _ready() -> void:
@@ -93,16 +102,19 @@ func _on_play_episode_button_pressed() -> void:
 
 
 func _on_episode_started(episode: EpisodeDefinition) -> void:
-	episode_label.text = episode.title
+	episode_label.text = "CURRENT CHAPTER  /  %s" % episode.title
 	budget_label.show()
 	hud_status_panel.show()
+	back_to_title_button.show()
 	_on_budget_changed(game_state.remaining_budget(), game_state.remaining_budget())
+	_layout_active_cutscene_button()
 
 
 func _on_campaign_finished() -> void:
 	episode_label.text = "The story is complete."
 	budget_label.hide()
 	hud_status_panel.hide()
+	back_to_title_button.hide()
 	title_screen.hide()
 
 
@@ -110,6 +122,7 @@ func _on_campaign_aborted() -> void:
 	episode_label.text = ""
 	budget_label.hide()
 	hud_status_panel.hide()
+	back_to_title_button.hide()
 	title_screen.show()
 	start_button.text = "Play again"
 	start_button.grab_focus()
@@ -197,36 +210,54 @@ func _on_history_opened() -> void:
 	var frame := _story_frame_rect()
 	var compact_history := frame.size.x < 680.0 or frame.size.y < 460.0
 	if compact_history:
-		# Header space is scarce on a phone. Keep the escape action available
-		# without letting three fixed-width controls collide.
+		# Stack chapter identity below the two actions so every control remains
+		# readable on a phone-sized story frame.
 		_budget_visible_before_history = _budget_visible_before_history or budget_label.visible
+		_hud_visible_before_history = _hud_visible_before_history or hud_status_panel.visible
 		budget_label.hide()
-		episode_label.hide()
+		hud_status_panel.hide()
+		episode_label.anchor_left = 0.0
+		episode_label.anchor_right = 0.0
+		episode_label.grow_horizontal = Control.GROW_DIRECTION_END
+		episode_label.offset_left = frame.position.x + 16.0
+		episode_label.offset_right = frame.end.x - 16.0
+		episode_label.offset_top = frame.position.y + COMPACT_HISTORY_CHAPTER_TOP
+		episode_label.offset_bottom = frame.position.y + COMPACT_HISTORY_CHAPTER_BOTTOM
+		episode_label.show()
 		back_to_title_button.anchor_left = 0.0
 		back_to_title_button.anchor_right = 0.0
 		back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
 		back_to_title_button.offset_left = frame.position.x + 16.0
-		back_to_title_button.offset_right = frame.position.x + 166.0
+		back_to_title_button.offset_right = (
+			frame.position.x + 16.0 + COMPACT_BACK_TO_TITLE_WIDTH
+		)
 		back_to_title_button.offset_top = frame.position.y + 8.0
-		back_to_title_button.offset_bottom = frame.position.y + 39.0
+		back_to_title_button.offset_bottom = frame.position.y + 47.0
 		back_to_title_button.show()
 		return
 
+	if _budget_visible_before_history:
+		budget_label.show()
+		_budget_visible_before_history = false
+	if _hud_visible_before_history:
+		hud_status_panel.show()
+		_hud_visible_before_history = false
+	var back_to_title_right := frame.end.x - (HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
+	var back_to_title_left := back_to_title_right - BACK_TO_TITLE_WIDTH
 	episode_label.anchor_left = 0.0
 	episode_label.anchor_right = 0.0
-	episode_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	episode_label.grow_horizontal = Control.GROW_DIRECTION_END
 	episode_label.offset_left = frame.position.x + HISTORY_MODAL_LEFT_INSET + HISTORY_MODAL_RING_CLEARANCE
-	episode_label.offset_right = episode_label.offset_left + 320.0
+	episode_label.offset_right = back_to_title_left - HISTORY_CHAPTER_GAP
 	episode_label.offset_top = frame.position.y + HISTORY_ROW_TOP
 	episode_label.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
 	episode_label.show()
 
-	var back_to_title_right := frame.end.x - (HISTORY_RETURN_TO_GAME_LEFT_INSET + BACK_TO_TITLE_GAP)
 	back_to_title_button.anchor_left = 0.0
 	back_to_title_button.anchor_right = 0.0
 	back_to_title_button.grow_horizontal = Control.GROW_DIRECTION_END
 	back_to_title_button.offset_right = back_to_title_right
-	back_to_title_button.offset_left = back_to_title_right - BACK_TO_TITLE_WIDTH
+	back_to_title_button.offset_left = back_to_title_left
 	back_to_title_button.offset_top = frame.position.y + HISTORY_ROW_TOP
 	back_to_title_button.offset_bottom = frame.position.y + HISTORY_ROW_BOTTOM
 	back_to_title_button.show()
@@ -234,10 +265,17 @@ func _on_history_opened() -> void:
 
 func _on_history_closed() -> void:
 	episode_label.hide()
-	back_to_title_button.hide()
 	if _budget_visible_before_history:
 		budget_label.show()
 	_budget_visible_before_history = false
+	if _hud_visible_before_history:
+		hud_status_panel.show()
+	_hud_visible_before_history = false
+	if campaign_player.current_episode != null:
+		back_to_title_button.show()
+		_layout_active_cutscene_button()
+	else:
+		back_to_title_button.hide()
 
 
 func _apply_responsive_layout() -> void:
@@ -263,6 +301,8 @@ func _apply_responsive_layout() -> void:
 		_layout_inline_hud()
 	if _history_box != null and is_instance_valid(_history_box) and _history_box.visible:
 		_on_history_opened()
+	elif campaign_player.current_episode != null:
+		_layout_active_cutscene_button()
 
 
 ## Fixed-size chip, not proportional to window width: "Money Left: $NNN" only
@@ -293,6 +333,20 @@ func _layout_hud_status() -> void:
 	budget_label.offset_top = frame.position.y + 15.0
 	budget_label.offset_right = frame.position.x + 228.0
 	budget_label.offset_bottom = frame.position.y + 47.0
+
+
+func _layout_active_cutscene_button() -> void:
+	var frame := _story_frame_rect()
+	var compact := frame.size.x < 680.0 or frame.size.y < 460.0
+	var top := COMPACT_RETURN_BUTTON_TOP if compact else HUD_BUTTON_TOP
+	var width := COMPACT_BACK_TO_TITLE_WIDTH if compact else BACK_TO_TITLE_WIDTH
+	var right := frame.end.x - HISTORY_BUTTON_LEFT_INSET - BACK_TO_TITLE_GAP
+	back_to_title_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	back_to_title_button.position = Vector2(
+		right - width,
+		frame.position.y + top,
+	)
+	back_to_title_button.size = Vector2(width, HUD_BUTTON_HEIGHT)
 
 
 func _story_frame_rect() -> Rect2:

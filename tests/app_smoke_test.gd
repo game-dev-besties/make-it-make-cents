@@ -151,6 +151,11 @@ func _test_return_to_title_stops_dialogue() -> void:
 		campaign_player.current_episode != null and _dialogic.current_timeline != null,
 		"Starting a campaign should create an active episode and Dialogic timeline.",
 	)
+	_check(
+		back_to_title_button.visible,
+		"Return to Title should stay available during normal cutscene dialogue.",
+	)
+	await _test_history_header(app, back_to_title_button)
 
 	back_to_title_button.pressed.emit()
 	for _attempt: int in 30:
@@ -169,8 +174,99 @@ func _test_return_to_title_stops_dialogue() -> void:
 		"Returning to title should terminate the active Dialogic timeline.",
 	)
 
+	var developer_tools := app.get_node("%DeveloperTools") as Control
+	if developer_tools.visible:
+		var picker := app.get_node("%EpisodePicker") as OptionButton
+		var grandma_index := _find_picker_item(picker, "grandma")
+		_check(grandma_index >= 0, "The developer launcher should list the Grandma episode.")
+		if grandma_index >= 0:
+			picker.select(grandma_index)
+			(app.get_node("%PlayEpisodeButton") as Button).pressed.emit()
+			for _attempt: int in 30:
+				if (
+					campaign_player.current_episode != null
+					and campaign_player.current_episode.id == &"grandma"
+					and _dialogic.current_timeline != null
+				):
+					break
+				await process_frame
+			_check(
+				campaign_player.current_episode != null
+					and campaign_player.current_episode.id == &"grandma"
+					and _dialogic.current_timeline != null,
+				"Returning to title should allow another cutscene to start without restarting the app.",
+			)
+			_check(
+				back_to_title_button.visible,
+				"Return to Title should remain available in directly launched cutscenes.",
+			)
+
+			back_to_title_button.pressed.emit()
+			for _attempt: int in 30:
+				if _dialogic.current_timeline == null:
+					break
+				await process_frame
+			await process_frame
+			_check(
+				title_screen.visible
+					and campaign_player.current_episode == null
+					and _dialogic.current_timeline == null,
+				"Returning from a directly launched cutscene should restore the reusable title screen.",
+			)
+
 	app.queue_free()
 	await process_frame
+
+
+func _test_history_header(app: Node, back_to_title_button: Button) -> void:
+	var episode_label := app.get_node("%EpisodeLabel") as Label
+	var styles: Object = _dialogic.get_subsystem("Styles")
+	var layout := styles.call("get_layout_node") as Node
+	var history_box := layout.find_child("HistoryBox", true, false) as Control
+	var show_history := layout.find_child("ShowHistory", true, false) as Button
+	var return_to_game := layout.find_child("HideHistory", true, false) as Button
+	_check(
+		history_box != null and show_history != null and return_to_game != null,
+		"The active dialogue layout should expose the history header controls.",
+	)
+	if history_box == null or show_history == null or return_to_game == null:
+		return
+
+	show_history.pressed.emit()
+	for _attempt: int in 10:
+		if history_box.visible and episode_label.visible:
+			break
+		await process_frame
+	_check(history_box.visible, "The History action should open the transcript.")
+	_check(
+		episode_label.visible and episode_label.text.contains("Chapter 1: Welcome to the Country"),
+		"History should identify the active chapter in its header.",
+	)
+	_check(
+		episode_label.get_theme_stylebox(&"normal").resource_path
+			== "res://ui/theme/history_chapter_badge.tres",
+		"The chapter title should use the dedicated history badge treatment.",
+	)
+	_check(
+		back_to_title_button.get_theme_stylebox(&"normal").resource_path
+			== "res://ui/theme/return_to_title_normal.tres",
+		"Return to Title should use a distinct exit treatment.",
+	)
+	var chapter_rect := episode_label.get_global_rect()
+	var exit_rect := back_to_title_button.get_global_rect()
+	var return_rect := return_to_game.get_global_rect()
+	_check(
+		chapter_rect.end.x <= exit_rect.position.x
+			and exit_rect.end.x <= return_rect.position.x,
+		"History header controls should read left-to-right as chapter, exit, and return to game.",
+	)
+
+	return_to_game.pressed.emit()
+	await process_frame
+	_check(
+		not history_box.visible and back_to_title_button.visible,
+		"Closing History should preserve the normal-dialogue Return to Title action.",
+	)
 
 
 func _test_campaign_completion_preserves_final_stage() -> void:

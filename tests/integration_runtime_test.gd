@@ -151,7 +151,7 @@ func _test_state_round_trip() -> void:
 	var original: GameStateStore = GAME_STATE_SCRIPT.new()
 	original.begin_cutscene(10)
 	original.spend(4)
-	original.crush_fondness = 7
+	original.son_success = 7
 	original.dad_silly = 4
 	original.intro_grandma_praised_for_silence = true
 	original.intro_pills_confiscated = true
@@ -164,7 +164,7 @@ func _test_state_round_trip() -> void:
 	var restored: GameStateStore = GAME_STATE_SCRIPT.new()
 	restored.load_dictionary(original.to_dictionary())
 	_check(restored.remaining_budget() == 6, "Serialized state should preserve the active budget.")
-	_check(restored.crush_fondness == 7, "Serialized state should preserve relationship stats.")
+	_check(restored.son_success == 7, "Serialized state should preserve family success stats.")
 	_check(restored.dad_silly == 4, "Serialized state should preserve silly stats.")
 	_check(
 		restored.intro_grandma_praised_for_silence,

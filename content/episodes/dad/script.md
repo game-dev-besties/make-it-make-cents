@@ -10,22 +10,19 @@ if delivery("sponsor"):
 elif kept("have") and kept("no") and kept("experience") and kept_count() == 3:
   interviewer: Tsk, tsk. Not what we are looking for.
   dad.success -= 1
-  interviewer.impression -= 1
 elif kept("fast") and kept_count() == 1:
   interviewer: Ah, I see. Straight to the point.
-  interviewer.impression += 1
+  dad.success += 1
 elif kept("have") and kept("experience") and removed("no") and removed("but") and kept_count() <= 3:
   interviewer: Ah, I see. Straight to the point.
-  interviewer.impression += 1
+  dad.success += 1
 elif kept("have") and kept("but") and removed("experience") and removed("fast") and kept_count() <= 3:
   interviewer: Sir!? That is not something I need to know.
   dad.success -= 2
   dad.silly += 2
-  interviewer.weirded_out += 2
 else:
   interviewer: Hmm. Not sure I understand what you mean.
   dad.success -= 3
-  interviewer.impression -= 2
 
 -> motivation
 
@@ -42,16 +39,13 @@ elif kept("money") and removed("but") and removed("contribute") and kept_count()
 elif kept("contribute") and removed("money") and removed("but") and kept_count() <= 2:
   interviewer: Hmm, yes, your resume seems to agree.
   dad.success += 2
-  interviewer.impression += 2
 elif kept("but") and kept_count() == 1:
   interviewer: Sir, focus less on behinds and more on business.
   dad.success -= 2
   dad.silly += 2
-  interviewer.weirded_out += 2
 else:
   interviewer: Hmm. Not sure I understand what you mean.
   dad.success -= 3
-  interviewer.impression -= 2
 
 -> outcome
 

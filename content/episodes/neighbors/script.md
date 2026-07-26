@@ -4,12 +4,12 @@
 grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
 interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
 
-if crush.fondness >= 4:
+if son.success > 5:
   crush (happy): Wait — you're that sweet kid from the park! Percy!
   son (surprised): [Clementine] [you live here]
   crush (happy): I told you I'd see you tomorrow. Guess it's today!
   -> warm
-elif crush.creeped_out >= 3:
+elif son.silly >= 3:
   crush (nervous): ...You. You're the one from the park, aren't you.
   son (sad): [I'm sorry] [I didn't mean] [to be strange]
   -> chilly
@@ -27,7 +27,7 @@ elif dad.silly >= 3:
   interviewer (happy): And here is our new creative hire. I knew you looked familiar.
   dad (happy): [I look forward] [to Monday]
   -> good_end
-elif interviewer.weirded_out >= 2:
+elif dad.silly >= 2:
   interviewer (confused): Wait — you're the fellow who applied with us. The...
   dad (sad): [The overseller] [yes] [that was me] [I'm sorry]
   -> mixed
@@ -46,7 +46,7 @@ elif dad.silly >= 3:
   interviewer (happy): Our unexpected creative hire. Quite the family.
   dad (happy): [That is us]
   -> mixed
-elif interviewer.weirded_out >= 2:
+elif dad.silly >= 2:
   interviewer (nervous): ...Both of you, quite the impression.
   -> bad_end
 else:

@@ -130,7 +130,7 @@ Stats are declared in `story/stats.json`, then written with a dotted name:
 
 ```md
 dad.success += 2
-interviewer.impression -= 1
+dad.silly += 1
 
 if dad.success > 5:
   interviewer (happy): I think you belong here.

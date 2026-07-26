@@ -16,7 +16,6 @@ STATS = frozenset(
     {
         "dad.success",
         "dad.silly",
-        "interviewer.impression",
     }
 )
 

@@ -48,7 +48,7 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_top = 25
+theme_override_constants/margin_top = 70
 
 [node name="HistoryLog" type="VBoxContainer" parent="HistoryBox/LogMargin"]
 unique_name_in_owner = true
@@ -88,9 +88,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -313.0
-offset_top = 85.0
+offset_top = 82.0
 offset_right = -138.0
-offset_bottom = 116.0
+offset_bottom = 123.0
 grow_horizontal = 0
 size_flags_horizontal = 4
 size_flags_vertical = 4

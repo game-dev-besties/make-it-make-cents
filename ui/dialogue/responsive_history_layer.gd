@@ -31,6 +31,8 @@ func _apply_responsive_layout() -> void:
 		maxf(0.0, frame.size.x - inset * 2.0),
 		maxf(0.0, frame.size.y - history_top - history_bottom),
 	)
+	var log_margin := history_box.get_node("LogMargin") as MarginContainer
+	log_margin.add_theme_constant_override(&"margin_top", 42 if compact else 70)
 
 	var show_button := get_show_history_button()
 	show_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
@@ -42,6 +44,7 @@ func _apply_responsive_layout() -> void:
 	hide_button.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
 	if compact:
 		hide_button.position = frame.position + Vector2(frame.size.x - 191.0, 8.0)
+		hide_button.size = Vector2(175.0, 39.0)
 	else:
-		hide_button.position = frame.position + Vector2(frame.size.x - 313.0, 85.0)
-	hide_button.size = Vector2(175.0, 31.0)
+		hide_button.position = frame.position + Vector2(frame.size.x - 313.0, 82.0)
+		hide_button.size = Vector2(175.0, 41.0)
