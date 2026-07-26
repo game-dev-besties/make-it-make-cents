@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://b27fmeybtbkc2" path="res://content/episodes/intro/customs.png" id="2_customs"]
 [ext_resource type="Texture2D" uid="uid://dfj5hd72bdwbw" path="res://content/episodes/intro/wall.png" id="3_wall"]
 [ext_resource type="Texture2D" uid="uid://8xkkcni4b74t" path="res://content/characters/penny/moneybot.png" id="4_moneybot"]
-[ext_resource type="Texture2D" uid="uid://dw8lfiolcrkpq" path="res://content/characters/crush/neutral.png" id="5_clementine"]
+[ext_resource type="Texture2D" uid="uid://dn6kmt6vjwo3c" path="res://content/characters/crush/intro_aura.webp" id="5_clementine"]
 
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"

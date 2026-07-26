@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vin2aceyhf54"
-path="res://.godot/imported/moneybot-girl-aura.webp-010671d17f1f2f5f1c1d0f6c3b5b117b.ctex"
+uid="uid://dn6kmt6vjwo3c"
+path="res://.godot/imported/intro_aura.webp-b8fe630e1831361b092ba2ce363358d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://content/characters/penny/moneybot-girl-aura.webp"
-dest_files=["res://.godot/imported/moneybot-girl-aura.webp-010671d17f1f2f5f1c1d0f6c3b5b117b.ctex"]
+source_file="res://content/characters/crush/intro_aura.webp"
+dest_files=["res://.godot/imported/intro_aura.webp-b8fe630e1831361b092ba2ce363358d4.ctex"]
 
 [params]
 
