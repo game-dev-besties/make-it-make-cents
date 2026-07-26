@@ -28,11 +28,16 @@ No new general dialogue engine, local-variable system, or custom Chapter 4
 minigame is warranted. One small read-only `budget()` condition helper is
 useful for choosing between the required-jingle and polite-exit paths.
 
-The branch auditor is a tooling limitation rather than a runtime blocker. It
-currently rejects every non-terminal `->` jump, including retry loops. Chapter
-4 therefore relies on compiler validation, the existing content loader check,
-and representative playthroughs instead of adding a bespoke branch-auditor
-implementation.
+The branch auditor needs two general-purpose additions for this chapter:
+
+1. presentation-only directives such as `@speaker_name` must be mechanically
+   ignored; and
+2. goto destinations must be followed with a configurable per-label visit
+   bound, with histories still retrying at the bound excluded from terminal
+   findings and reported separately.
+
+The audit also needs explicit incoming-flag variation so the soda, butts, and
+neutral histories can be covered in one report.
 
 ## What maps directly to the current system
 
@@ -141,9 +146,10 @@ Add `budget()` to writer conditions as a read-only shorthand for
 route a Percy who has opened up and reached `$0` into the required-jingle retry
 loop, while a player who conserved money receives the polite failure exit.
 
-The current auditor still cannot inspect that loop. Extending it to a
-cycle-safe control-flow graph is optional future tooling work, not a Chapter 4
-requirement.
+The auditor follows that loop with bounded control-flow expansion. Its default
+one-visit bound is enough to prove the mechanically distinct exit and retry
+states without pretending that the infinitely many repeated silence histories
+have a finite exact count.
 
 ## Episode and campaign structure
 
@@ -380,9 +386,11 @@ Keep automated coverage focused on the shared behavior:
 - assert the positive-but-unaffordable effective-zero conversion there too;
 - run the existing content resource/timeline validation for the new episode.
 
-No separate Chapter 4 branch-matrix test is necessary. During content review,
-play representative paths for `no`, `baited`, and `yes`, including one
-tariff-empathy path and one positive-but-unaffordable path.
+No separate hand-authored Chapter 4 branch matrix is necessary. The auditor
+varies the four incoming flags and verifies reachability of all 21 prompts and
+the `no`, `baited`, and `yes` outcomes. During content review, still play one
+tariff-empathy path and one positive-but-unaffordable path to check presentation
+and feel.
 
 ### Final validation
 
@@ -391,13 +399,19 @@ Run:
 ```sh
 python3 tools/compile_dialogue.py
 python3 tools/compile_dialogue.py --check
+python3 tools/audit_dialogue.py crush \
+  --expect-phrase-lines 21 \
+  --vary-flag son_defended_self \
+  --vary-flag grandma_ignored \
+  --vary-flag dad_mentioned_family \
+  --vary-flag dad_offended_interviewer
 bash scripts/check.sh
 ```
 
-The general auditor is intentionally omitted because Chapter 4 uses authored
-gotos and a retry loop that it cannot model. Manually confirm the stage
-walk/back-away cues, exact `$3` post-jingle balance, and neighbors callback
-while reviewing the representative endings.
+The audit reports bounded histories separately for `required_jingle` and
+`jingle_confession_answer`; those are intentional retry cycles, not endings.
+Manually confirm the stage walk/back-away cues, exact `$3` post-jingle balance,
+and neighbors callback while reviewing the representative endings.
 
 ## Recommended implementation order
 
