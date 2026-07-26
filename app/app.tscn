@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://cw0f35awdk1hx" path="res://ui/title/player_credits_overlay.png" id="25_player_credits"]
 [ext_resource type="Texture2D" uid="uid://b8v6udeo7gwma" path="res://ui/title/back_overlay.png" id="26_back_overlay"]
 [ext_resource type="PackedScene" path="res://ui/chapter_transition/chapter_transition.tscn" id="27_chapter_transition"]
+[ext_resource type="AudioStream" uid="uid://bbqwtymq1lg6v" path="res://audio/music/legendary_disco_main.mp3" id="28_main_soundtrack"]
 
 [sub_resource type="FontVariation" id="FontVariation_credits_names"]
 base_font = ExtResource("22_credits_font")
@@ -63,6 +64,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_app")
+
+[node name="Soundtrack" type="AudioStreamPlayer" parent="." unique_id=361948351]
+unique_name_in_owner = true
+stream = ExtResource("28_main_soundtrack")
+autoplay = true
+bus = &"Music"
 
 [node name="StageHost" type="Control" parent="." unique_id=1418948598]
 unique_name_in_owner = true

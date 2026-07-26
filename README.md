@@ -28,6 +28,7 @@ Godot export; Production deployments use the normal release export.
 | Backgrounds, actors, props, and animation | `content/episodes/<episode>/stage.tscn` |
 | Dialogue and branches | `content/episodes/<episode>/script.md` |
 | Shared character art | `content/characters/` |
+| Music and authored sound | `audio/music/` and `audio/sfx/` |
 | Reusable UI or stage parts | `ui/` and `game/components/` |
 | Runtime behaviour | `game/runtime/` |
 
@@ -49,6 +50,11 @@ Dialogic remains the presentation layer for typed text, speaker names,
 portraits, expression changes, music, and sound. The custom phrase-cut event
 only pauses that timeline long enough for the player to trim and pay for a
 line.
+
+The main soundtrack is owned by the application shell, so it starts on the
+title screen and loops without restarting at chapter boundaries. It plays on
+the dedicated `Music` bus; episode-specific music and sound cues remain owned
+by Dialogic.
 
 `addons/` is reserved for third-party plugins or true Godot editor plugins.
 Application code belongs in `game/`, and authored game content belongs in
