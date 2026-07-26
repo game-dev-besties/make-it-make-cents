@@ -22,6 +22,7 @@ func _run() -> void:
 	var stage_host := app.get_node_or_null("%StageHost") as StageHost
 	var campaign_player := app.get_node_or_null("%CampaignPlayer") as CampaignPlayer
 	var chapter_transition := app.get_node_or_null("%ChapterTransition") as ChapterTransition
+	var soundtrack := app.get_node_or_null("%Soundtrack") as AudioStreamPlayer
 	var has_startup_path := (
 		start_button != null
 		and stage_host != null
@@ -29,6 +30,15 @@ func _run() -> void:
 		and chapter_transition != null
 	)
 	_check(has_startup_path, "The app should expose its playable startup path.")
+	_check(
+		soundtrack != null
+		and soundtrack.stream is AudioStreamMP3
+		and (soundtrack.stream as AudioStreamMP3).loop
+		and soundtrack.autoplay
+		and soundtrack.bus == &"Music"
+		and AudioServer.get_bus_index(&"Music") >= 0,
+		"The app should continuously play the main soundtrack on the Music bus.",
+	)
 	if has_startup_path:
 		start_button.pressed.emit()
 		await process_frame
