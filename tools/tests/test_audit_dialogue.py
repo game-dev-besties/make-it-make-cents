@@ -4,7 +4,11 @@ import json
 from pathlib import Path
 import unittest
 
-from tools.audit_dialogue import audit_episode, format_delivery_parts
+from tools.audit_dialogue import (
+    audit_episode,
+    format_delivery_part_labels,
+    format_delivery_parts,
+)
 
 
 class PhraseTextFormatterTests(unittest.TestCase):
@@ -15,6 +19,10 @@ class PhraseTextFormatterTests(unittest.TestCase):
         cases = json.loads(fixture_path.read_text(encoding="utf-8"))
         for case in cases:
             with self.subTest(case=case["name"]):
+                self.assertEqual(
+                    format_delivery_part_labels(case["parts"]),
+                    case["expected_parts"],
+                )
                 actual = format_delivery_parts(case["parts"])
                 self.assertEqual(actual, case["expected"])
                 self.assertEqual(format_delivery_parts([actual]), actual)

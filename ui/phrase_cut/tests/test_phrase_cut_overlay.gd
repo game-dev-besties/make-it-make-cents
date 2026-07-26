@@ -209,9 +209,14 @@ func _run() -> void:
 		"the action should carry the initial line cost",
 	)
 	var first_normal_chip := normal_chips[0] as Button
+	var second_normal_chip := normal_chips[1] as Button
 	_assert(
 		first_normal_chip.text == "I have",
 		"a kept phrase should read as part of the sentence without state or cost copy",
+	)
+	_assert(
+		second_normal_chip.text == "learn very fast",
+		"a kept continuation should preserve its authored casing",
 	)
 	_assert(
 		first_normal_chip.tooltip_text.begins_with("I have costs $2."),
@@ -271,8 +276,21 @@ func _run() -> void:
 	space_release.keycode = KEY_SPACE
 	Input.parse_input_event(space_release)
 	await process_frame
+	var second_size_before_cut := second_normal_chip.size
 	first_normal_chip.set_pressed_no_signal(false)
 	first_normal_chip.toggled.emit(false)
+	_assert(
+		second_normal_chip.text == "Learn very fast",
+		"the first retained chip should update to its delivered sentence casing",
+	)
+	_assert(
+		second_normal_chip.tooltip_text.begins_with("Learn very fast costs $3."),
+		"a dynamically formatted chip should keep its tooltip in sync",
+	)
+	_assert(
+		second_normal_chip.size.is_equal_approx(second_size_before_cut),
+		"same-width sentence casing should not resize its chip",
+	)
 	_assert(
 		first_normal_chip.get("_strike_animation_active")
 		and (
@@ -312,6 +330,47 @@ func _run() -> void:
 	_assert(normal.result.cost == 3, "missing phrase cost should be counted from words")
 	_assert(normal.result.kept_ids == ["learner"], "only pressed chip IDs should be kept")
 	normal.queue_free()
+
+	var comma_overlay: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
+	root.add_child(comma_overlay)
+	comma_overlay.setup(
+		[
+			{"type": "phrase", "id": "no", "text": "No,", "cost": 1},
+			{"type": "phrase", "id": "answer", "text": "I don’t", "cost": 2},
+		],
+		3,
+		"Dad",
+	)
+	await process_frame
+	var comma_chips: Array[Node] = comma_overlay.get_node("%Chips").get_children()
+	var no_chip := comma_chips[0] as Button
+	var answer_chip := comma_chips[1] as Button
+	var no_size_before := no_chip.size
+	answer_chip.set_pressed_no_signal(false)
+	comma_overlay.call("_recompute")
+	await process_frame
+	_assert(no_chip.text == "No.", "a retained terminal comma should display as a period")
+	_assert(
+		no_chip.tooltip_text.begins_with("No. costs $1."),
+		"terminal punctuation changes should appear in the kept-chip tooltip",
+	)
+	_assert(
+		answer_chip.text == "I don’t",
+		"a cut chip should retain its original authored text",
+	)
+	_assert(
+		no_chip.size.is_equal_approx(no_size_before),
+		"same-width dynamic punctuation should not resize its chip",
+	)
+	answer_chip.set_pressed_no_signal(true)
+	comma_overlay.call("_recompute")
+	await process_frame
+	_assert(no_chip.text == "No,", "restoring a continuation should restore the internal comma")
+	_assert(
+		no_chip.size.is_equal_approx(no_size_before),
+		"restoring authored punctuation should preserve chip geometry",
+	)
+	comma_overlay.queue_free()
 
 	var over_budget: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
 	root.add_child(over_budget)
@@ -615,6 +674,16 @@ func _test_phrase_text_formatter() -> void:
 		if raw_parts is Array:
 			for raw_part: Variant in raw_parts:
 				parts.append(String(raw_part))
+		var actual_parts: PackedStringArray = PHRASE_TEXT_FORMATTER.format_part_labels(parts)
+		var expected_parts := PackedStringArray()
+		var raw_expected_parts: Variant = test_case.get("expected_parts", [])
+		if raw_expected_parts is Array:
+			for raw_expected_part: Variant in raw_expected_parts:
+				expected_parts.append(String(raw_expected_part))
+		_assert(
+			actual_parts == expected_parts,
+			"phrase formatter labels failed: %s" % String(test_case.get("name", "unnamed")),
+		)
 		var actual: String = PHRASE_TEXT_FORMATTER.format_parts(parts)
 		_assert(
 			actual == String(test_case.get("expected", "")),

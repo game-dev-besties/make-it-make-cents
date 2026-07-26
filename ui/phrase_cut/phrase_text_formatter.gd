@@ -12,6 +12,10 @@ const WORD_BOUNDARIES := " \t\r\n.,!?…;:\"'“”‘’()[]{}"
 
 
 static func format_parts(parts: PackedStringArray) -> String:
+	return " ".join(format_part_labels(parts)).replace("  ", " ").strip_edges()
+
+
+static func format_part_labels(parts: PackedStringArray) -> PackedStringArray:
 	var formatted_parts := PackedStringArray()
 	var capitalize_next := true
 
@@ -24,8 +28,9 @@ static func format_parts(parts: PackedStringArray) -> String:
 		formatted_parts.append(part)
 		capitalize_next = _ends_sentence(part)
 
-	var text := " ".join(formatted_parts).replace("  ", " ").strip_edges()
-	return _replace_terminal_comma(text)
+	if not formatted_parts.is_empty():
+		formatted_parts[-1] = _replace_terminal_comma(formatted_parts[-1])
+	return formatted_parts
 
 
 static func _uppercase_first_cased_character(text: String) -> String:
