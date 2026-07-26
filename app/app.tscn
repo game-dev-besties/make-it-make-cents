@@ -13,6 +13,35 @@
 [ext_resource type="StyleBox" path="res://ui/theme/dropdown_hover.tres" id="13_dropdown_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/hud_control_hover.tres" id="14_hud_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/hud_control_focus.tres" id="15_hud_focus"]
+[ext_resource type="Texture2D" path="res://ui/title/title_backdrop.webp" id="16_title_background"]
+[ext_resource type="FontFile" path="res://ui/title/fonts/Tiny5-Regular.ttf" id="17_title_font"]
+[ext_resource type="Texture2D" path="res://ui/title/title_overlay.png" id="18_title_overlay"]
+[ext_resource type="Texture2D" path="res://ui/title/play_overlay.png" id="19_play_overlay"]
+[ext_resource type="Texture2D" path="res://ui/title/credits_overlay.png" id="20_credits_overlay"]
+[ext_resource type="Script" path="res://ui/title/image_menu_button.gd" id="21_image_button"]
+[ext_resource type="FontFile" path="res://ui/title/fonts/PixelifySans.ttf" id="22_credits_font"]
+[ext_resource type="Texture2D" path="res://ui/title/credits_heading_overlay.png" id="23_credits_heading"]
+[ext_resource type="Script" path="res://ui/title/play_indicator.gd" id="24_play_indicator"]
+[ext_resource type="Texture2D" path="res://ui/title/player_credits_overlay.png" id="25_player_credits"]
+
+[sub_resource type="FontVariation" id="FontVariation_credits_names"]
+base_font = ExtResource("22_credits_font")
+variation_embolden = 0.25
+
+[sub_resource type="StyleBoxEmpty" id="StyleBox_title_menu"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_title_focus"]
+bg_color = Color(1, 1, 1, 0.16)
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
 
 [node name="App" type="Control" unique_id=534022310]
 layout_mode = 3
@@ -149,7 +178,7 @@ text = "Return to Game"
 unique_name_in_owner = true
 script = ExtResource("2_campaign_player")
 
-[node name="TitleScreen" type="CenterContainer" parent="." unique_id=2046593670]
+[node name="TitleScreen" type="Control" parent="." unique_id=2046593670]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -158,76 +187,203 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="TitleScreen" unique_id=97601661]
-custom_minimum_size = Vector2(600, 0)
-layout_mode = 2
-theme_override_styles/panel = ExtResource("5_title_panel")
+[node name="BaseColor" type="ColorRect" parent="TitleScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.654902, 0.862745, 1, 1)
 
-[node name="Margin" type="MarginContainer" parent="TitleScreen/Panel" unique_id=855009928]
-layout_mode = 2
-theme_override_constants/margin_left = 44
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 44
-theme_override_constants/margin_bottom = 40
-
-[node name="VBox" type="VBoxContainer" parent="TitleScreen/Panel/Margin" unique_id=1559394968]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="Title" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=230356689]
-custom_minimum_size = Vector2(1, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
-theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 40
-text = "Money Where Your Mouth Is"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Subtitle" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=214073515]
-custom_minimum_size = Vector2(1, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.361, 0.478, 0.357, 1)
-theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 16
-text = "A conversation game about choosing the words that matter."
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="StartButton" type="Button" parent="TitleScreen/Panel/Margin/VBox" unique_id=1715812916]
+[node name="TitleCanvas" type="Control" parent="TitleScreen"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
-theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = ExtResource("6_primary_button")
-theme_override_styles/pressed = ExtResource("10_primary_hover")
-theme_override_styles/hover = ExtResource("10_primary_hover")
-theme_override_styles/focus = ExtResource("7_focus")
-text = "Start"
+layout_mode = 1
+offset_right = 1152.0
+offset_bottom = 648.0
 
-[node name="DeveloperTools" type="VBoxContainer" parent="TitleScreen/Panel/Margin/VBox" unique_id=438741980]
+[node name="TitleBackground" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("16_title_background")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="TitleArt" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 109.2
+offset_top = 69.6
+offset_right = 639.0
+offset_bottom = 445.8
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("18_title_overlay")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="StartButton" type="TextureButton" parent="TitleScreen/TitleCanvas" unique_id=1715812916]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 267.0
+offset_top = 496.0
+offset_right = 480.0
+offset_bottom = 569.3
+focus_mode = 2
+mouse_default_cursor_shape = 2
+tooltip_text = "Begin the story."
+texture_filter = 1
+texture_normal = ExtResource("19_play_overlay")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("21_image_button")
+
+[node name="PlayIndicator" type="Label" parent="TitleScreen/TitleCanvas"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 212.0
+offset_top = 496.0
+offset_right = 260.0
+offset_bottom = 569.3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.807843, 0.396078, 0.152941, 1)
+theme_override_colors/font_outline_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = SubResource("FontVariation_credits_names")
+theme_override_font_sizes/font_size = 50
+text = ">"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("24_play_indicator")
+
+[node name="CreditsHeading" type="TextureRect" parent="TitleScreen/TitleCanvas"]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
+layout_mode = 0
+offset_left = 211.4
+offset_top = 82.0
+offset_right = 488.6
+offset_bottom = 152.2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("23_credits_heading")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="CreditsBody" type="TextureRect" parent="TitleScreen/TitleCanvas"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 185.0
+offset_right = 670.0
+offset_bottom = 377.9
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("25_player_credits")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="StatusLabel" type="Label" parent="TitleScreen/TitleCanvas" unique_id=557643815]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 100.0
+offset_top = 607.0
+offset_right = 655.0
+offset_bottom = 648.0
+theme_override_colors/font_color = Color(0.745098, 0.25098, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("17_title_font")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="PennybotCredits" type="Control" parent="TitleScreen/TitleCanvas"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 716.0
+offset_top = 354.0
+offset_right = 974.0
+offset_bottom = 504.0
+rotation = 0.139626
+pivot_offset = Vector2(129, 75)
+mouse_filter = 2
+
+[node name="CreditsButton" type="TextureButton" parent="TitleScreen/TitleCanvas/PennybotCredits"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 41.6
+offset_top = 96.6
+offset_right = 226.4
+offset_bottom = 143.4
+focus_mode = 2
+mouse_default_cursor_shape = 2
+tooltip_text = "View the credits."
+texture_filter = 1
+texture_normal = ExtResource("20_credits_overlay")
+ignore_texture_size = true
+stretch_mode = 0
+script = ExtResource("21_image_button")
+
+[node name="CreditsBackButton" type="Button" parent="TitleScreen/TitleCanvas/PennybotCredits"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 57.0
+offset_top = 91.0
+offset_right = 211.0
+offset_bottom = 149.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.745098, 0.25098, 0, 1)
+theme_override_colors/font_hover_color = Color(0.913725, 0.309804, 0, 1)
+theme_override_colors/font_outline_color = Color(0.0352941, 0.0352941, 0.054902, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("17_title_font")
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBox_title_menu")
+theme_override_styles/pressed = SubResource("StyleBox_title_focus")
+theme_override_styles/hover = SubResource("StyleBox_title_menu")
+theme_override_styles/focus = SubResource("StyleBox_title_focus")
+text = "BACK"
+
+[node name="DeveloperTools" type="VBoxContainer" parent="TitleScreen" unique_id=438741980]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.73
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.3
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 8
 
-[node name="Separator" type="HSeparator" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1162151089]
+[node name="Separator" type="HSeparator" parent="TitleScreen/DeveloperTools" unique_id=1162151089]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1809211383]
+[node name="Label" type="Label" parent="TitleScreen/DeveloperTools" unique_id=1809211383]
 custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.545098, 0.588235, 0.517647, 1)
+theme_override_colors/font_color = Color(0.0745098, 0.247059, 0.345098, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 14
 text = "Developer playtest — debug builds only"
 autowrap_mode = 2
 
-[node name="EpisodePicker" type="OptionButton" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=1485440068]
+[node name="EpisodePicker" type="OptionButton" parent="TitleScreen/DeveloperTools" unique_id=1485440068]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Start directly at an episode without changing the campaign's normal opening."
@@ -245,7 +401,7 @@ theme_override_styles/disabled = ExtResource("12_dropdown_normal")
 theme_override_styles/focus = ExtResource("7_focus")
 fit_to_longest_item = false
 
-[node name="PlayEpisodeButton" type="Button" parent="TitleScreen/Panel/Margin/VBox/DeveloperTools" unique_id=152920818]
+[node name="PlayEpisodeButton" type="Button" parent="TitleScreen/DeveloperTools" unique_id=152920818]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
@@ -261,17 +417,10 @@ theme_override_styles/hover = ExtResource("10_primary_hover")
 theme_override_styles/focus = ExtResource("7_focus")
 text = "Play selected episode"
 
-[node name="StatusLabel" type="Label" parent="TitleScreen/Panel/Margin/VBox" unique_id=557643815]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(1, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.658824, 0.25098, 0.184314, 1)
-theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 14
-autowrap_mode = 2
-
 [connection signal="pressed" from="HistoryControls/BackToTitleButton" to="." method="_on_back_to_title_button_pressed"]
 [connection signal="pressed" from="HistoryControls/HistoryButton" to="." method="_on_history_button_pressed"]
 [connection signal="pressed" from="HistoryControls/ReturnToGameButton" to="." method="_on_return_to_game_button_pressed"]
-[connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/StartButton" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="TitleScreen/Panel/Margin/VBox/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]
+[connection signal="pressed" from="TitleScreen/TitleCanvas/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="TitleScreen/TitleCanvas/PennybotCredits/CreditsButton" to="." method="_on_credits_button_pressed"]
+[connection signal="pressed" from="TitleScreen/TitleCanvas/PennybotCredits/CreditsBackButton" to="." method="_on_credits_back_button_pressed"]
+[connection signal="pressed" from="TitleScreen/DeveloperTools/PlayEpisodeButton" to="." method="_on_play_episode_button_pressed"]

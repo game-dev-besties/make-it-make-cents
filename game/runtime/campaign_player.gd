@@ -133,6 +133,9 @@ func abort_campaign() -> void:
 	var dialogic_handler := _dialogic_node as DialogicGameHandler
 	if dialogic_handler != null and dialogic_handler.current_timeline != null:
 		await dialogic_handler.end_timeline(true)
+	var host := _get_stage_host()
+	if host != null:
+		host.clear_presentation()
 	campaign_aborted.emit()
 
 

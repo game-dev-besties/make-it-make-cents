@@ -3,10 +3,7 @@ extends Control
 ## CampaignPlayer and visual content lives in episode stage scenes.
 
 const CAMPAIGN := preload("res://content/campaign/campaign.tres")
-const TITLE_PANEL_MAX_WIDTH := 600.0
-const TITLE_PANEL_GUTTER := 16.0
-const TITLE_COMPACT_WIDTH := 520.0
-const TITLE_COMPACT_HEIGHT := 520.0
+const TITLE_CANVAS_SIZE := Vector2(1152.0, 648.0)
 const HUD_STACK_WIDTH := 880.0
 const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 const DEPARTURE_MONO := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
@@ -35,7 +32,10 @@ const HUD_RIGHT_MARGIN := 20.0
 const HUD_CONTROL_GAP := 10.0
 
 @onready var title_screen: Control = %TitleScreen
-@onready var start_button: Button = %StartButton
+@onready var start_button: TextureButton = %StartButton
+@onready var play_indicator: Label = %PlayIndicator
+@onready var credits_button: TextureButton = %CreditsButton
+@onready var credits_back_button: Button = %CreditsBackButton
 @onready var hud_status_panel: Panel = %HudStatusPanel
 @onready var episode_label: Label = %EpisodeLabel
 @onready var budget_label: Label = %BudgetLabel
@@ -49,15 +49,16 @@ const HUD_CONTROL_GAP := 10.0
 @onready var play_episode_button: Button = %PlayEpisodeButton
 @onready var game_state: GameStateStore = get_node("/root/GameStats") as GameStateStore
 @onready var dialogic_node: Node = get_node("/root/Dialogic")
-@onready var title_panel: PanelContainer = $TitleScreen/Panel
-@onready var title_margin: MarginContainer = $TitleScreen/Panel/Margin
-@onready var title_vbox: VBoxContainer = $TitleScreen/Panel/Margin/VBox
-@onready var title_label: Label = $TitleScreen/Panel/Margin/VBox/Title
-@onready var subtitle_label: Label = $TitleScreen/Panel/Margin/VBox/Subtitle
+@onready var title_canvas: Control = %TitleCanvas
+@onready var title_art: TextureRect = %TitleArt
+@onready var pennybot_credits: Control = %PennybotCredits
+@onready var credits_heading: TextureRect = %CreditsHeading
+@onready var credits_body: Control = %CreditsBody
 
 var _history_box: Control = null
 var _budget_visible_before_history := false
 var _hud_visible_before_history := false
+var _credits_active := false
 
 
 func _ready() -> void:
@@ -75,7 +76,6 @@ func _ready() -> void:
 	_ensure_history_box_connection()
 	resized.connect(_apply_responsive_layout)
 	_apply_responsive_layout()
-	start_button.grab_focus()
 
 
 ## episode_started fires before Dialogic actually mounts the style layout
@@ -91,6 +91,38 @@ func _on_start_button_pressed() -> void:
 	status_label.text = ""
 	if campaign_player.start_campaign(CAMPAIGN):
 		title_screen.hide()
+
+
+func _on_credits_button_pressed() -> void:
+	_credits_active = true
+	title_art.hide()
+	start_button.hide()
+	play_indicator.hide()
+	credits_button.hide()
+	credits_heading.show()
+	credits_body.show()
+	credits_back_button.show()
+
+
+func _show_main_title() -> void:
+	_credits_active = false
+	title_art.show()
+	start_button.show()
+	play_indicator.show()
+	credits_button.show()
+	credits_heading.hide()
+	credits_body.hide()
+	credits_back_button.hide()
+
+
+func _on_credits_back_button_pressed() -> void:
+	_show_main_title()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _credits_active and event.is_action_pressed(&"ui_cancel"):
+		_show_main_title()
+		get_viewport().set_input_as_handled()
 
 
 func _on_play_episode_button_pressed() -> void:
@@ -134,8 +166,7 @@ func _on_campaign_aborted() -> void:
 	history_button.hide()
 	return_to_game_button.hide()
 	title_screen.show()
-	start_button.text = "Play again"
-	start_button.grab_focus()
+	_show_main_title()
 
 
 func _on_back_to_title_button_pressed() -> void:
@@ -289,21 +320,16 @@ func _on_history_closed() -> void:
 
 
 func _apply_responsive_layout() -> void:
-	var panel_width := minf(TITLE_PANEL_MAX_WIDTH, maxf(0.0, size.x - TITLE_PANEL_GUTTER * 2.0))
-	title_panel.custom_minimum_size.x = panel_width
-
-	var compact_title := size.x < TITLE_COMPACT_WIDTH or size.y < TITLE_COMPACT_HEIGHT
-	var horizontal_margin := 20 if compact_title else 44
-	var vertical_margin := 16 if compact_title else 40
-	title_margin.add_theme_constant_override(&"margin_left", horizontal_margin)
-	title_margin.add_theme_constant_override(&"margin_top", vertical_margin)
-	title_margin.add_theme_constant_override(&"margin_right", horizontal_margin)
-	title_margin.add_theme_constant_override(&"margin_bottom", vertical_margin)
-	title_vbox.add_theme_constant_override(&"separation", 10 if compact_title else 18)
-	developer_tools.add_theme_constant_override(&"separation", 6 if compact_title else 8)
-	title_label.add_theme_font_size_override(&"font_size", 32 if compact_title else 44)
-	subtitle_label.add_theme_font_size_override(&"font_size", 16 if compact_title else 18)
-	start_button.add_theme_font_size_override(&"font_size", 20 if compact_title else 22)
+	var title_scale := minf(
+		size.x / TITLE_CANVAS_SIZE.x,
+		size.y / TITLE_CANVAS_SIZE.y,
+	)
+	var scaled_title_size := TITLE_CANVAS_SIZE * title_scale
+	title_canvas.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	title_canvas.position = (size - scaled_title_size) * 0.5
+	title_canvas.size = TITLE_CANVAS_SIZE
+	title_canvas.scale = Vector2.ONE * title_scale
+	pennybot_credits.pivot_offset = pennybot_credits.size * 0.5
 
 	if size.x < HUD_STACK_WIDTH:
 		_layout_stacked_hud()
