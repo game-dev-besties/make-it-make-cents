@@ -27,6 +27,8 @@ const COMPANION_SIZE := Vector2(286.0, 342.0)
 const COMPANION_EDGE_PADDING := 4.0
 const COMPANION_CURSOR_RADIUS_X := 260.0
 const COMPANION_CURSOR_RADIUS_Y := 225.0
+const COMPANION_WORD_RECOIL_CLEARANCE := 30.0
+const COMPANION_MIN_LUNGE_TRAVEL := 36.0
 const COMPANION_FOLLOW_SPEED := 7.0
 const COMPANION_RETURN_SPEED := 4.5
 const COMPANION_RETURN_DELAY := 0.3
@@ -36,6 +38,11 @@ const COMPANION_MAX_TILT := 0.0872665
 const COMPANION_TILT_PER_SPEED := 0.00016
 const COMPANION_TILT_SPRING := 46.0
 const COMPANION_TILT_DAMPING := 7.0
+const COMPANION_IMPACT_OVERLAP := 36.0
+const COMPANION_PEAK_ALIGN_TIME := 0.08
+const COMPANION_LUNGE_TIME := 0.13
+const COMPANION_RECOIL_TIME := 0.22
+const COMPANION_PEAK_HOLD_TIME := 0.07
 const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
@@ -60,6 +67,10 @@ var _has_companion_target := false
 var _companion_angular_velocity := 0.0
 var _companion_hover_time := 0.0
 var _companion_return_delay_remaining := 0.0
+var _companion_velocity_sample_position := Vector2.ZERO
+var _is_companion_acting := false
+var _companion_action_tween: Tween
+var _pending_action_chip: Button
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
@@ -95,41 +106,43 @@ func _process(delta: float) -> void:
 	if not _has_companion_target:
 		_companion_follow_position = _companion_home_position()
 		_moneybot_companion.global_position = _companion_follow_position
+		_companion_velocity_sample_position = _companion_follow_position
 		_has_companion_target = true
-	var is_over_word := _cursor_is_over_word(cursor_position)
-	var movement_speed := COMPANION_FOLLOW_SPEED
-	if is_over_word:
-		_companion_return_delay_remaining = COMPANION_RETURN_DELAY
-		_companion_target_position = _companion_target_for_cursor(
-			cursor_position,
-			_companion_follow_position,
+	if not _is_companion_acting:
+		var is_over_word := _cursor_is_over_word(cursor_position)
+		var movement_speed := COMPANION_FOLLOW_SPEED
+		if is_over_word:
+			_companion_return_delay_remaining = COMPANION_RETURN_DELAY
+			_companion_target_position = _companion_target_for_cursor(
+				cursor_position,
+				_companion_follow_position,
+			)
+		elif _companion_return_delay_remaining > 0.0:
+			_companion_return_delay_remaining = maxf(
+				0.0,
+				_companion_return_delay_remaining - delta,
+			)
+			_companion_target_position = _companion_follow_position
+		else:
+			movement_speed = COMPANION_RETURN_SPEED
+			_companion_target_position = _companion_home_position()
+		var follow_weight := 1.0 - exp(-movement_speed * delta)
+		_companion_follow_position = _clamped_companion_position(
+			_companion_follow_position.lerp(
+				_companion_target_position,
+				follow_weight,
+			),
 		)
-	elif _companion_return_delay_remaining > 0.0:
-		_companion_return_delay_remaining = maxf(
-			0.0,
-			_companion_return_delay_remaining - delta,
-		)
-		_companion_target_position = _companion_follow_position
-	else:
-		movement_speed = COMPANION_RETURN_SPEED
-		_companion_target_position = _companion_home_position()
-	var follow_weight := 1.0 - exp(-movement_speed * delta)
-	var previous_follow_position := _companion_follow_position
-	_companion_follow_position = _clamped_companion_position(
-		_companion_follow_position.lerp(
-			_companion_target_position,
-			follow_weight,
-		),
-	)
 	_companion_hover_time += delta
 	_moneybot_companion.global_position = _clamped_companion_position(
 		_companion_follow_position + _companion_hover_offset_at(_companion_hover_time),
 	)
 	var safe_delta := maxf(delta, 0.001)
 	var velocity := (
-		(_companion_follow_position - previous_follow_position)
+		(_companion_follow_position - _companion_velocity_sample_position)
 		/ safe_delta
 	)
+	_companion_velocity_sample_position = _companion_follow_position
 	var target_tilt := clampf(
 		velocity.x * COMPANION_TILT_PER_SPEED,
 		-COMPANION_MAX_TILT,
@@ -220,7 +233,7 @@ func _rebuild() -> void:
 		chip.text = String(segment.get("text", ""))
 		chip.button_pressed = true
 		chip.set_meta("segment_index", segment_index)
-		chip.toggled.connect(_on_chip_toggled)
+		chip.toggled.connect(_on_chip_toggled.bind(chip))
 		_chips.add_child(chip)
 		_phrase_buttons.append(chip)
 
@@ -248,8 +261,224 @@ func _rebuild() -> void:
 	call_deferred("_position_companion")
 
 
-func _on_chip_toggled(_pressed: bool) -> void:
+func _on_chip_toggled(pressed: bool, chip: Button) -> void:
 	_recompute()
+	_play_chip_action(chip, not pressed)
+
+
+func _play_chip_action(chip: Button, is_cut: bool) -> void:
+	if not is_instance_valid(chip):
+		return
+	if is_instance_valid(_companion_action_tween):
+		_companion_action_tween.kill()
+		if is_instance_valid(_pending_action_chip):
+			_pending_action_chip.call("play_prepared_strike")
+		_companion_action_tween = null
+		_pending_action_chip = null
+		_is_companion_acting = false
+	var word_rect := chip.get_global_rect()
+	var word_center := word_rect.get_center()
+	var start_position := _companion_follow_position
+	var recoil_peak_position := _closest_recoil_peak(word_rect, start_position)
+	var recoil_peak_center := recoil_peak_position + COMPANION_SIZE * 0.5
+	var travel_direction := recoil_peak_center.direction_to(word_center)
+	if travel_direction.is_zero_approx():
+		travel_direction = Vector2.LEFT
+	var left_to_right := travel_direction.x >= 0.0
+	chip.call("prepare_strike_animation", is_cut, left_to_right)
+
+	if not _moneybot_companion.visible:
+		chip.call("play_prepared_strike")
+		_spawn_impact_sparks(
+			_word_impact_point(word_rect, travel_direction),
+			travel_direction,
+		)
+		return
+
+	_is_companion_acting = true
+	_pending_action_chip = chip
+	var impact_position := _companion_impact_position(word_rect, travel_direction)
+	var impact_point := _word_impact_point(word_rect, travel_direction)
+
+	_companion_action_tween = create_tween()
+	_companion_action_tween.tween_method(
+		_set_companion_follow_position,
+		start_position,
+		recoil_peak_position,
+		COMPANION_PEAK_ALIGN_TIME,
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_companion_action_tween.tween_method(
+		_set_companion_follow_position,
+		recoil_peak_position,
+		impact_position,
+		COMPANION_LUNGE_TIME,
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_companion_action_tween.tween_callback(
+		_on_chip_impact.bind(chip, impact_point, travel_direction),
+	)
+	_companion_action_tween.tween_method(
+		_set_companion_follow_position,
+		impact_position,
+		recoil_peak_position,
+		COMPANION_RECOIL_TIME,
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_companion_action_tween.tween_interval(COMPANION_PEAK_HOLD_TIME)
+	_companion_action_tween.tween_callback(_finish_companion_action)
+
+
+func _set_companion_follow_position(companion_position: Vector2) -> void:
+	_companion_follow_position = companion_position
+
+
+func _companion_impact_position(word_rect: Rect2, travel_direction: Vector2) -> Vector2:
+	var expanded_half_size := (
+		word_rect.size * 0.5
+		+ COMPANION_SIZE * 0.5
+		- Vector2.ONE * COMPANION_IMPACT_OVERLAP
+	)
+	var distance_x := (
+		INF
+		if is_zero_approx(travel_direction.x)
+		else expanded_half_size.x / absf(travel_direction.x)
+	)
+	var distance_y := (
+		INF
+		if is_zero_approx(travel_direction.y)
+		else expanded_half_size.y / absf(travel_direction.y)
+	)
+	var impact_center := word_rect.get_center() - travel_direction * minf(distance_x, distance_y)
+	return _clamped_companion_position(impact_center - COMPANION_SIZE * 0.5)
+
+
+func _closest_recoil_peak(word_rect: Rect2, current_position: Vector2) -> Vector2:
+	var recoil_radii := _word_recoil_radii(word_rect)
+	var word_center := word_rect.get_center()
+	var current_center := current_position + COMPANION_SIZE * 0.5
+	var preferred_direction := word_center.direction_to(current_center)
+	if preferred_direction.is_zero_approx():
+		preferred_direction = Vector2.RIGHT
+
+	var best_position := _clamped_companion_position(
+		word_center
+		+ _ellipse_offset(preferred_direction, recoil_radii)
+		- COMPANION_SIZE * 0.5,
+	)
+	var best_distance := INF
+	var fallback_position := best_position
+	var fallback_attack_travel := 0.0
+	for sample_index: int in 33:
+		var recoil_direction := (
+			preferred_direction
+			if sample_index == 0
+			else Vector2.RIGHT.rotated(TAU * float(sample_index - 1) / 32.0)
+		)
+		var target_center := (
+			word_center
+			+ _ellipse_offset(recoil_direction, recoil_radii)
+		)
+		var candidate := _clamped_companion_position(
+			target_center - COMPANION_SIZE * 0.5,
+		)
+		var candidate_center := candidate + COMPANION_SIZE * 0.5
+		var distance_to_current := candidate.distance_to(current_position)
+		var achieved_radius := Vector2(
+			(candidate_center.x - word_center.x) / recoil_radii.x,
+			(candidate_center.y - word_center.y) / recoil_radii.y,
+		).length()
+		var attack_direction := candidate_center.direction_to(word_center)
+		if attack_direction.is_zero_approx():
+			attack_direction = Vector2.LEFT
+		var candidate_impact := _companion_impact_position(word_rect, attack_direction)
+		var attack_travel := candidate.distance_to(candidate_impact)
+		if attack_travel > fallback_attack_travel:
+			fallback_attack_travel = attack_travel
+			fallback_position = candidate
+		if (
+			achieved_radius >= 0.8
+			and attack_travel >= COMPANION_MIN_LUNGE_TRAVEL
+			and distance_to_current < best_distance
+		):
+			best_distance = distance_to_current
+			best_position = candidate
+	return fallback_position if is_inf(best_distance) else best_position
+
+
+func _word_recoil_radii(word_rect: Rect2) -> Vector2:
+	return Vector2(
+		maxf(
+			COMPANION_CURSOR_RADIUS_X,
+			word_rect.size.x * 0.5
+			+ COMPANION_SIZE.x * 0.5
+			+ COMPANION_WORD_RECOIL_CLEARANCE,
+		),
+		maxf(
+			COMPANION_CURSOR_RADIUS_Y,
+			word_rect.size.y * 0.5
+			+ COMPANION_SIZE.y * 0.5
+			+ COMPANION_WORD_RECOIL_CLEARANCE,
+		),
+	)
+
+
+func _word_impact_point(word_rect: Rect2, travel_direction: Vector2) -> Vector2:
+	var half_size := word_rect.size * 0.5
+	var distance_x := (
+		INF
+		if is_zero_approx(travel_direction.x)
+		else half_size.x / absf(travel_direction.x)
+	)
+	var distance_y := (
+		INF
+		if is_zero_approx(travel_direction.y)
+		else half_size.y / absf(travel_direction.y)
+	)
+	return word_rect.get_center() - travel_direction * minf(distance_x, distance_y)
+
+
+func _on_chip_impact(
+	chip: Button,
+	impact_point: Vector2,
+	travel_direction: Vector2,
+) -> void:
+	if is_instance_valid(chip):
+		chip.call("play_prepared_strike")
+	if chip == _pending_action_chip:
+		_pending_action_chip = null
+	_spawn_impact_sparks(impact_point, travel_direction)
+
+
+func _spawn_impact_sparks(impact_point: Vector2, travel_direction: Vector2) -> void:
+	var spark_directions: Array[Vector2] = [
+		-travel_direction.rotated(-0.55),
+		-travel_direction,
+		-travel_direction.rotated(0.55),
+	]
+	for spark_index: int in spark_directions.size():
+		var spark := ColorRect.new()
+		spark.z_index = 6
+		spark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spark.color = Color(0.917647, 0.498039, 0.345098, 1.0)
+		spark.size = Vector2(4.0, 4.0) if spark_index != 1 else Vector2(5.0, 5.0)
+		add_child(spark)
+		spark.global_position = impact_point - spark.size * 0.5
+		var spark_distance := 22.0 + float(spark_index % 2) * 8.0
+		var spark_tween := create_tween()
+		spark_tween.tween_property(
+			spark,
+			"global_position",
+			spark.global_position + spark_directions[spark_index] * spark_distance,
+			0.18,
+		).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		var transparent := spark.modulate
+		transparent.a = 0.0
+		spark_tween.parallel().tween_property(spark, "modulate", transparent, 0.18)
+		spark_tween.tween_callback(spark.queue_free)
+
+
+func _finish_companion_action() -> void:
+	_is_companion_acting = false
+	_companion_action_tween = null
+	_pending_action_chip = null
 
 
 func _assemble() -> String:
@@ -376,6 +605,13 @@ func _update_panel_width() -> void:
 	_moneybot_companion.visible = show_companion
 	_moneybot_icon.visible = not show_companion
 	if not show_companion:
+		if is_instance_valid(_companion_action_tween):
+			_companion_action_tween.kill()
+		if is_instance_valid(_pending_action_chip):
+			_pending_action_chip.call("play_prepared_strike")
+		_companion_action_tween = null
+		_pending_action_chip = null
+		_is_companion_acting = false
 		_has_companion_target = false
 		_companion_angular_velocity = 0.0
 		_companion_hover_time = 0.0
@@ -442,15 +678,22 @@ func _companion_target_for_cursor(
 ) -> Vector2:
 	var current_center := current_position + COMPANION_SIZE * 0.5
 	var away_from_cursor := current_center - cursor_position
-	var target_offset := Vector2(COMPANION_CURSOR_RADIUS_X, 0.0)
-	if not away_from_cursor.is_zero_approx():
-		var ellipse_distance := Vector2(
-			away_from_cursor.x / COMPANION_CURSOR_RADIUS_X,
-			away_from_cursor.y / COMPANION_CURSOR_RADIUS_Y,
-		).length()
-		target_offset = away_from_cursor / ellipse_distance
+	var target_offset := _ellipse_offset(
+		away_from_cursor,
+		Vector2(COMPANION_CURSOR_RADIUS_X, COMPANION_CURSOR_RADIUS_Y),
+	)
 	var target_center := cursor_position + target_offset
 	return _clamped_companion_position(target_center - COMPANION_SIZE * 0.5)
+
+
+func _ellipse_offset(direction: Vector2, radii: Vector2) -> Vector2:
+	if direction.is_zero_approx():
+		return Vector2(radii.x, 0.0)
+	var ellipse_distance := Vector2(
+		direction.x / radii.x,
+		direction.y / radii.y,
+	).length()
+	return direction / ellipse_distance
 
 
 func _companion_hover_offset_at(hover_time: float) -> Vector2:

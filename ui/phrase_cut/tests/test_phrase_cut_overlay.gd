@@ -116,6 +116,79 @@ func _run() -> void:
 		normal.call("_cursor_is_over_word", first_word_rect.get_center()),
 		"hovering a phrase should activate Moneybot's cursor-follow behavior",
 	)
+	var home_position: Vector2 = normal.call("_companion_home_position")
+	var recoil_peak: Vector2 = normal.call(
+		"_closest_recoil_peak",
+		first_word_rect,
+		home_position,
+	)
+	var first_word_recoil_radii: Vector2 = normal.call(
+		"_word_recoil_radii",
+		first_word_rect,
+	)
+	var recoil_peak_center := recoil_peak + companion_size * 0.5
+	var recoil_radius := Vector2(
+		(recoil_peak_center.x - first_word_rect.get_center().x) / first_word_recoil_radii.x,
+		(recoil_peak_center.y - first_word_rect.get_center().y) / first_word_recoil_radii.y,
+	).length()
+	_assert(
+		recoil_radius >= 0.8,
+		"Moneybot should choose a reachable recoil peak around the word",
+	)
+	var impact_direction := recoil_peak_center.direction_to(
+		first_word_rect.get_center(),
+	)
+	var impact_position: Vector2 = normal.call(
+		"_companion_impact_position",
+		first_word_rect,
+		impact_direction,
+	)
+	_assert(
+		Rect2(impact_position, companion_size).intersects(first_word_rect),
+		"Moneybot should visibly overlap the word block at impact",
+	)
+	var top_edge_word := Rect2(
+		Vector2(normal.size.x * 0.5 - 60.0, 150.0),
+		Vector2(120.0, 46.0),
+	)
+	var top_edge_impact: Vector2 = normal.call(
+		"_companion_impact_position",
+		top_edge_word,
+		Vector2.DOWN,
+	)
+	var top_edge_recoil_peak: Vector2 = normal.call(
+		"_closest_recoil_peak",
+		top_edge_word,
+		top_edge_impact,
+	)
+	_assert(
+		top_edge_recoil_peak.distance_to(top_edge_impact) >= 48.0,
+		"Moneybot should choose an angled recoil peak when directly above is blocked",
+	)
+	var wide_word := Rect2(Vector2(240.0, 280.0), Vector2(680.0, 46.0))
+	var wide_word_radii: Vector2 = normal.call("_word_recoil_radii", wide_word)
+	_assert(
+		wide_word_radii.x > 260.0
+		and is_equal_approx(wide_word_radii.y, 225.0),
+		"wide word blocks should expand the horizontal recoil ellipse",
+	)
+	var wide_peak: Vector2 = normal.call(
+		"_closest_recoil_peak",
+		wide_word,
+		home_position,
+	)
+	var wide_attack_direction := (
+		wide_peak + companion_size * 0.5
+	).direction_to(wide_word.get_center())
+	var wide_impact: Vector2 = normal.call(
+		"_companion_impact_position",
+		wide_word,
+		wide_attack_direction,
+	)
+	_assert(
+		wide_peak.distance_to(wide_impact) >= 36.0,
+		"wide word blocks should choose an approach with visible lunge distance",
+	)
 	_assert(
 		not normal.call("_cursor_is_over_word", budget_rect.get_center()),
 		"Moneybot should return home when the cursor is not over a phrase",
@@ -155,6 +228,7 @@ func _run() -> void:
 		panel_luminance - first_normal_chip.get_theme_color("font_color").get_luminance()
 	)
 	var cut_color := first_normal_chip.get_theme_color("font_color")
+	var kept_color := first_normal_chip.get_theme_color("font_pressed_color")
 	_assert(
 		pressed_contrast > cut_contrast,
 		"spoken text should carry stronger contrast than struck-through text",
@@ -196,6 +270,24 @@ func _run() -> void:
 	await process_frame
 	first_normal_chip.set_pressed_no_signal(false)
 	first_normal_chip.toggled.emit(false)
+	_assert(
+		first_normal_chip.get("_strike_animation_active")
+		and (
+			normal.get("_is_companion_acting")
+			or not normal.get_node("%MoneybotCompanion").visible
+		),
+		"cutting a phrase should stage a synchronized Moneybot strike",
+	)
+	_assert(
+		first_normal_chip.get_theme_color("font_color").is_equal_approx(kept_color),
+		"the word should retain its kept color until Moneybot makes contact",
+	)
+	first_normal_chip.call("play_prepared_strike")
+	_assert(
+		first_normal_chip.get_theme_color("font_color").is_equal_approx(cut_color)
+		and first_normal_chip.get_theme_color("font_hover_color").is_equal_approx(cut_color),
+		"the word should change to its cut color at Moneybot's impact",
+	)
 	_assert(
 		first_normal_chip.text == "I have",
 		"cutting a phrase should preserve the sentence text for the strike-through treatment",
