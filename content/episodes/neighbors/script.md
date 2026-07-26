@@ -2,7 +2,7 @@
 
 @speaker_name crush "Clementine"
 @speaker_name penny "Pennybot 3000"
-@background res://content/episodes/neighbors/leiton_home.webp
+@background res://content/episodes/neighbors/family_house.png
 
 dad (neutral): Alright, everybody, how was your day?
 dad (nervous): Oh, wait! No time for talk! We’re late to the neighbors’ place for dinner!
@@ -12,7 +12,10 @@ son (neutral): Not really…
 @cue neighbors_transition_out
 @wait 0.4
 @background res://content/episodes/neighbors/reeds_home.png
-@cue neighbors_transition_in
+if flag("got_the_girl") == "yes":
+  @cue neighbors_transition_in_connected
+else:
+  @cue neighbors_transition_in
 @wait 0.65
 
 son (surprised): !!
@@ -28,7 +31,10 @@ CHECK got_the_girl == "yes" as percy_connected_with_clementine:
   crush (happy): I guess that means we’ll be hanging out a lot.
   crush (happy): Pretty exciting, huh?
 
-@cue hosts_enter
+if flag("got_the_girl") == "yes":
+  @cue hosts_enter_connected
+else:
+  @cue hosts_enter
 @wait 0.5
 
 interviewer (nervous): You…!
@@ -44,7 +50,10 @@ CHECK dad_offended_interviewer == "none" as dad_did_not_offend_the_interviewer:
   interviewer (happy): Our new hire! What a coincidence!
   interviewer (happy): Welcome to the family, neighbor!
 
-@cue grandma_returns
+if flag("got_the_girl") == "yes":
+  @cue grandma_returns_connected
+else:
+  @cue grandma_returns
 @wait 0.4
 
 doctor (neutral): Oh, hello. I didn’t think I would live right next to one of my patients.
@@ -65,7 +74,7 @@ CHECK dad_offended_interviewer != "none" as dinner_starts_awkwardly:
 
 @cue dinner_fade
 @wait 0.5
-@background res://content/episodes/neighbors/leiton_home.webp
+@background res://content/episodes/neighbors/family_house.png
 @cue back_at_home
 @wait 0.65
 

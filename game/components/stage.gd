@@ -38,8 +38,10 @@ const REFERENCE_SIZE := Vector2(1152.0, 648.0)
 @onready var _background: ColorRect = $Background
 
 var _background_tween: Tween
-var _responsive_controls: Array[Dictionary] = []
-var _framed_prop_backgrounds: Array[TextureRect] = []
+var _composition_layers: Array[Control] = []
+var _title_base_position := Vector2.ZERO
+var _title_base_scale := Vector2.ONE
+var _title_base_pivot := Vector2.ZERO
 var _speaking_slot: StageActorSlot
 
 
@@ -48,7 +50,7 @@ func _ready() -> void:
 	_background.color = Color.BLACK
 	if animation_player.animation_finished.is_connected(_on_animation_finished) == false:
 		animation_player.animation_finished.connect(_on_animation_finished)
-	_cache_responsive_controls()
+	_cache_composition_layers()
 	resized.connect(_apply_responsive_layout)
 	_apply_responsive_layout()
 
@@ -233,81 +235,45 @@ func _stop_background_tween() -> void:
 	_background_tween = null
 
 
-## A Control whose anchors are all zero is an authored, fixed-coordinate story
-## element.  Its parent containers are deliberately not transformed: this
-## lets blackout overlays keep their edge-to-edge anchors while positioned
-## siblings scale as a single scene composition. Background textures are
-## explicitly framed below so they share that composition too.
-func _cache_responsive_controls() -> void:
-	_responsive_controls.clear()
-	_framed_prop_backgrounds.clear()
+## Keep each authored layer in one fixed 1152x648 coordinate system. Scaling
+## the layers themselves means animation tracks can continue writing authored
+## positions without making actors drift when the window is wider or taller.
+func _cache_composition_layers() -> void:
+	_composition_layers.clear()
 	for container_name in [&"Props", &"ActorSlots", &"Effects"]:
 		var container := get_node_or_null(NodePath(container_name)) as Control
 		if container != null:
-			_collect_responsive_controls(container, false)
-
-
-func _collect_responsive_controls(parent: Control, inside_framed_background: bool) -> void:
-	for child: Node in parent.get_children():
-		var control := child as Control
-		if control == null:
-			continue
-		var is_framed_background := (
-			parent.name == &"Props"
-			and control is TextureRect
-			and not _has_absolute_anchors(control)
-		)
-		if is_framed_background:
-			_framed_prop_backgrounds.append(control as TextureRect)
-			_collect_responsive_controls(control, true)
-			continue
-		if _has_absolute_anchors(control):
-			_responsive_controls.append(
-				{
-					"control": control,
-					"position": control.position,
-					"scale": control.scale,
-					"pivot": control.pivot_offset,
-					"relative_to_frame": inside_framed_background,
-				}
-			)
-			# Descendants inherit their parent's transform, so transforming them
-			# too would apply the viewport scale twice.
-			continue
-		_collect_responsive_controls(control, inside_framed_background)
-
-
-func _has_absolute_anchors(control: Control) -> bool:
-	return (
-		is_zero_approx(control.anchor_left)
-		and is_zero_approx(control.anchor_top)
-		and is_zero_approx(control.anchor_right)
-		and is_zero_approx(control.anchor_bottom)
-	)
+			_composition_layers.append(container)
+	_title_base_position = _title_label.position
+	_title_base_scale = _title_label.scale
+	_title_base_pivot = _title_label.pivot_offset
 
 
 func _apply_responsive_layout() -> void:
-	if _responsive_controls.is_empty() or size.x <= 0.0 or size.y <= 0.0:
+	if _composition_layers.is_empty() or size.x <= 0.0 or size.y <= 0.0:
 		return
 	var composition_scale := minf(size.x / REFERENCE_SIZE.x, size.y / REFERENCE_SIZE.y)
 	var composition_size := REFERENCE_SIZE * composition_scale
 	var composition_origin := (size - composition_size) * 0.5
 	_layout_framed_background(_background_image, composition_origin, composition_size)
-	for prop_background: TextureRect in _framed_prop_backgrounds:
-		_layout_framed_background(prop_background, composition_origin, composition_size)
-	for entry: Dictionary in _responsive_controls:
-		var control := entry["control"] as Control
-		if not is_instance_valid(control):
-			continue
-		var base_position := entry["position"] as Vector2
-		var base_scale := entry["scale"] as Vector2
-		var base_pivot := entry["pivot"] as Vector2
-		control.scale = base_scale * composition_scale
-		# Control scale is applied around its pivot. Offset that pivot so an
-		# authored top-left coordinate remains on the reference composition.
-		var origin := Vector2.ZERO if bool(entry["relative_to_frame"]) else composition_origin
-		control.position = origin + base_position * composition_scale \
-			+ base_pivot * (Vector2.ONE - Vector2.ONE * composition_scale)
+	for layer: Control in _composition_layers:
+		_layout_composition_layer(layer, composition_origin, composition_scale)
+	_title_label.scale = _title_base_scale * composition_scale
+	_title_label.position = composition_origin \
+		+ _title_base_position * composition_scale \
+		+ _title_base_pivot * (Vector2.ONE - Vector2.ONE * composition_scale)
+
+
+func _layout_composition_layer(
+	layer: Control,
+	composition_origin: Vector2,
+	composition_scale: float,
+) -> void:
+	layer.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	layer.position = composition_origin
+	layer.size = REFERENCE_SIZE
+	layer.pivot_offset = Vector2.ZERO
+	layer.scale = Vector2.ONE * composition_scale
 
 
 func _layout_framed_background(
