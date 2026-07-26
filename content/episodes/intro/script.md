@@ -16,18 +16,17 @@ son (surprised): That’s insane!
 son (neutral): Understood. I hate it, but understood.
 dad (neutral): So anything you want to say to me, say it now, before “I love you” bills us three dollars.
 
-son (neutral): …
-son (neutral): …
-son (neutral): …
+son (neutral): ...
+son (neutral): ......
+son (neutral): .........
 son (sad): I didn’t want to move! Ohio was FINE! Grandma hates it here already!
 Grandma does not respond.
 son (sad): See? Even Grandma agrees!
 son (sad): Why does Kayla get to stay in Ohio and why must I move with you?
 son (sad): Kayla got to keep her car and I got to keep NOTHING.
-son (sad): I don’t get to see my friends, I’m going to get mega bullied for having a personality in a country of beige idiots where everybody’s beige and quiet and dressed like hospital patients!
-Grandma is, unmistakably, dressed like a hospital patient.
+son (sad): I don’t get to see my friends, I’m going to get mega bullied for being FOREIGN now, I'm a FOREIGNER, Dad, I don't even know how to BE one-
 dad (happy): That right there would have cost us seventy-seven dollars!
-dad (happy): “I love you” is three dollars. That speech was twenty-five and two-thirds “I love yous.”
+dad (happy): “I love you” is three dollars. That speech was twenty-four and two-thirds “I love yous.”
 dad (happy): Good thing you got it out on the American side, bud. Cheapest therapy in the hemisphere.
 
 @cue penny_reveal
@@ -156,12 +155,11 @@ else:
 @wait 0.5
 dad (happy): All right, son. We’re here!
 dad (happy): Welcome to our new home.
-son (neutral): The house is beige. The lawn is beige.
-son (neutral): Except…
+son (neutral): (New street, new house, new nothing...)
+son (neutral): (...Oh.)
 
 @cue clementine_reveal
-son (shy): That girl in black and violet is the first thing in this country that is not beige.
-son (shy): I want to ask who she is, but that would cost—
+son (shy): I want to ask who she is, but...
 @cue clementine_exit
 grandma (neutral): My pills…
 
@@ -171,7 +169,7 @@ else:
   dad (neutral): Here you go, Mom.
 
 dad (neutral): Mom, I’ll find a doctor. Right after I find a job.
-son (neutral): Right. Grandma needs a doctor, and Dad needs a job. Best I don’t blow our budget.
+son (neutral): Right. Grandma needs a doctor, and Dad needs a job. We're all busy...
 son (shy): I’ll talk to that girl another day.
 
 -> end
