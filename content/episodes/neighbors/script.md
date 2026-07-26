@@ -2,7 +2,7 @@
 
 @speaker_name crush "Clementine"
 @speaker_name penny "Pennybot 3000"
-@background res://content/episodes/intro/wall.png
+@background res://content/episodes/neighbors/leiton_home.webp
 
 dad (neutral): Alright, everybody, how was your day?
 dad (nervous): Oh, wait! No time for talk! We’re late to the neighbors’ place for dinner!
@@ -65,7 +65,7 @@ CHECK dad_offended_interviewer != "none" as dinner_starts_awkwardly:
 
 @cue dinner_fade
 @wait 0.5
-@background res://content/episodes/intro/wall.png
+@background res://content/episodes/neighbors/leiton_home.webp
 @cue back_at_home
 @wait 0.65
 

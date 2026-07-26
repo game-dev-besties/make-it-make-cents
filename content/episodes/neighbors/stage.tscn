@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
 [ext_resource type="Texture2D" uid="uid://gqvmkpxjinqd" path="res://content/episodes/neighbors/reeds_home.png" id="2_reeds_home"]
 [ext_resource type="PackedScene" path="res://game/components/stage_actor_slot.tscn" id="3_slot"]
+[ext_resource type="Texture2D" path="res://content/episodes/neighbors/leiton_home.webp" id="4_leiton_home"]
 
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"
@@ -115,6 +116,30 @@ tracks/8/keys = {
 "update": 0,
 "values": [0.0]
 }
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("ActorSlots/Right:position")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(620, 30)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Background/BackgroundImage:flip_h")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_neighbors_transition_out"]
 resource_name = "neighbors_transition_out"
@@ -171,6 +196,54 @@ tracks/2/keys = {
 "update": 1,
 "values": ["Tuesday evening - the Reeds’ home"]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ActorSlots/Center:self_modulate:a")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ActorSlots/Right:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(80, 30)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Background/BackgroundImage:flip_h")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_hosts_enter"]
 resource_name = "hosts_enter"
@@ -182,7 +255,7 @@ tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
+"times": PackedFloat32Array(0, 0.25),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [1.0, 0.0]
@@ -194,10 +267,10 @@ tracks/1/path = NodePath("ActorSlots/Center:self_modulate:a")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [1.0, 0.0]
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -206,7 +279,7 @@ tracks/2/path = NodePath("ActorSlots/Crush:self_modulate:a")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
+"times": PackedFloat32Array(0, 0.25),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [1.0, 0.0]
@@ -218,7 +291,7 @@ tracks/3/path = NodePath("ActorSlots/Interviewer:self_modulate:a")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0.1, 0.5),
+"times": PackedFloat32Array(0.2, 0.5),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, 1.0]
@@ -230,7 +303,19 @@ tracks/4/path = NodePath("ActorSlots/Doctor:self_modulate:a")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0.15, 0.5),
+"times": PackedFloat32Array(0.25, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.2, 0.5),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, 1.0]
@@ -379,6 +464,30 @@ tracks/6/keys = {
 "update": 1,
 "values": ["Back at home…"]
 }
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("ActorSlots/Right:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(620, 30)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Background/BackgroundImage:flip_h")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_pennybot_reveal"]
 resource_name = "pennybot_reveal"
@@ -390,10 +499,46 @@ tracks/0/path = NodePath("ActorSlots/Penny:self_modulate:a")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4),
+"times": PackedFloat32Array(0.18, 0.4),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.22),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Center:self_modulate:a")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.22),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.22),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_neighbors"]
@@ -415,7 +560,8 @@ stage_title = "At home - Tuesday evening"
 color = Color(0.18, 0.12, 0.07, 1)
 
 [node name="BackgroundImage" parent="Background" index="0"]
-texture = ExtResource("2_reeds_home")
+texture = ExtResource("4_leiton_home")
+flip_h = true
 
 [node name="Props" parent="." index="1"]
 visible = false
@@ -453,9 +599,9 @@ accent_color = Color(0.46, 0.7, 0.88, 1)
 [node name="Crush" parent="ActorSlots" index="3" instance=ExtResource("3_slot")]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 790.0
+offset_left = 720.0
 offset_top = 35.0
-offset_right = 1140.0
+offset_right = 1070.0
 offset_bottom = 635.0
 character_id = &"crush"
 actor_name = "Clementine"
@@ -465,9 +611,9 @@ accent_color = Color(0.97, 0.5, 0.68, 1)
 [node name="Interviewer" parent="ActorSlots" index="4" instance=ExtResource("3_slot")]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 600.0
+offset_left = 400.0
 offset_top = 30.0
-offset_right = 950.0
+offset_right = 750.0
 offset_bottom = 630.0
 character_id = &"interviewer"
 actor_name = "Interviewer"
@@ -477,9 +623,9 @@ accent_color = Color(0.9, 0.72, 0.37, 1)
 [node name="Doctor" parent="ActorSlots" index="5" instance=ExtResource("3_slot")]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 790.0
+offset_left = 780.0
 offset_top = 35.0
-offset_right = 1140.0
+offset_right = 1130.0
 offset_bottom = 635.0
 character_id = &"doctor"
 actor_name = "Doctor"
