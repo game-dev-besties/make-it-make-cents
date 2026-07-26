@@ -1,96 +1,98 @@
 # Chapter 1 — Welcome to the Country
-#
-# This is a playable draft. Lines marked DRAFT/TODO can change without
-# changing the tutorial mechanics or story-state contract.
 
 @cue intro_reveal
 The line has not moved in forty minutes. Nobody in it has uttered a single word.
-dad (neutral): Percy, the second we cross that line, [speed=2]you do not say one word.[speed]
+dad (neutral): Son, the second we cross that line, [speed=2]you do not say one word.[speed]
 son (surprised): What? Why?
 dad (neutral): Well, that Verbal Tariff Act is a real son of a gun. Non-citizens get billed by the word.
-dad (neutral): Leadership could not repay the war debt, so somebody bought the country.
+dad (neutral): Leadership could not repay their war debts, so somebody bought the country.
 son (surprised): Somebody bought them? You can buy a country?
 dad (happy): Yes! Sam’s Soda Pop Company bought them.
-dad (neutral): Now the state charges thousands of people this crazy tax on their own mouths, and every dollar goes to a beverage company in Atlanta.
+dad (neutral): Now the state charges thousands of people this crazy tax on their own mouths, and every dollar goes to this beverage company in Atlanta.
 son (surprised): That’s insane!
-son (neutral): Understood. I hate it, but understood.
-dad (neutral): So anything you want to say to me, say it now, before “I love you” bills us three dollars.
+dad (neutral): So anything you want to say to me, say it now, before a simple “I love you” bills us $3.
 
-son (neutral): ...
-son (neutral): ......
-son (neutral): .........
+son (neutral): …
+son (neutral): …..
+son (neutral): …….
 son (sad): I didn’t want to move! Ohio was FINE! Grandma hates it here already!
-Grandma does not respond.
-son (sad): See? Even Grandma agrees!
-son (sad): Why does Kayla get to stay in Ohio and why must I move with you?
-son (sad): Kayla got to keep her car and I got to keep NOTHING.
-son (sad): I don’t get to see my friends, I’m going to get mega bullied for being FOREIGN now, I'm a FOREIGNER, Dad, I don't even know how to BE one-
-dad (happy): That right there would have cost us seventy-seven dollars!
-dad (happy): “I love you” is three dollars. That speech was twenty-four and two-thirds “I love yous.”
-dad (happy): Good thing you got it out on the American side, bud. Cheapest therapy in the hemisphere.
+grandma (neutral): …
+son (sad): See?? Even Grandma agrees!
+son (sad): Why does Kayla get to stay in Ohio and why must I move with you? Kayla got to keep her car and I got to keep NOTHING.
+son (sad): I don’t get to see my friends, I’m going to get mega bullied for being FOREIGN, and now I can’t even SPEAK without being BILLED-
+dad (happy): See, that right there would’ve cost us $25!
+dad (happy): That was no “I love you”, but “I love you” is $3 and that was $3 times eight, which means you gave me eight times worth of “I love you”s!
+dad (happy): Good thing you got it out on the American side, bud. Cheapest therapy in the hemisphere!
 
 @cue penny_reveal
-dad (happy): We cannot do things the Ohio way anymore, so I got us a Moneybot to assist with speech.
+dad (happy): Now, we can’t do things the Ohio way anymore, we got a Pennybot 3000 to assist you with speech.
 son (surprised): You brought a robot to the border? Are you sure this thing works?
 dad (happy): We’re about to find out.
 son (nervous): This stupid robot is going to ruin my life. I can feel it in my BODY!
 
-# Tutorial 1 — basic phrase deletion.
+# Tutorial 1 — basic deletion mechanic.
 dad (neutral): Okay, here’s how she works.
-dad (happy): Good morning, Moneybot.
-dad (happy): Moneybot, say hi to my son.
+dad (happy): Good morning, Pennybot.
+dad (happy): Pennybot, say hi to my son.
 penny: Hi, son of Dad.
+
+## try_basic_deletion
+@budget 30
 @recovery none
 son (shy): [Hello,]{id=hello} [my name is Percy.]{id=name} [I am]{id=i_am} [pleased to be]{id=pleased} [here]{id=here} [in your beautiful country.]{id=beautiful}
 
-if delivery("silence"):
-  dad (happy): Hah. Very careful of you.
-  dad (neutral): Promise me you won’t go mute on me, bud. A couple bucks to say hello never bankrupted anybody.
-elif kept("beautiful"):
+if kept_count() == 6:
+  dad (neutral): That’s nice, but way too expensive! Try cutting a few words.
+  -> try_basic_deletion
+elif kept("hello") or kept("name"):
+  dad (happy): See, you’re getting the hang of it!
+elif kept("pleased") and kept("beautiful"):
   dad (neutral): Did you seriously pay to call this parking lot beautiful?
-elif kept("hello") and kept("name") and kept_count() == 2:
-  dad (happy): You’re getting the hang of it.
+elif delivery("silence"):
+  dad (happy): Hahah, very careful of you. Promise me you won’t go mute on me, bud. A couple bucks to say “Hello” never bankrupted anybody.
 else:
-  dad (neutral): Your message is a little scrambled at the moment, but you’ll get the hang of it.
+  dad (neutral): I think your message got a little scrambled there. Maybe try again.
+  -> try_basic_deletion
 
-dad (neutral): See those chunks? Every word has a price. You can sink fifteen dollars just being polite.
-dad (neutral): So you CUT. Cut until it is cheap and still means the thing.
-son (nervous): So Moneybot just deletes chunks of what I say?
+dad (neutral): See those chunks? Every word’s got a price. You can sink $15 just to be polite!
+dad (neutral): So you CUT. You cut til it’s cheap and it still means the thing.
+son (nervous): So… Pennybot 3000 just deletes chunks of what I say?
 dad (neutral): You can yell and scream all you want. Everybody else only hears the part we paid for.
 son (nervous): S-scary…
 
-# Tutorial 2 — silence is always an option.
+# Tutorial 2 — “nothing” is an option.
 dad (neutral): Okay, try this one.
-dad (neutral): The customs officer asks whether you have anything to declare.
+dad (neutral): The customs officer asks you if you have anything to declare.
 @recovery none
 son (neutral): [No,]{id=no} [I don’t]{id=dont} [think]{id=think} [so.]{id=so} [What counts]{id=what_counts} [as a declaration?]{id=declaration}
 
-if delivery("silence"):
-  dad (happy): THAT. That right there! You did the nothing!
+if kept_count() == 6:
+  dad (happy): Great job!
+elif kept("no"):
+  dad (happy): Great job!
+elif kept("dont") and kept("think") and kept("so"):
+  dad (happy): Great job!
+elif kept("what_counts") and kept("declaration"):
+  dad (happy): Great job!
+elif delivery("silence"):
+  dad (happy): You tried out the “nothing”!
 else:
-  dad (neutral): That’s all right, but you could have said nothing.
-  son (surprised): How do they tell what I meant, then?
-  dad (neutral): They don’t. It can mean no, yes, or “I agree, and my father is dead.”
+  dad (neutral): Hmm, not sure I understood that one. Maybe you were missing a word or two?
 
+dad (happy): When you don’t have anything to say, you can say the “nothing”!
+son (surprised): How do they know what I meant, then?
+dad (neutral): They don’t. It can mean no, yes, or even “I agree, and my father is dead.”
 dad (happy): Sweet, sweet nothing. It’s free and it means anything.
 son (neutral): So I use it when I want to mean something without paying, and hope people understand?
 dad (happy): You got it. Even your grandma has been doing it since the airport!
+son (neutral): You’re right. She has not spent a dollar since Dayton.
+dad (happy): Not ONE dollar. Woman’s a natural!
 
-- I don’t think she’s doing it to save money.
-  intro.grandma_praised_for_silence = false
-  son (sad): I don’t think she’s doing it to save money…
-  dad (sad): …Nah. She’s just tired from the flight.
-- You’re right.
-  intro.grandma_praised_for_silence = true
-  son (neutral): You’re right. She has not spent a dollar since Dayton.
-  dad (happy): Not ONE dollar. Woman’s a natural!
-
-# Tutorial 3 — zero-budget recovery.
+# Tutorial 3 — when you go bankrupt, you can only grunt, say nothing, or shill Sam’s Soda.
 son (neutral): Okay, what if we run out of money?
-dad (neutral): Then you have three options, and you are not going to like two of them.
-dad (neutral): One, say nothing. Sweet, sweet nothing. Always free, always available.
-dad (neutral): Two, you can grunt for free when words cost too much.
-dad (neutral): Moneybot, switch us to the zero-dollar practice balance.
+dad (neutral): Then you got three options and you’re not gonna like two of them.
+dad (neutral): One, you say nothing. Sweet, sweet nothing.
+dad (neutral): Two, you can grunt. The Tariff Office extends complimentary grunts to accounts in desperation.
 @budget 0
 
 ## try_pity_grunt
@@ -98,31 +100,28 @@ dad (neutral): Moneybot, switch us to the zero-dollar practice balance.
 son (nervous): [I need]{id=need} [to answer.]{id=answer}
 
 if delivery("pity"):
-  dad (neutral): Hnf, yeah. It means “I acknowledge you, and I’m broke.”
-  dad (neutral): You only get one in this practice step. After that, it is silence or the sponsor.
+  dad (neutral): Hnf, yeah. That means “I acknowledge you, and I’m broke.”
 else:
   dad (happy): Sweet nothing is the cheapest option, but don’t be shy. Try the complimentary grunt once.
   -> try_pity_grunt
 
 son (surprised): And the third option?
 dad (neutral): Tariff relief. The state pays for your words if your words are an advertisement.
-son (surprised): An ad? For what?
-dad (neutral): Remember how Sam’s Soda Pop Company bought the country?
-dad (neutral): When you shill Sam’s Soda Pop, [speed=2]it puts money back in your account.[speed]
-dad (neutral): Not much, but enough.
-son (neutral): If it’s free money, why are you even looking for a job? Why don’t we all just shill—
-dad (sad): Because everybody will know the state paid for your sentence because your family could not.
-dad (sad): They’ll be polite. That is the worst part. They won’t say how broke your daddy is, but they will think it.
-dad (neutral): Also, the jingle is the single most humiliating noise a human can produce.
+dad (neutral): Remember how I said Sam’s Soda Pop bought the country?
+dad (neutral): Well, when you shill Sam’s Soda Pop Co… it puts money back in your account.
+dad (neutral): Not much, but enough to speak again.
+son (neutral): Well, if it’s free money, why’re you even looking for a job? Why don’t we all just shill–
+dad (neutral): I wouldn’t speak so fast, son. Why don’t you try it out?
 
 ## try_sponsor
+@sponsor_text "BOY I JUST CAN’T GET ENOUGH OF SAM’S SODA POP! MMMMM, REFRESHING!"
 @recovery sponsor
 son (nervous): [Can we]{id=can_we} [afford]{id=afford} [one more sentence?]{id=sentence}
 
 if delivery("sponsor"):
   -> sponsor_aftermath
 else:
-  dad (happy): Silence is smarter, but this is a demonstration. Press the sponsor button and hear the shame for yourself.
+  dad (neutral): Silence can be good, but it doesn’t give you money. Press the sponsor button and hear the shame for yourself.
   -> try_sponsor
 
 ## sponsor_aftermath
@@ -135,8 +134,7 @@ dad (neutral): Yeah. Now you know what it sounds like.
 son (nervous): A hundred people have turned around to look at me.
 son (nervous): They are appalled, but nobody says anything because that would cost them money.
 
-# DRAFT optional customs-and-pills beat. It proves that the chapter can carry
-# a gameplay result into its closing scene without requiring officer artwork.
+# Pills scene.
 @cue customs_focus
 officer: Are these prescription medications declared?
 dad (nervous): They belong to my mother.
@@ -146,31 +144,44 @@ son (nervous): [They are]{id=they_are} [Grandma’s]{id=grandmas} [prescription]
 
 if kept("prescription") and kept("pills"):
   intro.pills_confiscated = false
-  officer: Clear enough. You may keep them.
+  officer: Clear enough. You can keep them.
+elif kept("grandmas") and kept("prescription"):
+  intro.pills_confiscated = false
+  officer: Clear enough. You can keep them.
+elif kept("grandmas") and kept("pills"):
+  intro.pills_confiscated = false
+  officer: Clear enough. You can keep them.
+elif delivery("silence"):
+  intro.pills_confiscated = true
+  officer: I cannot verify that declaration. The pills stay here.
 else:
   intro.pills_confiscated = true
-  officer: I cannot verify that declaration. The medication stays here.
+  officer: That’s not specific enough. I cannot verify that declaration. The pills stay here.
 
-# Closing — reveal the next three family goals.
+# Closing — onto the next cutscene.
 @cue home_reveal
 @wait 0.5
-dad (happy): All right, son. We’re here!
+dad (happy): Alright, son, we’re here!
 dad (happy): Welcome to our new home.
-son (neutral): (New street, new house, new nothing...)
-son (neutral): (...Oh.)
+dad (happy): Here in our own home, we’re safe. The tax still technically applies, but I’m not gonna tattle on any of you!
+dad (happy): Why, it looks like our neighbors have already invited us over for dinner! That’s something to look forward to, isn’t it?
+son (neutral): Sure, Dad…
+son (neutral): (New street, new house, new nothing…)
+son (neutral): (…Oh.)
 
 @cue clementine_reveal
-son (shy): I want to ask who she is, but...
+son (shy): (I want to ask who she is, but…)
 @cue clementine_exit
-grandma (neutral): My pills…
+dad (neutral): Ah, Mom, you need your pills.
 
 if intro.pills_confiscated:
-  son (sad): Oh, right. The customs officer confiscated them.
+  dad (sad): Oh, right, they were confiscated…
 else:
-  dad (neutral): Here you go, Mom.
+  dad (happy): Here you go, Mom. Luckily we got them through customs.
+  dad (neutral): Make sure to show them to your new doctor.
 
-dad (neutral): Mom, I’ll find a doctor. Right after I find a job.
-son (neutral): Right. Grandma needs a doctor, and Dad needs a job. We're all busy...
+dad (neutral): I'll find a doctor. Right after I find a job.
+son (neutral): Right, Grandma needs a doctor, and Dad’s looking for a job. We’re all busy…
 son (shy): I’ll talk to that girl another day.
 
 -> end

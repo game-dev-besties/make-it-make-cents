@@ -11,10 +11,10 @@
 "suffix": ""
 },
 &"default_portrait": "neutral",
-&"description": "The family's word-trimming translation robot.",
-&"display_name": "Moneybot",
+&"description": "The family's word-trimming speech robot.",
+&"display_name": "Pennybot 3000",
 &"mirror": false,
-&"nicknames": ["Moneybot"],
+&"nicknames": ["Pennybot", "Pennybot 3000"],
 &"offset": Vector2(0, 0),
 &"portraits": {
 "neutral": {
