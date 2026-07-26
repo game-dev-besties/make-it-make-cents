@@ -29,6 +29,8 @@ func show_presentation(scene: PackedScene) -> Node:
 
 func clear_presentation() -> void:
 	if is_instance_valid(current_presentation):
+		if current_presentation.has_method("stop_dialogic_speaking"):
+			current_presentation.call("stop_dialogic_speaking", {}, true)
 		current_presentation.queue_free()
 	current_presentation = null
 	presentation_changed.emit(null)
@@ -50,6 +52,24 @@ func apply_dialogic_text(info: Dictionary) -> bool:
 	if not current_presentation.has_method("apply_dialogic_text"):
 		return false
 	return bool(current_presentation.call("apply_dialogic_text", info))
+
+
+func start_dialogic_speaking(info: Dictionary) -> bool:
+	if not is_instance_valid(current_presentation):
+		return false
+	if not current_presentation.has_method("start_dialogic_speaking"):
+		return false
+	return bool(current_presentation.call("start_dialogic_speaking", info))
+
+
+func stop_dialogic_speaking(info: Dictionary = {}, immediate := false) -> bool:
+	if not is_instance_valid(current_presentation):
+		return false
+	if not current_presentation.has_method("stop_dialogic_speaking"):
+		return false
+	return bool(
+		current_presentation.call("stop_dialogic_speaking", info, immediate)
+	)
 
 
 func apply_dialogic_background(info: Dictionary) -> bool:

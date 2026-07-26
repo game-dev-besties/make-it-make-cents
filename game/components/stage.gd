@@ -40,6 +40,7 @@ const REFERENCE_SIZE := Vector2(1152.0, 648.0)
 var _background_tween: Tween
 var _responsive_controls: Array[Dictionary] = []
 var _framed_prop_backgrounds: Array[TextureRect] = []
+var _speaking_slot: StageActorSlot
 
 
 func _ready() -> void:
@@ -120,6 +121,43 @@ func apply_dialogic_text(info: Dictionary) -> bool:
 			expression,
 		)
 	return matched
+
+
+## Begins procedural speaking motion once Dialogic actually starts revealing a
+## line. Speaker selection and expression changes happen earlier in
+## apply_dialogic_text(), so textbox transitions do not make actors move early.
+func start_dialogic_speaking(info: Dictionary) -> bool:
+	var character := info.get("character") as DialogicCharacter
+	if character == null:
+		stop_dialogic_speaking({}, true)
+		return false
+	var character_id := StringName(character.get_identifier())
+	for slot in _actor_slots():
+		if slot.character_id != character_id:
+			if slot.is_speaking():
+				slot.stop_speaking()
+			continue
+		if is_instance_valid(_speaking_slot) and _speaking_slot != slot:
+			_speaking_slot.stop_speaking()
+		_speaking_slot = slot
+		slot.start_speaking(info)
+		return true
+	stop_dialogic_speaking({}, true)
+	return false
+
+
+## Ends motion when text finishes revealing, while leaving the active-speaker
+## lighting in place until the next line selects another character.
+func stop_dialogic_speaking(
+	_info: Dictionary = {},
+	immediate := false,
+) -> bool:
+	if not is_instance_valid(_speaking_slot):
+		_speaking_slot = null
+		return false
+	_speaking_slot.stop_speaking(immediate)
+	_speaking_slot = null
+	return true
 
 
 ## Applies Dialogic's native background state inside the editor-authored stage.
