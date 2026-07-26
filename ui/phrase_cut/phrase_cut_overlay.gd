@@ -24,6 +24,18 @@ const PANEL_CONTENT_MARGIN_RIGHT := 38
 const COMPANION_CONTENT_MARGIN_RIGHT := 128
 const COMPANION_PANEL_OVERLAP := 90.0
 const COMPANION_SIZE := Vector2(286.0, 342.0)
+const COMPANION_EDGE_PADDING := 4.0
+const COMPANION_CURSOR_RADIUS_X := 260.0
+const COMPANION_CURSOR_RADIUS_Y := 225.0
+const COMPANION_FOLLOW_SPEED := 7.0
+const COMPANION_RETURN_SPEED := 4.5
+const COMPANION_RETURN_DELAY := 0.3
+const COMPANION_HOVER_AMPLITUDE := 6.0
+const COMPANION_HOVER_FREQUENCY := 1.15
+const COMPANION_MAX_TILT := 0.0872665
+const COMPANION_TILT_PER_SPEED := 0.00016
+const COMPANION_TILT_SPRING := 46.0
+const COMPANION_TILT_DAMPING := 7.0
 const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
@@ -42,6 +54,12 @@ var _pity_text := DEFAULT_PITY_TEXT
 var _sponsor_text := DEFAULT_SPONSOR_TEXT
 var _phrase_buttons: Array[Button] = []
 var _is_resolved := false
+var _companion_target_position := Vector2.ZERO
+var _companion_follow_position := Vector2.ZERO
+var _has_companion_target := false
+var _companion_angular_velocity := 0.0
+var _companion_hover_time := 0.0
+var _companion_return_delay_remaining := 0.0
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
@@ -68,6 +86,66 @@ func _ready() -> void:
 	_pity_button.pressed.connect(_on_pity)
 	_sponsor_button.pressed.connect(_on_sponsor)
 	_rebuild()
+
+
+func _process(delta: float) -> void:
+	if not _moneybot_companion.visible:
+		return
+	var cursor_position := get_global_mouse_position()
+	if not _has_companion_target:
+		_companion_follow_position = _companion_home_position()
+		_moneybot_companion.global_position = _companion_follow_position
+		_has_companion_target = true
+	var is_over_word := _cursor_is_over_word(cursor_position)
+	var movement_speed := COMPANION_FOLLOW_SPEED
+	if is_over_word:
+		_companion_return_delay_remaining = COMPANION_RETURN_DELAY
+		_companion_target_position = _companion_target_for_cursor(
+			cursor_position,
+			_companion_follow_position,
+		)
+	elif _companion_return_delay_remaining > 0.0:
+		_companion_return_delay_remaining = maxf(
+			0.0,
+			_companion_return_delay_remaining - delta,
+		)
+		_companion_target_position = _companion_follow_position
+	else:
+		movement_speed = COMPANION_RETURN_SPEED
+		_companion_target_position = _companion_home_position()
+	var follow_weight := 1.0 - exp(-movement_speed * delta)
+	var previous_follow_position := _companion_follow_position
+	_companion_follow_position = _clamped_companion_position(
+		_companion_follow_position.lerp(
+			_companion_target_position,
+			follow_weight,
+		),
+	)
+	_companion_hover_time += delta
+	_moneybot_companion.global_position = _clamped_companion_position(
+		_companion_follow_position + _companion_hover_offset_at(_companion_hover_time),
+	)
+	var safe_delta := maxf(delta, 0.001)
+	var velocity := (
+		(_companion_follow_position - previous_follow_position)
+		/ safe_delta
+	)
+	var target_tilt := clampf(
+		velocity.x * COMPANION_TILT_PER_SPEED,
+		-COMPANION_MAX_TILT,
+		COMPANION_MAX_TILT,
+	)
+	var spring_delta := minf(delta, 0.05)
+	var angular_acceleration := (
+		(target_tilt - _moneybot_companion.rotation) * COMPANION_TILT_SPRING
+		- _companion_angular_velocity * COMPANION_TILT_DAMPING
+	)
+	_companion_angular_velocity += angular_acceleration * spring_delta
+	_moneybot_companion.rotation = clampf(
+		_moneybot_companion.rotation + _companion_angular_velocity * spring_delta,
+		-COMPANION_MAX_TILT * 1.35,
+		COMPANION_MAX_TILT * 1.35,
+	)
 
 
 func _notification(what: int) -> void:
@@ -297,6 +375,12 @@ func _update_panel_width() -> void:
 	)
 	_moneybot_companion.visible = show_companion
 	_moneybot_icon.visible = not show_companion
+	if not show_companion:
+		_has_companion_target = false
+		_companion_angular_velocity = 0.0
+		_companion_hover_time = 0.0
+		_companion_return_delay_remaining = 0.0
+		_moneybot_companion.rotation = 0.0
 	_panel_margin.add_theme_constant_override(
 		"margin_right",
 		COMPANION_CONTENT_MARGIN_RIGHT if show_companion else PANEL_CONTENT_MARGIN_RIGHT,
@@ -317,11 +401,86 @@ func _story_frame_rect() -> Rect2:
 func _position_companion() -> void:
 	if not _moneybot_companion.visible or not is_instance_valid(_panel):
 		return
-	var panel_rect := _panel.get_global_rect()
 	_moneybot_companion.size = COMPANION_SIZE
-	_moneybot_companion.global_position = Vector2(
-		panel_rect.end.x - COMPANION_PANEL_OVERLAP,
-		panel_rect.get_center().y - COMPANION_SIZE.y * 0.5,
+	_moneybot_companion.pivot_offset = COMPANION_SIZE * 0.5
+	var companion_modulate := _moneybot_companion.self_modulate
+	companion_modulate.a = 1.0
+	_moneybot_companion.self_modulate = companion_modulate
+	if not _has_companion_target:
+		_companion_follow_position = _companion_home_position()
+		_moneybot_companion.global_position = _companion_follow_position
+		_has_companion_target = true
+	_companion_target_position = _companion_home_position()
+
+
+func _companion_home_position() -> Vector2:
+	var panel_rect := _panel.get_global_rect()
+	return _clamped_companion_position(
+		Vector2(
+			panel_rect.end.x - COMPANION_PANEL_OVERLAP,
+			panel_rect.get_center().y - COMPANION_SIZE.y * 0.5,
+		),
+	)
+
+
+func _cursor_is_over_word(cursor_position: Vector2) -> bool:
+	for child: Node in _chips.get_children():
+		var word := child as Control
+		if (
+			word != null
+			and word.visible
+			and word.is_visible_in_tree()
+			and word.get_global_rect().has_point(cursor_position)
+		):
+			return true
+	return false
+
+
+func _companion_target_for_cursor(
+	cursor_position: Vector2,
+	current_position: Vector2,
+) -> Vector2:
+	var current_center := current_position + COMPANION_SIZE * 0.5
+	var away_from_cursor := current_center - cursor_position
+	var target_offset := Vector2(COMPANION_CURSOR_RADIUS_X, 0.0)
+	if not away_from_cursor.is_zero_approx():
+		var ellipse_distance := Vector2(
+			away_from_cursor.x / COMPANION_CURSOR_RADIUS_X,
+			away_from_cursor.y / COMPANION_CURSOR_RADIUS_Y,
+		).length()
+		target_offset = away_from_cursor / ellipse_distance
+	var target_center := cursor_position + target_offset
+	return _clamped_companion_position(target_center - COMPANION_SIZE * 0.5)
+
+
+func _companion_hover_offset_at(hover_time: float) -> Vector2:
+	var hover_phase := hover_time * TAU * COMPANION_HOVER_FREQUENCY
+	var primary_bob := sin(hover_phase) * COMPANION_HOVER_AMPLITUDE
+	var secondary_bob := sin(hover_phase * 2.0 + 0.7) * COMPANION_HOVER_AMPLITUDE * 0.2
+	return Vector2(0.0, primary_bob + secondary_bob)
+
+
+func _clamped_companion_position(desired_position: Vector2) -> Vector2:
+	var frame := _story_frame_rect()
+	var movement_bounds := Rect2(
+		get_global_rect().position + frame.position + Vector2.ONE * COMPANION_EDGE_PADDING,
+		frame.size - Vector2.ONE * COMPANION_EDGE_PADDING * 2.0,
+	)
+	return _clamp_companion_to_bounds(desired_position, movement_bounds)
+
+
+func _clamp_companion_to_bounds(companion_position: Vector2, bounds: Rect2) -> Vector2:
+	return Vector2(
+		clampf(
+			companion_position.x,
+			bounds.position.x,
+			maxf(bounds.position.x, bounds.end.x - COMPANION_SIZE.x),
+		),
+		clampf(
+			companion_position.y,
+			bounds.position.y,
+			maxf(bounds.position.y, bounds.end.y - COMPANION_SIZE.y),
+		),
 	)
 
 

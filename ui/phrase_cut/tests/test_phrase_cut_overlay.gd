@@ -43,11 +43,12 @@ func _run() -> void:
 		"Moneybot should render above the phrase panel as the active speaker",
 	)
 	normal.call("_position_companion")
-	var companion_rect := (normal.get_node("%MoneybotCompanion") as TextureRect).get_global_rect()
-	var phrase_content_rect := (normal.get_node("%VBox") as VBoxContainer).get_global_rect()
 	_assert(
-		companion_rect.position.x >= phrase_content_rect.end.x,
-		"Moneybot may overlap the frame but should never enter the phrase text area",
+		is_equal_approx(
+			(normal.get_node("%MoneybotCompanion") as TextureRect).self_modulate.a,
+			1.0,
+		),
+		"Moneybot should remain fully opaque around the cursor",
 	)
 	_assert(
 		(normal.get_node("Dim") as ColorRect).color.is_equal_approx(
@@ -72,6 +73,60 @@ func _run() -> void:
 	_assert(
 		normal.get_node("%BudgetLabel").text == "AVAILABLE: $5",
 		"the overlay should show the remaining spendable budget",
+	)
+	_assert(
+		normal.get_node("%BudgetLabel").get_parent().name == "Header",
+		"the remaining budget should sit in the top-right header",
+	)
+	var header_rect := (normal.get_node("%BudgetLabel").get_parent() as Control).get_global_rect()
+	var budget_rect := (normal.get_node("%BudgetLabel") as Control).get_global_rect()
+	_assert(
+		is_equal_approx(budget_rect.end.x, header_rect.end.x),
+		"the remaining budget should align to the right edge of the header",
+	)
+	var cursor_position := normal.size * 0.5
+	var companion_size := (normal.get_node("%MoneybotCompanion") as TextureRect).size
+	var right_of_cursor := cursor_position + Vector2(300.0, 0.0) - companion_size * 0.5
+	var companion_target: Vector2 = normal.call(
+		"_companion_target_for_cursor",
+		cursor_position,
+		right_of_cursor,
+	)
+	var target_center := companion_target + companion_size * 0.5
+	_assert(
+		is_equal_approx(target_center.distance_to(cursor_position), 260.0)
+		and target_center.x > cursor_position.x,
+		"Moneybot's cursor-hover boundary should be wider horizontally",
+	)
+	var vertical_cursor := Vector2(normal.size.x * 0.5, 200.0)
+	var below_cursor := vertical_cursor + Vector2(0.0, 300.0) - companion_size * 0.5
+	var vertical_target: Vector2 = normal.call(
+		"_companion_target_for_cursor",
+		vertical_cursor,
+		below_cursor,
+	)
+	var vertical_target_center := vertical_target + companion_size * 0.5
+	_assert(
+		is_equal_approx(vertical_target_center.distance_to(vertical_cursor), 225.0)
+		and vertical_target_center.y > vertical_cursor.y,
+		"Moneybot's cursor-hover ellipse should remain tighter vertically",
+	)
+	var first_word_rect := (normal_chips[0] as Control).get_global_rect()
+	_assert(
+		normal.call("_cursor_is_over_word", first_word_rect.get_center()),
+		"hovering a phrase should activate Moneybot's cursor-follow behavior",
+	)
+	_assert(
+		not normal.call("_cursor_is_over_word", budget_rect.get_center()),
+		"Moneybot should return home when the cursor is not over a phrase",
+	)
+	var hover_low: Vector2 = normal.call("_companion_hover_offset_at", 0.2)
+	var hover_high: Vector2 = normal.call("_companion_hover_offset_at", 0.6)
+	_assert(
+		not is_equal_approx(hover_low.y, hover_high.y)
+		and is_zero_approx(hover_low.x)
+		and is_zero_approx(hover_high.x),
+		"Moneybot should gently bob vertically while hovering",
 	)
 	_assert(
 		(normal.get_node("%ConfirmButton") as Button).text == "Say it  /  $5",

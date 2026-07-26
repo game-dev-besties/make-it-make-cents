@@ -232,13 +232,18 @@ theme_override_colors/font_color = Color(0.917647, 0.498039, 0.345098, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 14
 
-[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1610737398]
+[node name="HeaderSpacer" type="Control" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header" unique_id=1947461137]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BudgetLabel" type="Label" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox/Header" unique_id=1610737398]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 text = "AVAILABLE: $0"
+horizontal_alignment = 2
 
 [node name="Chips" type="FlowContainer" parent="SafeMargin/PanelScroll/Center/Panel/Margin/VBox" unique_id=1079332742]
 unique_name_in_owner = true
