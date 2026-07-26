@@ -19,7 +19,7 @@
 &"portraits": {
 "happy": {
 "export_overrides": {
-"image": "\"res://content/characters/doctor/neutral.png\""
+"image": "\"res://content/characters/doctor/happy.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),

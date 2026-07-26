@@ -37,7 +37,7 @@
 },
 "sad": {
 "export_overrides": {
-"image": "\"res://content/characters/son/shy.png\""
+"image": "\"res://content/characters/son/frown.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -46,7 +46,7 @@
 },
 "shy": {
 "export_overrides": {
-"image": "\"res://content/characters/son/shy.png\""
+"image": "\"res://content/characters/son/blush.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -55,7 +55,7 @@
 },
 "surprised": {
 "export_overrides": {
-"image": "\"res://content/characters/son/neutral.png\""
+"image": "\"res://content/characters/son/frown.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),

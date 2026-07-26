@@ -72,7 +72,7 @@ offset_right = 500.0
 offset_bottom = 640.0
 character_id = &"grandma"
 actor_name = "Grandma"
-expression = "neutral"
+expression = "hospital"
 accent_color = Color(0.75, 0.48, 0.74, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]

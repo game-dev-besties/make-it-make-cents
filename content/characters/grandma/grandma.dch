@@ -19,7 +19,16 @@
 &"portraits": {
 "happy": {
 "export_overrides": {
-"image": "\"res://content/characters/grandma/neutral.png\""
+"image": "\"res://content/characters/grandma/happy.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1.0,
+"scene": "res://addons/dialogic/Modules/Character/default_portrait.tscn"
+},
+"hospital": {
+"export_overrides": {
+"image": "\"res://content/characters/grandma/hospital.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
