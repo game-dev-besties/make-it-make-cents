@@ -69,11 +69,12 @@ class DialogueAuditTests(unittest.TestCase):
             if finding["code"] == "MINIMAL_FALLBACK_SELECTIONS"
             and finding.get("line_id") == "dad_L005"
         )
-        self.assertTrue(
+        self.assertFalse(
             any(
                 "bring it up to my manager" in example.lower()
                 for example in q5_fallbacks["examples"]
-            )
+            ),
+            "manager answers should use their authored response",
         )
         q4_overlap = next(
             finding
@@ -125,22 +126,31 @@ class DialogueAuditTests(unittest.TestCase):
             "My career. The workload was too much.",
         )
 
-    def test_q5_keeps_unwritten_manager_response_visible(self) -> None:
+    def test_q5_manager_response_precedes_generic_reactions(self) -> None:
         question = self.report["questions"][4]
-        else_index = next(
+        manager_index = next(
             branch["index"]
             for branch in question["branches"]
-            if branch["condition"] == "else"
+            if branch["condition"] == 'kept("manager")'
+        )
+        detailed_index = next(
+            branch["index"]
+            for branch in question["branches"]
+            if branch["condition"]
+            == 'kept("talk") and kept("out") and kept("manager")'
         )
         cases = {
             tuple(case["kept"]): case
             for case in question["cases"]
             if case["delivery"] == "normal"
         }
-        self.assertEqual(cases[("manager",)]["branches"], [else_index])
+        self.assertEqual(cases[("manager",)]["branches"], [manager_index])
+        self.assertEqual(cases[("i_would", "manager")]["branches"], [manager_index])
+        self.assertEqual(cases[("talk", "manager")]["branches"], [manager_index])
+        self.assertEqual(cases[("escalate", "manager")]["branches"], [manager_index])
         self.assertEqual(
-            cases[("i_would", "manager")]["branches"],
-            [else_index],
+            cases[("talk", "out", "manager")]["branches"],
+            [detailed_index],
         )
 
     def test_family_mention_is_independent_from_offense(self) -> None:

@@ -591,8 +591,11 @@ func _recompute() -> void:
 	var cost := _cost()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
-	_recovery_box.visible = kept_text.is_empty()
-	_confirm_button.visible = not kept_text.is_empty()
+	_recovery_box.visible = _budget <= 0 or not _has_cut_phrase()
+	_confirm_button.visible = (
+		_budget > 0
+		or (cost == 0 and not kept_text.is_empty())
+	)
 	_confirm_button.disabled = over_budget
 	if over_budget:
 		_confirm_button.text = "Cut $%d more  /  $%d" % [cost - _budget, cost]
@@ -601,6 +604,14 @@ func _recompute() -> void:
 	else:
 		_confirm_button.text = "Say it  /  $%d" % cost
 	_refresh_chip_presentation()
+
+
+func _has_cut_phrase() -> bool:
+	for chip: Button in _phrase_buttons:
+		if not chip.button_pressed:
+			return true
+	return false
+
 
 func _refresh_chip_presentation() -> void:
 	for chip: Button in _phrase_buttons:

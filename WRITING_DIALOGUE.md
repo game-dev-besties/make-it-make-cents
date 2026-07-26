@@ -300,9 +300,9 @@ budget_set 0
 
 After the tutorial, silence is available on every phrase-cut prompt. The
 one-time pity and sponsor responses are also available on every prompt until
-used, regardless of the remaining word budget. To keep the phrase editor
-uncluttered, these alternatives appear after the player cuts every phrase from
-the pending response.
+used, regardless of the remaining word budget. These alternatives are visible
+before the player cuts any phrase, then hide once phrase editing begins. They
+also remain visible immediately when the budget is empty.
 
 Use `@recovery` immediately before a phrase-cut line to override which one-time
 response buttons that line offers. This is primarily useful while teaching

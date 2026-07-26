@@ -1,8 +1,4 @@
 # Chapter 2: Dad's job interview.
-#
-# The manager-only response in Question 5 is intentionally waiting for its
-# unfinished outline copy. Those selections use the approved fallback until
-# the writer supplies that response.
 
 ## intro
 @cue dad_enters
@@ -92,11 +88,13 @@ elif delivery("silence"):
   dad.success += 1
   dad.silly += 1
 elif kept("workload"):
-  interviewer: Happens to the best of us.
+  interviewer: Happens to the best of us. Even I have trouble balancing my family and work sometimes.
   dad.success += 2
-elif kept("balance") and (kept("family") or kept("career")):
+elif kept("career"):
+  interviewer: Your career got in the way of your job? What kind of career were you going for…nevermind. Let’s not get off-topic.
+  dad.success -= 1
+elif kept("balance") and kept("family"):
   interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
-  dad.success += 1
   dad.silly += 1
 elif kept("balance"):
   interviewer: Yes, balance is very important during your past as a circus trapeze artist. Taking risks like that is certainly admirable.
@@ -172,6 +170,9 @@ elif kept("talk") and kept("out") and kept("manager"):
   dad.success += 3
 elif kept("talk") and kept("out"):
   interviewer: A fairly reasonable answer. I’m glad you know how to use your words.
+  dad.success += 1
+elif kept("manager"):
+  interviewer: I suppose that’s a fair response…Although I hope your manager has more patience for your spats than I do.
   dad.success += 1
 elif kept("talk"):
   interviewer: I see you’re a simple man. Talking can certainly be very effective, but I’m not sure it would be in your case…

@@ -411,21 +411,21 @@ func _run() -> void:
 	)
 	await process_frame
 	_assert(
-		not silence.get_node("%RecoveryBox").visible,
-		"alternative responses should stay hidden while words remain selected",
+		silence.get_node("%RecoveryBox").visible,
+		"alternative responses should be available before phrase editing begins",
 	)
+	_assert(silence.get_node("%SilenceButton").visible, "no response should always be available")
+	_assert(silence.get_node("%PityButton").visible, "available hnf should appear initially")
+	_assert(silence.get_node("%SponsorButton").visible, "available sponsor should appear initially")
 	(silence.get_node("%Chips").get_child(0) as Button).set_pressed_no_signal(false)
 	silence.call("_recompute")
 	_assert(
-		silence.get_node("%RecoveryBox").visible,
-		"alternative responses should appear when no words remain selected",
+		not silence.get_node("%RecoveryBox").visible,
+		"alternative responses should hide once phrase editing begins",
 	)
-	_assert(silence.get_node("%SilenceButton").visible, "no response should always be available")
-	_assert(silence.get_node("%PityButton").visible, "available hnf should appear for an empty response")
-	_assert(silence.get_node("%SponsorButton").visible, "available sponsor should appear for an empty response")
 	_assert(
-		not silence.get_node("%ConfirmButton").visible,
-		"the duplicate silence confirmation should hide beside alternative responses",
+		silence.get_node("%ConfirmButton").visible,
+		"an edited empty response should remain confirmable",
 	)
 	silence.call("_on_confirm")
 	_assert(silence.result.delivery_mode == &"silence", "all removed phrases should resolve as silence")
