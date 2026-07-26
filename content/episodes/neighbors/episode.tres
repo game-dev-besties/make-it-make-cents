@@ -14,4 +14,3 @@ show_title_transition = true
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/neighbors/dialogue.dtl"
 phrase_data_path = "res://content/episodes/neighbors/phrases.json"
-word_budget = 0

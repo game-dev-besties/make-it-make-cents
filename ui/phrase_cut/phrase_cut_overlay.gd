@@ -13,6 +13,7 @@ const DELIVERY_SPONSOR := &"sponsor"
 const DEFAULT_PITY_TEXT := "hnf"
 const DEFAULT_SPONSOR_TEXT := "Sam's Soda: pop open freedom."
 const PHRASE_TEXT_FORMATTER := preload("res://ui/phrase_cut/phrase_text_formatter.gd")
+const TUTORIAL_STATE_KEY := &"phrase_cut_tutorial_seen"
 
 const MAX_PANEL_WIDTH := 780.0
 const MIN_PANEL_WIDTH := 220.0
@@ -49,6 +50,9 @@ const COMPANION_ACTIVE_SCALE := 0.5
 const COMPANION_SCALE_SPEED := 11.0
 const COMPANION_PULSE_AMOUNT := 0.012
 const COMPANION_PULSE_FREQUENCY := 0.72
+const TUTORIAL_COMPANION_SCALE := 0.58
+const TUTORIAL_FLIGHT_TIME := 0.55
+const TUTORIAL_BUBBLE_GAP := 14.0
 const COMPANION_MAX_TILT := 0.0872665
 const COMPANION_TILT_PER_SPEED := 0.00016
 const COMPANION_TILT_SPRING := 46.0
@@ -64,6 +68,13 @@ const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf
 const FIXED_WORD_COLOR := Color(1.0, 0.964706, 0.898039, 1)
 const PHRASE_TEXT_OUTLINE_COLOR := Color(0.258824, 0.243137, 0.266667, 1)
 const PHRASE_TEXT_OUTLINE_SIZE := 4
+
+enum TutorialStep {
+	NONE,
+	BUDGET,
+	WORD,
+	SUBMIT,
+}
 
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
@@ -93,6 +104,11 @@ var _companion_velocity_sample_position := Vector2.ZERO
 var _is_companion_acting := false
 var _companion_action_tween: Tween
 var _pending_action_chip: Button
+var _tutorial_requested := false
+var _tutorial_step := TutorialStep.NONE
+var _tutorial_target_chip: Button
+var _tutorial_waiting_for_word_action := false
+var _tutorial_move_tween: Tween
 
 @onready var _panel: PanelContainer = %Panel
 @onready var _panel_scroll: ScrollContainer = %PanelScroll
@@ -110,6 +126,12 @@ var _pending_action_chip: Button
 @onready var _pity_button: Button = %PityButton
 @onready var _sponsor_button: Button = %SponsorButton
 @onready var _phrase_button_template: Button = %PhraseButtonTemplate
+@onready var _tutorial_click_catcher: Button = %TutorialClickCatcher
+@onready var _tutorial_bubble: PanelContainer = %TutorialBubble
+@onready var _tutorial_label: Label = %TutorialLabel
+@onready var _tutorial_hint_label: Label = %TutorialHintLabel
+@onready var _tutorial_tail_outline: Polygon2D = %TutorialTailOutline
+@onready var _tutorial_tail_fill: Polygon2D = %TutorialTailFill
 
 
 func _ready() -> void:
@@ -118,6 +140,7 @@ func _ready() -> void:
 	_silence_button.pressed.connect(_on_silence)
 	_pity_button.pressed.connect(_on_pity)
 	_sponsor_button.pressed.connect(_on_sponsor)
+	_tutorial_click_catcher.pressed.connect(_on_tutorial_continue)
 	_rebuild()
 
 
@@ -131,8 +154,13 @@ func _process(delta: float) -> void:
 		_companion_velocity_sample_position = _companion_follow_position
 		_companion_follow_velocity = Vector2.ZERO
 		_has_companion_target = true
-	var cursor_is_active := _update_companion_cursor_active(cursor_position)
-	if not _is_companion_acting:
+	var tutorial_active := _tutorial_step != TutorialStep.NONE
+	var cursor_is_active := (
+		false
+		if tutorial_active
+		else _update_companion_cursor_active(cursor_position)
+	)
+	if not _is_companion_acting and not tutorial_active:
 		var follow_spring := COMPANION_FOLLOW_SPRING
 		var follow_damping := COMPANION_FOLLOW_DAMPING
 		if cursor_is_active:
@@ -172,11 +200,16 @@ func _process(delta: float) -> void:
 		cursor_is_active
 		or _companion_return_delay_remaining > 0.0
 		or _is_companion_acting
+		or tutorial_active
 	)
 	var target_visual_scale := (
-		COMPANION_ACTIVE_SCALE
-		if companion_is_engaged
-		else 1.0
+		TUTORIAL_COMPANION_SCALE
+		if tutorial_active
+		else (
+			COMPANION_ACTIVE_SCALE
+			if companion_is_engaged
+			else 1.0
+		)
 	)
 	_companion_visual_scale = lerpf(
 		_companion_visual_scale,
@@ -235,11 +268,45 @@ func _process(delta: float) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and is_node_ready():
 		_update_panel_width()
+		if _tutorial_step != TutorialStep.NONE:
+			call_deferred("_refresh_tutorial_layout")
 
 
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
+	if _tutorial_step == TutorialStep.BUDGET:
+		var mouse_event := event as InputEventMouseButton
+		if (
+			mouse_event != null
+			and mouse_event.pressed
+			and mouse_event.button_index == MOUSE_BUTTON_LEFT
+		):
+			_on_tutorial_continue()
+			get_viewport().set_input_as_handled()
+			return
+		var touch_event := event as InputEventScreenTouch
+		if touch_event != null and touch_event.pressed:
+			_on_tutorial_continue()
+			get_viewport().set_input_as_handled()
+			return
+	if _tutorial_step == TutorialStep.SUBMIT:
+		var dismiss_mouse_event := event as InputEventMouseButton
+		var dismiss_touch_event := event as InputEventScreenTouch
+		if (
+			(
+				dismiss_mouse_event != null
+				and dismiss_mouse_event.pressed
+				and dismiss_mouse_event.button_index == MOUSE_BUTTON_LEFT
+			)
+			or (
+				dismiss_touch_event != null
+				and dismiss_touch_event.pressed
+			)
+		):
+			# Defer so a click on an actual modal control can still perform that
+			# control's action while also dismissing the coachmark.
+			call_deferred("_finish_tutorial")
 	var key_event := event as InputEventKey
 	if (
 		key_event != null
@@ -272,6 +339,7 @@ func setup(segments: Array, budget: int, speaker: String, recovery: Dictionary =
 		_required_delivery = &""
 	_pity_text = String(recovery.get("pity_text", DEFAULT_PITY_TEXT))
 	_sponsor_text = String(recovery.get("sponsor_text", DEFAULT_SPONSOR_TEXT))
+	_tutorial_requested = bool(recovery.get("show_tutorial", false))
 	_is_resolved = false
 	result.clear()
 	if is_node_ready():
@@ -353,11 +421,17 @@ func _rebuild() -> void:
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
 	call_deferred("_position_companion")
+	call_deferred("_maybe_start_tutorial")
 
 
 func _on_chip_toggled(pressed: bool, chip: Button) -> void:
 	_recompute()
+	if _tutorial_step == TutorialStep.WORD and not pressed:
+		_tutorial_waiting_for_word_action = true
+		_tutorial_bubble.hide()
 	_play_chip_action(chip, not pressed)
+	if _tutorial_waiting_for_word_action and not _moneybot_companion.visible:
+		_show_tutorial_submit()
 
 
 func _play_chip_action(chip: Button, is_cut: bool) -> void:
@@ -647,6 +721,8 @@ func _finish_companion_action() -> void:
 	_companion_follow_velocity = Vector2.ZERO
 	_companion_action_tween = null
 	_pending_action_chip = null
+	if _tutorial_waiting_for_word_action:
+		_show_tutorial_submit()
 
 
 func _assemble() -> String:
@@ -917,6 +993,305 @@ func _focus_initial_control(is_out_of_budget: bool) -> void:
 	_panel_scroll.call_deferred("ensure_control_visible", focus_target)
 
 
+func _maybe_start_tutorial() -> void:
+	if (
+		not _tutorial_requested
+		or _tutorial_step != TutorialStep.NONE
+		or _phrase_buttons.is_empty()
+		or not is_visible_in_tree()
+	):
+		return
+	_tutorial_requested = false
+	_tutorial_target_chip = _first_tutorial_word()
+	_tutorial_step = TutorialStep.BUDGET
+	_tutorial_click_catcher.show()
+	_update_panel_width()
+	_position_companion()
+	_fly_tutorial_companion(
+		_tutorial_budget_position(),
+		"This is your budget.",
+		_budget_label,
+		"Click anywhere to move on.",
+	)
+
+
+func _first_tutorial_word() -> Button:
+	for chip: Button in _phrase_buttons:
+		if not chip.disabled and chip.button_pressed:
+			return chip
+	return null
+
+
+func _on_tutorial_continue() -> void:
+	if _tutorial_step != TutorialStep.BUDGET:
+		return
+	_tutorial_click_catcher.hide()
+	_tutorial_step = TutorialStep.WORD
+	if not is_instance_valid(_tutorial_target_chip):
+		_show_tutorial_submit()
+		return
+	_tutorial_target_chip.grab_focus()
+	_panel_scroll.ensure_control_visible(_tutorial_target_chip)
+	_fly_tutorial_companion(
+		_tutorial_word_position(),
+		"Click on a phrase.",
+		_tutorial_target_chip,
+	)
+
+
+func _show_tutorial_submit() -> void:
+	if _tutorial_step != TutorialStep.WORD:
+		return
+	_tutorial_waiting_for_word_action = false
+	_tutorial_step = TutorialStep.SUBMIT
+	_mark_tutorial_seen()
+	_confirm_button.grab_focus()
+	_panel_scroll.ensure_control_visible(_confirm_button)
+	_fly_tutorial_companion(
+		_tutorial_submit_position(),
+		"Submit words here and pay!",
+		_confirm_button,
+	)
+
+
+func _finish_tutorial() -> void:
+	if _tutorial_step == TutorialStep.NONE:
+		return
+	if _tutorial_step == TutorialStep.SUBMIT:
+		_mark_tutorial_seen()
+	if is_instance_valid(_tutorial_move_tween):
+		_tutorial_move_tween.kill()
+	_tutorial_move_tween = null
+	_tutorial_step = TutorialStep.NONE
+	_tutorial_waiting_for_word_action = false
+	_tutorial_click_catcher.hide()
+	_tutorial_bubble.hide()
+	_tutorial_tail_outline.hide()
+	_tutorial_tail_fill.hide()
+	_update_panel_width()
+
+
+func _mark_tutorial_seen() -> void:
+	var game_stats := get_node_or_null("/root/GameStats")
+	if game_stats != null and game_stats.has_method("set_value"):
+		game_stats.call("set_value", TUTORIAL_STATE_KEY, true)
+
+
+func _fly_tutorial_companion(
+	target_position: Vector2,
+	message: String,
+	focus_control: Control,
+	hint: String = "",
+) -> void:
+	if is_instance_valid(_tutorial_move_tween):
+		_tutorial_move_tween.kill()
+	_tutorial_move_tween = null
+	_tutorial_label.text = message
+	_tutorial_hint_label.text = hint
+	_tutorial_hint_label.visible = not hint.is_empty()
+	_tutorial_bubble.hide()
+	_tutorial_tail_outline.hide()
+	_tutorial_tail_fill.hide()
+	_tutorial_click_catcher.show()
+	_moneybot_companion.show()
+	_moneybot_companion.size = COMPANION_SIZE
+	_moneybot_companion.pivot_offset = COMPANION_SIZE * 0.5
+	_has_companion_target = true
+	_is_companion_acting = true
+	_companion_follow_velocity = Vector2.ZERO
+	var clamped_target := _clamped_companion_position(
+		target_position,
+		TUTORIAL_COMPANION_SCALE,
+	)
+	_tutorial_move_tween = create_tween()
+	_tutorial_move_tween.tween_method(
+		_set_companion_follow_position,
+		_companion_follow_position,
+		clamped_target,
+		TUTORIAL_FLIGHT_TIME,
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_tutorial_move_tween.tween_callback(
+		_finish_tutorial_flight.bind(focus_control)
+	)
+
+
+func _finish_tutorial_flight(focus_control: Control) -> void:
+	_tutorial_move_tween = null
+	_is_companion_acting = false
+	_companion_follow_velocity = Vector2.ZERO
+	if _tutorial_step == TutorialStep.NONE:
+		return
+	_tutorial_bubble.show()
+	_position_tutorial_bubble(focus_control)
+	_position_tutorial_tail()
+	_tutorial_tail_outline.show()
+	_tutorial_tail_fill.show()
+	call_deferred("_settle_tutorial_bubble", focus_control)
+
+
+func _settle_tutorial_bubble(focus_control: Control) -> void:
+	if _tutorial_step == TutorialStep.NONE or not is_instance_valid(focus_control):
+		return
+	_position_tutorial_bubble(focus_control)
+	_position_tutorial_tail()
+	if _tutorial_step != TutorialStep.BUDGET:
+		_tutorial_click_catcher.hide()
+
+
+func _refresh_tutorial_layout() -> void:
+	if _tutorial_step == TutorialStep.NONE:
+		return
+	var focus_control: Control = _budget_label
+	var target_position := _tutorial_budget_position()
+	match _tutorial_step:
+		TutorialStep.WORD:
+			if not is_instance_valid(_tutorial_target_chip):
+				return
+			focus_control = _tutorial_target_chip
+			target_position = _tutorial_word_position()
+		TutorialStep.SUBMIT:
+			focus_control = _confirm_button
+			target_position = _tutorial_submit_position()
+	_companion_follow_position = _clamped_companion_position(
+		target_position,
+		TUTORIAL_COMPANION_SCALE,
+	)
+	_position_tutorial_bubble(focus_control)
+	_position_tutorial_tail()
+
+
+func _tutorial_budget_position() -> Vector2:
+	var budget_rect := _budget_label.get_global_rect()
+	var scaled_body_size := COMPANION_BODY_SIZE * TUTORIAL_COMPANION_SCALE
+	var desired_body_center := Vector2(
+		budget_rect.end.x + scaled_body_size.x * 0.5 + 10.0,
+		budget_rect.get_center().y + 15.0,
+	)
+	return _clamped_companion_position(
+		desired_body_center
+		- _companion_body_center_offset(TUTORIAL_COMPANION_SCALE),
+		TUTORIAL_COMPANION_SCALE,
+	)
+
+
+func _tutorial_word_position() -> Vector2:
+	if not is_instance_valid(_tutorial_target_chip):
+		return _companion_follow_position
+	return _clamped_companion_position(
+		_closest_recoil_peak(
+			_tutorial_target_chip.get_global_rect(),
+			_companion_follow_position,
+		)
+		+ Vector2.UP * 40.0,
+		TUTORIAL_COMPANION_SCALE,
+	)
+
+
+func _tutorial_submit_position() -> Vector2:
+	var confirm_rect := _confirm_button.get_global_rect()
+	var target_center := Vector2(
+		confirm_rect.end.x
+		+ COMPANION_SIZE.x * TUTORIAL_COMPANION_SCALE * 0.35
+		+ 40.0,
+		confirm_rect.get_center().y
+		+ COMPANION_SIZE.y * TUTORIAL_COMPANION_SCALE * 0.3,
+	)
+	return target_center - COMPANION_SIZE * 0.5
+
+
+func _position_tutorial_bubble(focus_control: Control) -> void:
+	if not is_instance_valid(focus_control):
+		return
+	_tutorial_bubble.reset_size()
+	var bubble_size := _tutorial_bubble.get_combined_minimum_size()
+	_tutorial_bubble.size = bubble_size
+	var focus_rect := focus_control.get_global_rect()
+	var frame := _story_frame_rect()
+	var bubble_position := Vector2(
+		focus_rect.get_center().x - bubble_size.x * 0.5,
+		focus_rect.position.y - bubble_size.y - TUTORIAL_BUBBLE_GAP,
+	)
+	if _tutorial_step == TutorialStep.BUDGET:
+		var companion_rect := _companion_visual_rect(
+			_companion_follow_position,
+			TUTORIAL_COMPANION_SCALE,
+		)
+		bubble_position.x = companion_rect.end.x + TUTORIAL_BUBBLE_GAP
+		bubble_position.y = (
+			companion_rect.get_center().y - bubble_size.y * 0.5 - 15.0
+		)
+	elif _tutorial_step == TutorialStep.SUBMIT:
+		bubble_position.y = focus_rect.position.y - bubble_size.y - TUTORIAL_BUBBLE_GAP
+	bubble_position.x = clampf(
+		bubble_position.x,
+		frame.position.x + COMPACT_SAFE_MARGIN,
+		frame.end.x - bubble_size.x - COMPACT_SAFE_MARGIN,
+	)
+	bubble_position.y = clampf(
+		bubble_position.y,
+		frame.position.y + COMPACT_SAFE_MARGIN,
+		frame.end.y - bubble_size.y - COMPACT_SAFE_MARGIN,
+	)
+	_tutorial_bubble.global_position = bubble_position
+
+
+func _position_tutorial_tail() -> void:
+	var bubble_rect := _tutorial_bubble.get_global_rect()
+	var companion_center := _companion_body_rect(
+		_companion_follow_position,
+		TUTORIAL_COMPANION_SCALE,
+	).get_center()
+	var bubble_center := bubble_rect.get_center()
+	var toward_companion := bubble_center.direction_to(companion_center)
+	if toward_companion.is_zero_approx():
+		toward_companion = Vector2.RIGHT
+
+	var base_center := bubble_center
+	if absf(toward_companion.x) > absf(toward_companion.y):
+		base_center.x = (
+			bubble_rect.end.x
+			if toward_companion.x > 0.0
+			else bubble_rect.position.x
+		)
+		base_center.y = clampf(
+			companion_center.y,
+			bubble_rect.position.y + 14.0,
+			bubble_rect.end.y - 14.0,
+		)
+	else:
+		base_center.y = (
+			bubble_rect.end.y
+			if toward_companion.y > 0.0
+			else bubble_rect.position.y
+		)
+		base_center.x = clampf(
+			companion_center.x,
+			bubble_rect.position.x + 14.0,
+			bubble_rect.end.x - 14.0,
+		)
+
+	# Tuck the base beneath the panel so the tail and rounded box read as one
+	# continuous speech bubble instead of two shapes touching at their edges.
+	base_center -= toward_companion * 7.0
+	var perpendicular := toward_companion.orthogonal()
+	_tutorial_tail_outline.global_position = base_center
+	_tutorial_tail_outline.polygon = PackedVector2Array(
+		[
+			perpendicular * -11.0,
+			perpendicular * 11.0,
+			toward_companion * 24.0,
+		]
+	)
+	_tutorial_tail_fill.global_position = base_center
+	_tutorial_tail_fill.polygon = PackedVector2Array(
+		[
+			perpendicular * -7.0 + toward_companion * 3.0,
+			perpendicular * 7.0 + toward_companion * 3.0,
+			toward_companion * 18.0,
+		]
+	)
+
+
 func _update_panel_width() -> void:
 	var frame := _story_frame_rect()
 	_safe_margin.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
@@ -925,8 +1300,11 @@ func _update_panel_width() -> void:
 	var available_width := maxf(frame.size.x - HORIZONTAL_GUTTER, MIN_PANEL_WIDTH)
 	_panel.custom_minimum_size.x = minf(available_width, MAX_PANEL_WIDTH)
 	var show_companion := (
-		frame.size.x >= MONEYBOT_COMPANION_MIN_WIDTH
-		and frame.size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
+		_tutorial_step != TutorialStep.NONE
+		or (
+			frame.size.x >= MONEYBOT_COMPANION_MIN_WIDTH
+			and frame.size.y >= MONEYBOT_COMPANION_MIN_HEIGHT
+		)
 	)
 	_moneybot_companion.visible = show_companion
 	_moneybot_icon.visible = not show_companion
@@ -1144,10 +1522,13 @@ func _clamp_companion_to_bounds(
 
 
 func _on_confirm() -> void:
+	if _tutorial_step in [TutorialStep.BUDGET, TutorialStep.WORD]:
+		return
 	var kept_text := _assemble()
 	var delivery_mode := DELIVERY_SILENCE if kept_text.is_empty() else DELIVERY_NORMAL
 	if not _delivery_is_allowed(delivery_mode):
 		return
+	_finish_tutorial()
 	var sfx := get_node_or_null("/root/Sfx")
 	if sfx != null:
 		sfx.call("play", &"ui_confirm", -5.0)
@@ -1155,20 +1536,29 @@ func _on_confirm() -> void:
 
 
 func _on_silence() -> void:
+	if _tutorial_step in [TutorialStep.BUDGET, TutorialStep.WORD]:
+		return
 	if not _delivery_is_allowed(DELIVERY_SILENCE):
 		return
+	_finish_tutorial()
 	_resolve([], "", DELIVERY_SILENCE, 0)
 
 
 func _on_pity() -> void:
+	if _tutorial_step in [TutorialStep.BUDGET, TutorialStep.WORD]:
+		return
 	if not _delivery_is_allowed(DELIVERY_PITY):
 		return
+	_finish_tutorial()
 	_resolve([], _pity_text, DELIVERY_PITY, 0)
 
 
 func _on_sponsor() -> void:
+	if _tutorial_step in [TutorialStep.BUDGET, TutorialStep.WORD]:
+		return
 	if not _delivery_is_allowed(DELIVERY_SPONSOR):
 		return
+	_finish_tutorial()
 	_resolve([], _sponsor_text, DELIVERY_SPONSOR, 0)
 
 

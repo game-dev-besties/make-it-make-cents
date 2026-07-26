@@ -106,6 +106,16 @@ func _execute() -> void:
 			"pity_text": String(recovery_data.get("pity_text", PhraseCutOverlay.DEFAULT_PITY_TEXT)),
 			"sponsor_text": String(recovery_data.get("sponsor_text", PhraseCutOverlay.DEFAULT_SPONSOR_TEXT)),
 			"required_delivery": String(data.get("required_delivery", "")),
+			"show_tutorial": (
+				game_stats.has_method("get_value")
+				and not bool(
+					game_stats.call(
+						"get_value",
+						PhraseCutOverlay.TUTORIAL_STATE_KEY,
+						false,
+					)
+				)
+			),
 		},
 	)
 	await ui.resolved
