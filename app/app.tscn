@@ -28,6 +28,7 @@
 [ext_resource type="StyleBox" path="res://ui/theme/return_to_title_normal.tres" id="29_restart_normal"]
 [ext_resource type="StyleBox" path="res://ui/theme/return_to_title_hover.tres" id="30_restart_hover"]
 [ext_resource type="StyleBox" path="res://ui/theme/return_to_title_focus.tres" id="31_restart_focus"]
+[ext_resource type="PackedScene" path="res://ui/results/results_screen.tscn" id="32_results_screen"]
 
 [sub_resource type="FontVariation" id="FontVariation_credits_names"]
 base_font = ExtResource("22_credits_font")
@@ -199,6 +200,11 @@ text = "Return to Game"
 [node name="CampaignPlayer" type="Node" parent="." unique_id=1993390885]
 unique_name_in_owner = true
 script = ExtResource("2_campaign_player")
+
+[node name="ResultsLayer" type="CanvasLayer" parent="." unique_id=1305192273]
+layer = 250
+
+[node name="ResultsScreen" parent="ResultsLayer" unique_id=8145512 instance=ExtResource("32_results_screen")]
 
 [node name="TitleLayer" type="CanvasLayer" parent="." unique_id=1675889693]
 layer = 200

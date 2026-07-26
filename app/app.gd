@@ -49,6 +49,7 @@ const HUD_CONTROL_GAP := 10.0
 @onready var status_label: Label = %StatusLabel
 @onready var campaign_player: CampaignPlayer = %CampaignPlayer
 @onready var chapter_transition: ChapterTransition = %ChapterTransition
+@onready var results_screen: ResultsScreen = %ResultsScreen
 @onready var developer_tools: VBoxContainer = %DeveloperTools
 @onready var episode_picker: OptionButton = %EpisodePicker
 @onready var play_episode_button: Button = %PlayEpisodeButton
@@ -79,6 +80,7 @@ func _ready() -> void:
 	campaign_player.validation_failed.connect(_on_validation_failed)
 	campaign_player.integration_warning.connect(_on_integration_warning)
 	game_state.budget_changed.connect(_on_budget_changed)
+	results_screen.title_requested.connect(_on_results_title_requested)
 	_configure_developer_tools()
 	_refresh_title_actions()
 	_style_episode_picker_popup()
@@ -98,6 +100,7 @@ func _process(_delta: float) -> void:
 
 func _on_start_button_pressed() -> void:
 	status_label.text = ""
+	results_screen.dismiss()
 	if _run_parked_on_title:
 		_resume_campaign()
 		return
@@ -169,6 +172,9 @@ func _on_play_episode_button_pressed() -> void:
 
 func _on_episode_started(episode: EpisodeDefinition) -> void:
 	_run_parked_on_title = false
+	results_screen.dismiss()
+	_set_dialogic_paused(false)
+	_set_dialogic_layout_visible(true)
 	episode_label.text = "CURRENT CHAPTER  /  %s" % episode.title
 	budget_label.show()
 	hud_status_panel.show()
@@ -188,18 +194,27 @@ func _on_episode_transition_requested(episode: EpisodeDefinition) -> void:
 func _on_campaign_finished() -> void:
 	_run_parked_on_title = false
 	episode_label.text = "The story is complete."
-	budget_label.hide()
-	hud_status_panel.hide()
-	back_to_title_button.hide()
-	history_button.hide()
-	return_to_game_button.hide()
+	_hide_game_hud()
+	_set_dialogic_layout_visible(false)
 	title_screen.hide()
+	results_screen.present(game_state)
 
 
 func _on_campaign_aborted() -> void:
 	_run_parked_on_title = false
 	episode_label.text = ""
+	results_screen.dismiss()
 	_hide_game_hud()
+	title_screen.show()
+	_show_main_title()
+
+
+func _on_results_title_requested() -> void:
+	results_screen.dismiss()
+	stage_host.clear_presentation()
+	_set_dialogic_paused(false)
+	_hide_game_hud()
+	status_label.text = ""
 	title_screen.show()
 	_show_main_title()
 

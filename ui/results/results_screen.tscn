@@ -1,0 +1,296 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://ui/results/results_screen.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cdx5wtmod06bs" path="res://ui/theme/fonts/DepartureMono-Regular.ttf" id="2_body_font"]
+[ext_resource type="FontFile" uid="uid://82o47hdnvssv" path="res://ui/title/fonts/Tiny5-Regular.ttf" id="3_display_font"]
+[ext_resource type="StyleBox" path="res://ui/theme/primary_button.tres" id="4_primary_button"]
+[ext_resource type="StyleBox" path="res://ui/theme/primary_button_hover.tres" id="5_primary_hover"]
+[ext_resource type="StyleBox" path="res://ui/theme/subtle_focus.tres" id="6_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_results_panel"]
+bg_color = Color(0.992157, 0.984314, 0.956863, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.141176, 0.188235, 0.121569, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.141176, 0.188235, 0.121569, 0.24)
+shadow_size = 12
+shadow_offset = Vector2(0, 7)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_face"]
+bg_color = Color(0.992157, 0.984314, 0.956863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.141176, 0.188235, 0.121569, 0.62)
+corner_radius_top_left = 56
+corner_radius_top_right = 56
+corner_radius_bottom_right = 56
+corner_radius_bottom_left = 56
+anti_aliasing = false
+
+[sub_resource type="Shader" id="Shader_remove_white"]
+code = "shader_type canvas_item;\nrender_mode unshaded;\n\nvoid fragment() {\n\tvec4 source = texture(TEXTURE, UV);\n\tfloat darkest = min(source.r, min(source.g, source.b));\n\tfloat lightest = max(source.r, max(source.g, source.b));\n\tfloat neutral = 1.0 - smoothstep(0.015, 0.09, lightest - darkest);\n\tfloat paper = smoothstep(0.94, 0.995, darkest) * neutral;\n\tsource.a *= 1.0 - paper;\n\tCOLOR = source;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_face"]
+shader = SubResource("Shader_remove_white")
+
+[node name="ResultsScreen" type="Control"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.945098, 0.929412, 0.87451, 1)
+
+[node name="ResultsCanvas" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="ResultsPanel" type="PanelContainer" parent="ResultsCanvas"]
+layout_mode = 0
+offset_left = 316.0
+offset_top = 34.0
+offset_right = 836.0
+offset_bottom = 614.0
+theme_override_styles/panel = SubResource("StyleBox_results_panel")
+
+[node name="Margin" type="MarginContainer" parent="ResultsCanvas/ResultsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="ResultsCanvas/ResultsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EndingTitle" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("3_display_font")
+theme_override_font_sizes/font_size = 46
+text = "PENNYBOT 4000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FaceRow" type="CenterContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 138)
+layout_mode = 2
+
+[node name="Faces" type="HBoxContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="DadFaceFrame" type="PanelContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces"]
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_face")
+
+[node name="Margin" type="MarginContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/DadFaceFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="DadFace" type="TextureRect" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/DadFaceFrame/Margin"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_face")
+texture_filter = 1
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GrandmaFaceFrame" type="PanelContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces"]
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_face")
+
+[node name="Margin" type="MarginContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/GrandmaFaceFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="GrandmaFace" type="TextureRect" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/GrandmaFaceFrame/Margin"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_face")
+texture_filter = 1
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SonFaceFrame" type="PanelContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces"]
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_face")
+
+[node name="Margin" type="MarginContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/SonFaceFrame"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="SonFace" type="TextureRect" parent="ResultsCanvas/ResultsPanel/Margin/Content/FaceRow/Faces/SonFaceFrame/Margin"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_face")
+texture_filter = 1
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SummaryLabel" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 0.9)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+text = "You made everyone happy. Wow, congrats!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Rule" type="HSeparator" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.141176, 0.188235, 0.121569, 0.3)
+theme_override_constants/separation = 2
+
+[node name="Stats" type="GridContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 142)
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 7
+columns = 2
+
+[node name="MoneySpentLabel" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+custom_minimum_size = Vector2(270, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+text = "Money spent:"
+vertical_alignment = 1
+
+[node name="MoneySpentValue" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.231373, 0.419608, 0.290196, 1)
+theme_override_fonts/font = ExtResource("3_display_font")
+theme_override_font_sizes/font_size = 22
+text = "$0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="JinglesSungLabel" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+custom_minimum_size = Vector2(270, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+text = "Jingles sung:"
+vertical_alignment = 1
+
+[node name="JinglesSungValue" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.807843, 0.396078, 0.152941, 1)
+theme_override_fonts/font = ExtResource("3_display_font")
+theme_override_font_sizes/font_size = 22
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="GruntsSaidLabel" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+custom_minimum_size = Vector2(270, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+text = "Grunts said:"
+vertical_alignment = 1
+
+[node name="GruntsSaidValue" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.807843, 0.396078, 0.152941, 1)
+theme_override_fonts/font = ExtResource("3_display_font")
+theme_override_font_sizes/font_size = 22
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="NothingsSaidLabel" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+custom_minimum_size = Vector2(270, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141176, 0.188235, 0.121569, 1)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+text = "Nothings said:"
+vertical_alignment = 1
+
+[node name="NothingsSaidValue" type="Label" parent="ResultsCanvas/ResultsPanel/Margin/Content/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 27)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.807843, 0.396078, 0.152941, 1)
+theme_override_fonts/font = ExtResource("3_display_font")
+theme_override_font_sizes/font_size = 22
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MainMenuRow" type="CenterContainer" parent="ResultsCanvas/ResultsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="MainMenuButton" type="Button" parent="ResultsCanvas/ResultsPanel/Margin/Content/MainMenuRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 50)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_focus_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_pressed_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_colors/font_hover_color = Color(0.992157, 0.984314, 0.956863, 1)
+theme_override_fonts/font = ExtResource("2_body_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = ExtResource("4_primary_button")
+theme_override_styles/pressed = ExtResource("5_primary_hover")
+theme_override_styles/hover = ExtResource("5_primary_hover")
+theme_override_styles/focus = ExtResource("6_focus")
+text = "Main Menu"

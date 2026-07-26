@@ -335,6 +335,11 @@ func _apply_delivery(
 						)
 					),
 				)
+	if game_stats.has_method("record_delivery"):
+		game_stats.call(
+			"record_delivery",
+			StringName(result.get("delivery_mode", PhraseCutOverlay.DELIVERY_NORMAL)),
+		)
 
 
 func _consume_recovery(game_stats: Node, method: StringName, arguments: Array = []) -> bool:

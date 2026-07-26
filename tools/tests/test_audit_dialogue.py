@@ -463,7 +463,6 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                         '[gd_resource type="Resource" format=3]',
                         "",
                         "[resource]",
-                        "word_budget = 0",
                         'score_owner = &"son"',
                         "",
                     ]
@@ -502,6 +501,7 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             )
 
         self.assertEqual(report["summary"]["phrase_lines"], 1)
+        self.assertEqual(report["budget_pressure"]["initial_budget"], 0)
         self.assertGreater(report["summary"]["raw_paths"], 0)
         self.assertGreater(report["summary"]["truncated_raw_paths"], 0)
         self.assertEqual(

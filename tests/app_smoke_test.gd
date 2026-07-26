@@ -24,6 +24,12 @@ func _run() -> void:
 	var paused_run_actions := app.get_node_or_null("%PausedRunActions") as Control
 	var resume_button := app.get_node_or_null("%ResumeButton") as BaseButton
 	var play_again_button := app.get_node_or_null("%PlayAgainButton") as BaseButton
+	var results_screen := app.get_node_or_null("%ResultsScreen") as ResultsScreen
+	var results_title_button := (
+		results_screen.get_node_or_null("%MainMenuButton") as BaseButton
+		if results_screen != null
+		else null
+	)
 	var stage_host := app.get_node_or_null("%StageHost") as StageHost
 	var campaign_player := app.get_node_or_null("%CampaignPlayer") as CampaignPlayer
 	var chapter_transition := app.get_node_or_null("%ChapterTransition") as ChapterTransition
@@ -37,6 +43,8 @@ func _run() -> void:
 		and paused_run_actions != null
 		and resume_button != null
 		and play_again_button != null
+		and results_screen != null
+		and results_title_button != null
 		and stage_host != null
 		and campaign_player != null
 		and chapter_transition != null
@@ -135,6 +143,29 @@ func _run() -> void:
 		_check(
 			stage_host.current_presentation == null,
 			"Aborting the campaign should clear the opening stage.",
+		)
+
+		game_stats.money_total_spent = 23
+		game_stats.delivery_jingles_sung = 2
+		game_stats.delivery_grunts_said = 1
+		game_stats.delivery_nothings_said = 4
+		game_stats.set_story_flag(&"dad_offended_interviewer", "none")
+		game_stats.set_story_flag(&"got_prescription", true)
+		game_stats.set_story_flag(&"got_the_girl", "no")
+		game_stats.set_story_flag(&"family_stays", true)
+		campaign_player.finish_campaign()
+		await process_frame
+		_check(
+			results_screen.visible
+			and not title_screen.visible
+			and (results_screen.get_node("%MoneySpentValue") as Label).text == "$23",
+			"Finishing the campaign should show the populated results screen.",
+		)
+		results_title_button.pressed.emit()
+		await process_frame
+		_check(
+			not results_screen.visible and title_screen.visible,
+			"The results screen should return to the title.",
 		)
 
 	app.queue_free()

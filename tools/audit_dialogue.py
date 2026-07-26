@@ -2160,10 +2160,8 @@ def _episode_settings(episode_dir: Path) -> tuple[int, str]:
         r'(?m)^score_owner\s*=\s*&"([A-Za-z_][A-Za-z0-9_]*)"\s*$',
         text,
     )
-    if budget_match is None:
-        raise AuditError(f"{resource_path}: missing word_budget")
     return (
-        int(budget_match.group(1)),
+        int(budget_match.group(1)) if budget_match else 0,
         owner_match.group(1) if owner_match else "",
     )
 

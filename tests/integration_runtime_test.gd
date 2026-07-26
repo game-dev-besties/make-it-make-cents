@@ -17,6 +17,7 @@ func _init() -> void:
 func _run() -> void:
 	_test_budget_and_recovery()
 	_test_effective_zero_affordability()
+	_test_campaign_totals()
 	_test_state_round_trip()
 	_test_story_flags_and_history()
 	_test_phrase_recovery_policy()
@@ -95,6 +96,38 @@ func _test_effective_zero_affordability() -> void:
 	state.free()
 
 
+func _test_campaign_totals() -> void:
+	var state: GameStateStore = GAME_STATE_SCRIPT.new()
+	var phrase_event := DialogicPhraseCutEvent.new()
+	phrase_event.speaker = "son"
+	state.begin_cutscene(5)
+	phrase_event.call(
+		"_apply_delivery",
+		state,
+		{"delivery_mode": &"normal", "cost": 2},
+	)
+	phrase_event.call(
+		"_apply_delivery",
+		state,
+		{"delivery_mode": &"pity", "cost": 0},
+	)
+	phrase_event.call(
+		"_apply_delivery",
+		state,
+		{"delivery_mode": &"sponsor", "cost": 0},
+	)
+	phrase_event.call(
+		"_apply_delivery",
+		state,
+		{"delivery_mode": &"silence", "cost": 0},
+	)
+	_check(state.money_total_spent == 2, "Paid words should accumulate across the campaign.")
+	_check(state.delivery_jingles_sung == 1, "Sponsor deliveries should count jingles.")
+	_check(state.delivery_grunts_said == 1, "Pity deliveries should count grunts.")
+	_check(state.delivery_nothings_said == 1, "Silence deliveries should count nothings.")
+	state.free()
+
+
 func _test_state_round_trip() -> void:
 	var original: GameStateStore = GAME_STATE_SCRIPT.new()
 	original.begin_cutscene(10)
@@ -104,6 +137,9 @@ func _test_state_round_trip() -> void:
 	original.set_value(&"dad_job_result", "creative_hire")
 	original.set_story_flag(&"dad_offended_interviewer", "soda")
 	original.set_story_flag(&"dad_mentioned_family", true)
+	original.record_delivery(&"sponsor")
+	original.record_delivery(&"pity")
+	original.record_delivery(&"silence")
 	original.dad_success = 99
 	original.son_silly = -4
 	_check(original.dad_success == 10, "Success stats should clamp to ten.")
@@ -114,6 +150,10 @@ func _test_state_round_trip() -> void:
 	_check(restored.remaining_budget() == 6, "Save data should preserve active budget.")
 	_check(restored.son_success == 7, "Save data should preserve success stats.")
 	_check(restored.dad_silly == 4, "Save data should preserve silly stats.")
+	_check(restored.money_total_spent == 4, "Save data should preserve money spent.")
+	_check(restored.delivery_jingles_sung == 1, "Save data should preserve jingles.")
+	_check(restored.delivery_grunts_said == 1, "Save data should preserve grunts.")
+	_check(restored.delivery_nothings_said == 1, "Save data should preserve nothings.")
 	_check(
 		restored.get_value(&"dad_job_result") == "creative_hire",
 		"Save data should preserve campaign values.",
@@ -134,6 +174,13 @@ func _test_state_round_trip() -> void:
 	_check(
 		not restored.get_story_flag(&"dad_mentioned_family"),
 		"A new game should clear boolean flags.",
+	)
+	_check(
+		restored.money_total_spent == 0
+		and restored.delivery_jingles_sung == 0
+		and restored.delivery_grunts_said == 0
+		and restored.delivery_nothings_said == 0,
+		"A new game should clear campaign totals.",
 	)
 	original.free()
 	restored.free()

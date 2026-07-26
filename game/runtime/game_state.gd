@@ -15,6 +15,10 @@ const SPONSOR_SUCCESS_PENALTY := 3
 const STORY_FLAGS_PATH := "res://story/flags.json"
 
 var money_total_saved := 0
+var money_total_spent := 0
+var delivery_jingles_sung := 0
+var delivery_grunts_said := 0
+var delivery_nothings_said := 0
 var cutscene_budget := 0
 var cutscene_spent := 0
 var cutscene_reserved_savings := 0
@@ -56,6 +60,10 @@ func reset() -> void:
 func reset_for_new_game() -> void:
 	var previous_budget := remaining_budget()
 	money_total_saved = 0
+	money_total_spent = 0
+	delivery_jingles_sung = 0
+	delivery_grunts_said = 0
+	delivery_nothings_said = 0
 	cutscene_budget = 0
 	cutscene_spent = 0
 	cutscene_reserved_savings = 0
@@ -195,6 +203,7 @@ func spend(amount: int) -> int:
 	var previous_budget := remaining_budget()
 	var charged: int = mini(maxi(0, amount), previous_budget)
 	cutscene_spent += charged
+	money_total_spent += charged
 	cutscene_sponsor_credit = maxi(0, cutscene_sponsor_credit - charged)
 	if charged > 0:
 		budget_changed.emit(remaining_budget(), previous_budget)
@@ -260,6 +269,16 @@ func use_sponsor(credit: int) -> bool:
 	return true
 
 
+func record_delivery(delivery_mode: StringName) -> void:
+	match delivery_mode:
+		&"sponsor":
+			delivery_jingles_sung += 1
+		&"pity":
+			delivery_grunts_said += 1
+		&"silence":
+			delivery_nothings_said += 1
+
+
 func apply_sponsor_penalty(
 	speaker: StringName,
 	success_delta: int = -SPONSOR_SUCCESS_PENALTY,
@@ -289,6 +308,10 @@ func end_cutscene() -> void:
 func to_dictionary() -> Dictionary:
 	return {
 		"money_total_saved": money_total_saved,
+		"money_total_spent": money_total_spent,
+		"delivery_jingles_sung": delivery_jingles_sung,
+		"delivery_grunts_said": delivery_grunts_said,
+		"delivery_nothings_said": delivery_nothings_said,
 		"cutscene_budget": cutscene_budget,
 		"cutscene_spent": cutscene_spent,
 		"cutscene_reserved_savings": cutscene_reserved_savings,
@@ -310,6 +333,10 @@ func to_dictionary() -> Dictionary:
 func load_dictionary(data: Dictionary) -> void:
 	var previous_budget := remaining_budget()
 	money_total_saved = max(0, int(data.get("money_total_saved", 0)))
+	money_total_spent = max(0, int(data.get("money_total_spent", 0)))
+	delivery_jingles_sung = max(0, int(data.get("delivery_jingles_sung", 0)))
+	delivery_grunts_said = max(0, int(data.get("delivery_grunts_said", 0)))
+	delivery_nothings_said = max(0, int(data.get("delivery_nothings_said", 0)))
 	cutscene_budget = max(0, int(data.get("cutscene_budget", data.get("budget", 0))))
 	cutscene_spent = clampi(int(data.get("cutscene_spent", 0)), 0, cutscene_budget)
 	cutscene_reserved_savings = max(0, int(data.get("cutscene_reserved_savings", 0)))

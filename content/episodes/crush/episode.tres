@@ -18,6 +18,5 @@ show_title_transition = true
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/crush/dialogue.dtl"
 phrase_data_path = "res://content/episodes/crush/phrases.json"
-word_budget = 0
 score_owner = &"son"
 routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])

@@ -43,6 +43,8 @@ run_godot_checked --headless --path . \
 run_godot_checked --headless --path . \
   --script res://tests/moneybot_companion_test.gd
 run_godot_checked --headless --path . \
+  --script res://tests/results_screen_test.gd
+run_godot_checked --headless --path . \
   --script res://tests/dialogic_content_validation_test.gd
 run_godot_checked --headless --path . \
   --script res://tests/stats_schema_test.gd

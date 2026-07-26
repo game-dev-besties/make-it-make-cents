@@ -8,6 +8,10 @@
     "grandma.silly",
     "intro.grandma_praised_for_silence",
     "intro.pills_confiscated",
-    "money.total_saved"
+    "money.total_saved",
+    "money.total_spent",
+    "delivery.jingles_sung",
+    "delivery.grunts_said",
+    "delivery.nothings_said"
   ]
 }
