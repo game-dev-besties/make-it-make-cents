@@ -33,6 +33,30 @@ tracks/0/keys = {
 "update": 0,
 "values": [0.0]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Right:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(760, -36)]
+}
 
 [sub_resource type="Animation" id="Animation_incoming_call"]
 resource_name = "incoming_call"
@@ -78,9 +102,38 @@ tracks/0/keys = {
 "values": [1.0, 0.0]
 }
 
+[sub_resource type="Animation" id="Animation_bully_enters"]
+resource_name = "bully_enters"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Right:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(760, -36), Vector2(596, -36)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_son"]
 _data = {
 &"RESET": SubResource("Animation_RESET"),
+&"bully_enters": SubResource("Animation_bully_enters"),
 &"dismiss_call": SubResource("Animation_dismiss_call"),
 &"incoming_call": SubResource("Animation_incoming_call")
 }
@@ -111,6 +164,7 @@ expression = ""
 is_active = false
 
 [node name="Right" parent="ActorSlots" index="2"]
+self_modulate = Color(1, 1, 1, 0)
 offset_left = 596.0
 offset_top = -36.0
 offset_right = 1106.0

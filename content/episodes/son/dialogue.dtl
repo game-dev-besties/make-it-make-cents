@@ -3,6 +3,7 @@ story_flag_set {"name":"son_said_soda","value":false}
 story_flag_set {"name":"grandma_ignored","value":false}
 story_flag_set {"name":"son_defended_self","value":false}
 \son (nervous): (First day at school…ugh. And I have to use this dumb bot…)
+presentation_cue bully_enters
 \bully (neutral): Yo, new kid! What’s that dumb bot you have hanging around you?
 label question_1
 phrase_cut son (nervous) son_L001

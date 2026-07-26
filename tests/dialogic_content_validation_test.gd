@@ -308,8 +308,49 @@ func _validate_timeline(
 			% [episode.phrase_data_path, metadata_id],
 		)
 
+	if episode != null and String(episode.id) == "son":
+		_validate_son_bully_entrance_order(timeline.events, timeline_path)
+
 	if stage != null:
 		stage.free()
+
+
+func _validate_son_bully_entrance_order(
+	events: Array,
+	timeline_path: String,
+) -> void:
+	var entrance_index := -1
+	var first_bully_line_index := -1
+	for event_index: int in events.size():
+		var event: Variant = events[event_index]
+		if (
+			event is DialogicPresentationCueEvent
+			and (event as DialogicPresentationCueEvent).cue_id == "bully_enters"
+		):
+			entrance_index = event_index
+		elif (
+			first_bully_line_index < 0
+			and event is DialogicTextEvent
+			and (event as DialogicTextEvent).character_identifier == "bully"
+		):
+			first_bully_line_index = event_index
+
+	_check(
+		entrance_index >= 0,
+		"%s must cue `bully_enters` before the bully speaks." % timeline_path,
+	)
+	_check(
+		first_bully_line_index >= 0,
+		"%s must contain the bully’s opening line." % timeline_path,
+	)
+	_check(
+		entrance_index + 1 == first_bully_line_index,
+		(
+			"%s must place `bully_enters` immediately before the bully’s first "
+			+ "line."
+		)
+		% timeline_path,
+	)
 
 
 func _validate_authored_stage_choreography(
@@ -321,6 +362,19 @@ func _validate_authored_stage_choreography(
 		return
 
 	match String(episode.id):
+		"son":
+			_finish_stage_animation(animation_player, &"RESET")
+			_check_visible_cast(
+				stage,
+				["son"],
+				"Chapter 3 should begin with Percy alone; the bully must be off-screen.",
+			)
+			_finish_stage_animation(animation_player, &"bully_enters")
+			_check_visible_cast(
+				stage,
+				["bully", "son"],
+				"Chapter 3 should reveal the bully only at `bully_enters`.",
+			)
 		"crush":
 			_finish_stage_animation(animation_player, &"RESET")
 			_check_visible_cast(

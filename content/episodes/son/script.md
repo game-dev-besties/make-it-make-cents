@@ -5,6 +5,7 @@ SET grandma_ignored = false
 SET son_defended_self = false
 
 son (nervous): (First day at school…ugh. And I have to use this dumb bot…)
+@cue bully_enters
 bully (neutral): Yo, new kid! What’s that dumb bot you have hanging around you?
 
 ## question_1

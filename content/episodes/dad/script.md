@@ -128,7 +128,7 @@ elif kept("no") and kept("experience"):
   interviewer: Tsk, tsk. Not what we’re looking for.
   dad.success -= 1
 elif kept("experience") and kept("fast"):
-  interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+  interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
   dad.success -= 1
   dad.silly += 1
 elif kept("experience"):
@@ -136,7 +136,7 @@ elif kept("experience"):
   dad.success -= 1
   dad.silly += 1
 elif kept("fast"):
-  interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+  interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
   dad.success -= 1
   dad.silly += 1
 elif kept("but"):

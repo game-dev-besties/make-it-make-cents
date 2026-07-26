@@ -112,7 +112,7 @@ elif PhraseMemory.kept("no") and PhraseMemory.kept("experience"):
 	\interviewer: Tsk, tsk. Not what we’re looking for.
 	set {GameStats.dad_success} -= 1
 elif PhraseMemory.kept("experience") and PhraseMemory.kept("fast"):
-	\interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+	\interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
 elif PhraseMemory.kept("experience"):
@@ -120,7 +120,7 @@ elif PhraseMemory.kept("experience"):
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
 elif PhraseMemory.kept("fast"):
-	\interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+	\interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
 	set {GameStats.dad_success} -= 1
 	set {GameStats.dad_silly} += 1
 elif PhraseMemory.kept("but"):
