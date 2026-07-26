@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://6fhu10fibdfi"]
 
 [ext_resource type="PackedScene" path="res://game/components/stage.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://gqvmkpxjinqd" path="res://content/episodes/neighbors/reeds_home.png" id="2_reeds_home"]
+[ext_resource type="PackedScene" path="res://game/components/stage_actor_slot.tscn" id="3_slot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 bg_color = Color(0.19, 0.12, 0.065, 0.9)
@@ -24,10 +26,16 @@ _data = {
 }
 
 [node name="NeighborsStage" unique_id=271038792 instance=ExtResource("1_base")]
-stage_title = "Tuesday evening - the Reeds' front door"
+stage_title = "Tuesday evening - the Reeds' home"
 
 [node name="Background" parent="." index="0"]
 color = Color(0.18, 0.12, 0.07, 1)
+
+[node name="BackgroundImage" parent="Background" index="0"]
+texture = ExtResource("2_reeds_home")
+
+[node name="Props" parent="." index="1"]
+visible = false
 
 [node name="Door" type="ColorRect" parent="Props" index="0" unique_id=1778350045]
 layout_mode = 0
@@ -59,40 +67,73 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Left" parent="ActorSlots" index="0"]
-offset_left = 80.0
-offset_top = 40.0
-offset_right = 500.0
+offset_left = -35.0
+offset_top = 20.0
+offset_right = 315.0
+offset_bottom = 640.0
+character_id = &"dad"
+actor_name = "Dad"
+expression = "neutral"
+accent_color = Color(0.38, 0.58, 0.84, 1)
+
+[node name="Center" parent="ActorSlots" index="1"]
+offset_left = 110.0
+offset_top = 70.0
+offset_right = 460.0
 offset_bottom = 640.0
 character_id = &"grandma"
 actor_name = "Grandma"
 expression = "happy"
 accent_color = Color(0.82, 0.5, 0.35, 1)
 
-[node name="Center" parent="ActorSlots" index="1"]
-offset_left = 340.0
-offset_top = 40.0
-offset_right = 760.0
+[node name="Right" parent="ActorSlots" index="2"]
+offset_left = 255.0
+offset_top = 50.0
+offset_right = 605.0
+offset_bottom = 640.0
+character_id = &"son"
+actor_name = "Percy"
+expression = "neutral"
+accent_color = Color(0.46, 0.7, 0.88, 1)
+
+[node name="Crush" parent="ActorSlots" index="3" instance=ExtResource("3_slot")]
+layout_mode = 0
+offset_left = 500.0
+offset_top = 50.0
+offset_right = 850.0
 offset_bottom = 640.0
 character_id = &"crush"
 actor_name = "Clementine"
 expression = "neutral"
 accent_color = Color(0.97, 0.5, 0.68, 1)
 
-[node name="Right" parent="ActorSlots" index="2"]
-offset_left = 650.0
-offset_top = 40.0
-offset_right = 1070.0
+[node name="Interviewer" parent="ActorSlots" index="4" instance=ExtResource("3_slot")]
+layout_mode = 0
+offset_left = 655.0
+offset_top = 20.0
+offset_right = 1005.0
 offset_bottom = 640.0
 character_id = &"interviewer"
-actor_name = "The Reeds"
+actor_name = "Mr. Reed"
 expression = "neutral"
 accent_color = Color(0.9, 0.72, 0.37, 1)
+
+[node name="Doctor" parent="ActorSlots" index="5" instance=ExtResource("3_slot")]
+layout_mode = 0
+offset_left = 810.0
+offset_top = 45.0
+offset_right = 1160.0
+offset_bottom = 640.0
+character_id = &"doctor"
+actor_name = "Doctor Reed"
+expression = "neutral"
+accent_color = Color(0.32, 0.7, 0.62, 1)
 
 [node name="Effects" parent="." index="3"]
 visible = false
 
 [node name="StageTitle" parent="." index="4"]
-text = "Tuesday evening - the Reeds' front door"
+text = "Tuesday evening - the Reeds' home"
 
 [node name="AnimationPlayer" parent="." index="5"]
 libraries/ = SubResource("AnimationLibrary_neighbors")

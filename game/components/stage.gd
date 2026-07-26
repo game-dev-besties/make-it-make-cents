@@ -109,6 +109,9 @@ func apply_dialogic_text(info: Dictionary) -> bool:
 	for slot in _actor_slots():
 		var is_speaker := not character_id.is_empty() and slot.character_id == character_id
 		slot.is_active = is_speaker
+		# Ensemble stages intentionally overlap portraits. Keep the current
+		# speaker readable without requiring a bespoke animation for every line.
+		slot.z_index = 10 if is_speaker else 0
 		if not is_speaker:
 			continue
 		matched = true

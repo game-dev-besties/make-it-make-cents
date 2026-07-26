@@ -62,6 +62,10 @@ func _run() -> void:
 	_check(dad_slot.expression == "happy", "The active slot should use the line's portrait expression.")
 	_check(dad_slot.is_active, "The speaking character should be emphasized.")
 	_check(not interviewer_slot.is_active, "A non-speaking character should be de-emphasized.")
+	_check(
+		dad_slot.z_index > interviewer_slot.z_index,
+		"The speaking character should render above overlapping ensemble portraits.",
+	)
 
 	var interviewer := DialogicResourceUtil.get_character_resource("interviewer")
 	text_subsystem.emit_signal(
@@ -70,6 +74,10 @@ func _run() -> void:
 	)
 	_check(not dad_slot.is_active, "Emphasis should move away from the previous speaker.")
 	_check(interviewer_slot.is_active, "Emphasis should move to the new speaker.")
+	_check(
+		interviewer_slot.z_index > dad_slot.z_index,
+		"Speaker depth should follow emphasis when the speaker changes.",
+	)
 	_check(
 		interviewer_slot.actor_name == "Interviewer",
 		"The matching slot should use the new speaker's display name.",
