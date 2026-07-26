@@ -130,6 +130,7 @@ presentation_cue home_reveal
 presentation_cue clementine_reveal
 \son (shy): That girl in black and violet is the first thing in this country that is not beige.
 \son (shy): I want to ask who she is, but that would cost—
+presentation_cue clementine_exit
 \grandma (neutral): My pills…
 if GameStats.intro_pills_confiscated:
 	\son (sad): Oh, right. The customs officer confiscated them.

@@ -160,6 +160,7 @@ son (neutral): Except…
 @cue clementine_reveal
 son (shy): That girl in black and violet is the first thing in this country that is not beige.
 son (shy): I want to ask who she is, but that would cost—
+@cue clementine_exit
 grandma (neutral): My pills…
 
 if intro.pills_confiscated:

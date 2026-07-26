@@ -392,6 +392,7 @@ func _test_campaign_and_stage() -> void:
 		&"customs_focus",
 		&"home_reveal",
 		&"clementine_reveal",
+		&"clementine_exit",
 	]:
 		_check(
 			host.play_cue(cue_id),
@@ -439,6 +440,21 @@ func _test_campaign_and_stage() -> void:
 		_check(
 			is_equal_approx(clementine_sprite.modulate.a, 1.0),
 			"The Clementine reveal should show her portrait instead of a placeholder card.",
+		)
+		_check(
+			clementine_sprite.position.x < 1160.0,
+			"The Clementine reveal should move her across the home scene.",
+		)
+		animation_player.advance(0.45)
+		_check(
+			is_equal_approx(clementine_sprite.position.x, 580.0),
+			"The Clementine walk-by should finish at her home-scene mark.",
+		)
+		host.play_cue(&"clementine_exit")
+		animation_player.advance(0.8)
+		_check(
+			clementine_sprite.position.x < 0.0 and is_zero_approx(clementine_sprite.modulate.a),
+			"The Clementine exit cue should walk her away after Percy notices her.",
 		)
 		var sponsor_blackout := intro_stage.get_node("Effects/SponsorBlackout") as Control
 		host.play_cue(&"sponsor_blackout")
