@@ -16,7 +16,8 @@ See [WRITING_DIALOGUE.md](WRITING_DIALOGUE.md) for the format.
 Run `bash scripts/check.sh` for compiler and Godot checks. To produce the Web
 build, run `bash scripts/build-web.sh` with `godot` on your PATH (or set
 `GODOT_BIN`). The Vercel build downloads checksum-verified Godot 4.7.1 binaries
-and export templates into its cache.
+and export templates into its cache. Vercel Preview deployments use a debug
+Godot export; Production deployments use the normal release export.
 
 ## Where work belongs
 

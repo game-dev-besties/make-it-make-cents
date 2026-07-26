@@ -50,7 +50,7 @@ elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and ke
 elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 5) or (kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 4):
   bully (neutral): Am I supposed to be scared? Ha!
   son.success -= 1
-elif (kept("i_can") and kept("speak") and kept_count() == 2) or (kept("i_can") and kept("speak") and kept("better") and kept_count() == 3):
+elif (kept("i_can") and kept_count() == 1) or (kept("i_can") and kept("speak") and kept_count() == 2) or (kept("i_can") and kept("speak") and kept("better") and kept_count() == 3):
   bully (neutral): Yeah, barely. Guess you can’t afford an actual brain, either.
   son.success -= 1
 elif kept("speak") and kept("better") and kept_count() == 2:

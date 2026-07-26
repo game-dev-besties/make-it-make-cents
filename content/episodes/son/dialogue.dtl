@@ -41,7 +41,7 @@ elif (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory
 elif (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory.kept("better") and PhraseMemory.kept("than") and PhraseMemory.kept("brick") and PhraseMemory.kept_count() == 5) or (PhraseMemory.kept("speak") and PhraseMemory.kept("better") and PhraseMemory.kept("than") and PhraseMemory.kept("brick") and PhraseMemory.kept_count() == 4):
 	\bully (neutral): Am I supposed to be scared? Ha!
 	set {GameStats.son_success} -= 1
-elif (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory.kept("better") and PhraseMemory.kept_count() == 3):
+elif (PhraseMemory.kept("i_can") and PhraseMemory.kept_count() == 1) or (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("i_can") and PhraseMemory.kept("speak") and PhraseMemory.kept("better") and PhraseMemory.kept_count() == 3):
 	\bully (neutral): Yeah, barely. Guess you can’t afford an actual brain, either.
 	set {GameStats.son_success} -= 1
 elif PhraseMemory.kept("speak") and PhraseMemory.kept("better") and PhraseMemory.kept_count() == 2:

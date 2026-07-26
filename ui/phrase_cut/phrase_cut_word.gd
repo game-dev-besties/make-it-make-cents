@@ -152,9 +152,86 @@ func _draw_strike(
 	progress: float = 1.0,
 	left_to_right: bool = true,
 ) -> void:
-	var line_y := size.y * 0.54
-	var left := Vector2(3.0, line_y)
-	var right := Vector2(size.x - 3.0, line_y)
-	var line_start := left if left_to_right else right
-	var line_end := line_start.lerp(right if left_to_right else left, progress)
-	draw_line(line_start, line_end, strike_color, 2.0, true)
+	for line_rect: Rect2 in _strike_line_rects():
+		var left := Vector2(line_rect.position.x, line_rect.get_center().y)
+		var right := Vector2(line_rect.end.x, line_rect.get_center().y)
+		var line_start := left if left_to_right else right
+		var line_end := line_start.lerp(right if left_to_right else left, progress)
+		draw_line(line_start, line_end, strike_color, 2.0, true)
+
+
+func _strike_line_rects() -> Array[Rect2]:
+	var style := _strike_stylebox()
+	var left_margin := 0.0 if style == null else style.get_margin(SIDE_LEFT)
+	var top_margin := 0.0 if style == null else style.get_margin(SIDE_TOP)
+	var right_margin := 0.0 if style == null else style.get_margin(SIDE_RIGHT)
+	var bottom_margin := 0.0 if style == null else style.get_margin(SIDE_BOTTOM)
+	var content_size := Vector2(
+		maxf(1.0, size.x - left_margin - right_margin),
+		maxf(1.0, size.y - top_margin - bottom_margin),
+	)
+
+	var paragraph := TextParagraph.new()
+	paragraph.alignment = alignment
+	paragraph.break_flags = _strike_break_flags()
+	paragraph.width = (
+		-1.0
+		if autowrap_mode == TextServer.AUTOWRAP_OFF
+		else content_size.x
+	)
+	paragraph.add_string(
+		text,
+		get_theme_font("font"),
+		get_theme_font_size("font_size"),
+		language,
+	)
+
+	var paragraph_size := paragraph.get_size()
+	var line_top := top_margin + maxf(0.0, (content_size.y - paragraph_size.y) * 0.5)
+	var line_rects: Array[Rect2] = []
+	for line_index: int in paragraph.get_line_count():
+		var line_size := paragraph.get_line_size(line_index)
+		var line_width := minf(content_size.x, paragraph.get_line_width(line_index))
+		var line_left := left_margin
+		match alignment:
+			HORIZONTAL_ALIGNMENT_CENTER:
+				line_left += (content_size.x - line_width) * 0.5
+			HORIZONTAL_ALIGNMENT_RIGHT:
+				line_left += content_size.x - line_width
+		var strike_left := maxf(3.0, line_left - 1.0)
+		var strike_right := minf(size.x - 3.0, line_left + line_width + 1.0)
+		line_rects.append(
+			Rect2(
+				strike_left,
+				line_top + line_size.y * 0.04,
+				maxf(0.0, strike_right - strike_left),
+				line_size.y,
+			)
+		)
+		line_top += line_size.y
+	paragraph = null
+	return line_rects
+
+
+func _strike_stylebox() -> StyleBox:
+	var style_name := &"normal"
+	if disabled:
+		style_name = &"disabled"
+	elif _is_hovering:
+		style_name = &"hover_pressed" if button_pressed else &"hover"
+	elif button_pressed:
+		style_name = &"pressed"
+	var style := get_theme_stylebox(style_name)
+	return style if style != null else get_theme_stylebox("normal")
+
+
+func _strike_break_flags() -> int:
+	var flags := TextServer.BREAK_MANDATORY | autowrap_trim_flags
+	match autowrap_mode:
+		TextServer.AUTOWRAP_ARBITRARY:
+			flags |= TextServer.BREAK_GRAPHEME_BOUND
+		TextServer.AUTOWRAP_WORD:
+			flags |= TextServer.BREAK_WORD_BOUND
+		TextServer.AUTOWRAP_WORD_SMART:
+			flags |= TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	return flags

@@ -18,7 +18,6 @@ func _run() -> void:
 	await _test_zero_budget_state()
 	await _test_dynamic_phrase_labels()
 	await _test_long_phrase_wraps_inside_panel()
-
 	if _failures.is_empty():
 		print("Phrase-choice behavior checks passed.")
 		quit(0)
@@ -152,6 +151,19 @@ func _test_long_phrase_wraps_inside_panel() -> void:
 		balance_chip.size.y > 46.0,
 		"The long balance phrase should grow vertically when it wraps.",
 	)
+	var strike_lines: Array = balance_chip.call("_strike_line_rects")
+	_check(
+		strike_lines.size() > 1,
+		"A wrapped phrase should draw a separate strike through each text line.",
+	)
+	var previous_line_y := -INF
+	for strike_line: Variant in strike_lines:
+		var line_rect := strike_line as Rect2
+		_check(
+			line_rect.get_center().y > previous_line_y,
+			"Wrapped phrase strikes should follow the rendered line positions.",
+		)
+		previous_line_y = line_rect.get_center().y
 	overlay.queue_free()
 	await process_frame
 

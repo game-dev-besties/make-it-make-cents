@@ -105,7 +105,13 @@ install_templates() {
 mkdir -p "${cache_root}" "${cached_template_dir}"
 install_godot
 install_templates
-GODOT_BIN="${godot_binary}" ./scripts/build-web.sh
+vercel_environment="${VERCEL_ENV:-production}"
+export_mode="debug"
+if [ "${vercel_environment}" = "production" ]; then
+  export_mode="release"
+fi
+echo "Vercel ${vercel_environment} deployment: selecting ${export_mode} Godot export."
+GODOT_BIN="${godot_binary}" GODOT_EXPORT_MODE="${export_mode}" ./scripts/build-web.sh
 mkdir -p .vercel/output/static
 cp -a build/web/. .vercel/output/static/
 cp vercel-output-config.json .vercel/output/config.json

@@ -20,6 +20,19 @@ fi
 
 python3 tools/compile_dialogue.py
 godot_bin="${GODOT_BIN:-godot}"
+export_mode="${GODOT_EXPORT_MODE:-release}"
+case "${export_mode}" in
+  debug)
+    export_flag="--export-debug"
+    ;;
+  release)
+    export_flag="--export-release"
+    ;;
+  *)
+    echo "Unsupported GODOT_EXPORT_MODE '${export_mode}'; use 'debug' or 'release'." >&2
+    exit 1
+    ;;
+esac
 editor_output=""
 if ! editor_output="$(
   "${godot_bin}" --headless --editor --path . --quit 2>&1
@@ -33,9 +46,10 @@ if grep -Eq 'SCRIPT ERROR:|Failed to load script|Parse Error:|GDScript::reload:|
   exit 1
 fi
 
+echo "Building Godot Web export in ${export_mode} mode..."
 export_output=""
 if ! export_output="$(
-  "${godot_bin}" --headless --path . --export-release "Web" build/web/index.html 2>&1
+  "${godot_bin}" --headless --path . "${export_flag}" "Web" build/web/index.html 2>&1
 )"; then
   printf '%s\n' "${export_output}"
   exit 1
