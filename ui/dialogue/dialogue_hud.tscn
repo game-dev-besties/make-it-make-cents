@@ -50,7 +50,7 @@ name_label_font = "res://ui/theme/fonts/DepartureMono-Regular.ttf"
 name_label_box_panel = "res://ui/dialogue/dialogue_nameplate_panel.tres"
 name_label_box_use_global_color = false
 name_label_box_modulate = Color(1, 1, 1, 1)
-name_label_box_offset = Vector2(0, -29)
+name_label_box_offset = Vector2(32, 64)
 next_indicator_size = Vector2(18, 18)
 next_indicator_position_offset = Vector2(0, 0)
 
@@ -181,10 +181,10 @@ mouse_filter = 2
 [node name="NameLabelPanel" type="PanelContainer" parent="Anchor/AnimationParent/Sizer/DialogTextPanel/NameLabelHolder" unique_id=969236123]
 unique_name_in_owner = true
 layout_mode = 1
-offset_left = -20.0
-offset_top = -138.0
-offset_right = 220.0
-offset_bottom = -70.0
+offset_left = -8.0
+offset_top = -36.0
+offset_right = -8.0
+offset_bottom = -36.0
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("9_nameplate_panel")
 
