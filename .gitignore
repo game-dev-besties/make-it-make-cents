@@ -4,7 +4,7 @@
 *.translation
 __pycache__/
 *.py[cod]
-
+.test-logs
 # web build artifacts
 build/*
 !build/.gdignore
