@@ -18,6 +18,8 @@ CHECK son_showed_tariff_empathy == true as clem_realizes_percy_defended_another_
     son (shy): [Do I?]{id=do_i} [hnf]{id=hnf}
     if kept("do_i"):
       crush (nervous): SHUT UP!
+    elif delivery("sponsor"):
+      crush (nervous): SHUT UP!
     else:
       @sponsor_score 0
       @sponsor_text "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
@@ -25,6 +27,8 @@ CHECK son_showed_tariff_empathy == true as clem_realizes_percy_defended_another_
       if kept("said_nothing"):
         crush (nervous): Shuddup.
         son (shy): ;)
+      elif delivery("sponsor"):
+        crush (nervous): SHUT UP!
       else:
         crush (nervous): Shut up!!! Your “nothing” is… is obnoxious.
         crush (nervous): (…especially with that look…)

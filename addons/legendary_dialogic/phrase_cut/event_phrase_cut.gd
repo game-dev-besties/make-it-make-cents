@@ -105,6 +105,7 @@ func _execute() -> void:
 			),
 			"pity_text": String(recovery_data.get("pity_text", PhraseCutOverlay.DEFAULT_PITY_TEXT)),
 			"sponsor_text": String(recovery_data.get("sponsor_text", PhraseCutOverlay.DEFAULT_SPONSOR_TEXT)),
+			"required_delivery": String(data.get("required_delivery", "")),
 		},
 	)
 	await ui.resolved

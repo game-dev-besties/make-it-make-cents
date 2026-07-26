@@ -129,6 +129,10 @@ elif PhraseMemory.delivery_is("silence"):
 else:
 	set {GameStats.intro_pills_confiscated} = true
 	\officer: That’s not specific enough. I cannot verify that declaration. The pills stay here.
+if GameStats.intro_pills_confiscated:
+	story_flag_set {"name":"has_meds","value":false}
+else:
+	story_flag_set {"name":"has_meds","value":true}
 presentation_cue home_reveal
 [wait time="0.5"]
 \dad (happy): Alright, son, we’re here!

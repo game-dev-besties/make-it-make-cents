@@ -1,91 +1,143 @@
 # Generated from content/episodes/neighbors/script.md; edit script.md, not this file.
-label door
-\grandma (happy): We brought cookies! To welcome ourselves to the neighborhood.
-\interviewer (happy): How lovely! Come in, come in. I'm Clementine's dad, this is her mom, and you already know our daughter.
-if GameStats.get_story_flag("got_the_girl") == "yes":
-	\crush (happy): Wait — you’re that sweet kid from the park! Percy!
-	phrase_cut son (surprised) neighbors_L001
-	\crush (happy): I told you I’d see you around. Guess it’s today!
-	goto_label warm
-elif GameStats.get_story_flag("got_the_girl") == "baited":
-	\crush (nervous): ...You.
-	\crush (nervous): You’re the one who didn’t want to keep talking.
-	phrase_cut son (sad) neighbors_L002
-	goto_label chilly
-elif GameStats.get_story_flag("got_the_girl") == "no":
-	\crush (neutral): ...Huh. You look familiar. Have we met?
-	phrase_cut son (nervous) neighbors_L003
-	goto_label neutral_end
-elif GameStats.son_success > 5:
-	\crush (happy): Wait — you're that sweet kid from the park! Percy!
-	phrase_cut son (surprised) neighbors_L004
-	\crush (happy): I told you I'd see you tomorrow. Guess it's today!
-	goto_label warm
-elif GameStats.son_silly >= 3:
-	\crush (nervous): ...You. You're the one from the park, aren't you.
-	phrase_cut son (sad) neighbors_L005
-	goto_label chilly
+speaker_name crush "Clementine"
+speaker_name penny "Pennybot 3000"
+[background arg="res://content/episodes/neighbors/leiton_home.webp" fade="0.5"]
+\dad (neutral): Alright, everybody, how was your day?
+\dad (nervous): Oh, wait! No time for talk! We’re late to the neighbors’ place for dinner!
+\dad (happy): I’m excited to meet them, are you?
+\son (neutral): Not really…
+presentation_cue neighbors_transition_out
+[wait time="0.4"]
+[background arg="res://content/episodes/neighbors/reeds_home.png" fade="0.5"]
+presentation_cue neighbors_transition_in
+[wait time="0.65"]
+\son (surprised): !!
+\crush (nervous): !!
+\crush (nervous): YOU’RE my neighbor?
+if not GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"!=","expected":"yes","branch":"percy_did_not_connect_with_clementine"}
+	\crush (nervous): Ugh…great.
+	\crush (nervous): As if I wanted to see more of you…
+if GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"==","expected":"yes","branch":"percy_connected_with_clementine"}
+	\crush (happy): I can’t believe it!
+	\crush (happy): I guess that means we’ll be hanging out a lot.
+	\crush (happy): Pretty exciting, huh?
+presentation_cue hosts_enter
+[wait time="0.5"]
+\interviewer (nervous): You…!
+if GameStats.story_flag_equals("dad_offended_interviewer", "soda"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"soda","branch":"dad_offended_the_interviewer_with_soda"}
+	\interviewer (nervous): …
+	\interviewer (neutral): Are you here for more soda?
+if GameStats.story_flag_equals("dad_offended_interviewer", "butts"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"butts","branch":"dad_offended_the_interviewer_with_butts"}
+	\interviewer (nervous): Let’s hope you have a more appropriate conversation topic than “butts” this time…
+if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_did_not_offend_the_interviewer"}
+	\interviewer (happy): Our new hire! What a coincidence!
+	\interviewer (happy): Welcome to the family, neighbor!
+presentation_cue grandma_returns
+[wait time="0.4"]
+\doctor (neutral): Oh, hello. I didn’t think I would live right next to one of my patients.
+if GameStats.story_flag_equals("got_prescription", true):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":true,"branch":"grandma_received_her_prescription"}
+	\doctor (happy): I hope the new medication is working out for you!
+if GameStats.story_flag_equals("got_prescription", false):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_did_not_receive_her_prescription"}
+	\doctor (neutral): I hope the new medication is working…
+	\doctor (neutral): Sorry I couldn’t be more help…
+	\doctor (neutral): (This is so awkward.)
+if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dinner_starts_warmly"}
+	\interviewer (happy): Well, let’s eat!
+if not GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"!=","expected":"none","branch":"dinner_starts_awkwardly"}
+	\interviewer (neutral): Alright, then…let’s eat.
+presentation_cue dinner_fade
+[wait time="0.5"]
+[background arg="res://content/episodes/neighbors/leiton_home.webp" fade="0.5"]
+presentation_cue back_at_home
+[wait time="0.65"]
+\Back at home…
+if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dad_enjoyed_dinner"}
+	\dad (happy): Wow, what a load of fun! I can’t believe we have such nice neighbors!
+if not GameStats.story_flag_equals("dad_offended_interviewer", "none"):
+	story_flag_check {"name":"dad_offended_interviewer","operator":"!=","expected":"none","branch":"dad_found_dinner_awkward"}
+	\dad (neutral): Well…that was awkward. I don’t think we’ll be invited over again.
+if GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"==","expected":"yes","branch":"percy_enjoyed_dinner_with_clem"}
+	\son (shy): I’ll definitely be over a lot.
+	\son (shy): I had so much fun talking to Clem.
+if not GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"!=","expected":"yes","branch":"percy_regrets_missing_his_chance"}
+	\son (sad): Clem was glaring at me the whole time…
+	\son (sad): I wish I hadn’t missed my chance with her…
+if GameStats.story_flag_equals("got_prescription", true):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":true,"branch":"grandma_enjoyed_dinner_with_the_doctor"}
+	\grandma (happy): I THOUGHT THAT WENT WONDERFULLY! THAT DOCTOR LADY IS ACTUALLY QUITE NICE.
+if GameStats.story_flag_equals("got_prescription", false):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_resented_the_doctor"}
+	\grandma (neutral): THAT DOCTOR LADY IS A SHAM! SHE WOULDN’T MEET MY EYES THE ENTIRE MEAL!
+\son (surprised): W-woah there, Grandma. That was pretty loud. This place has changed you.
+\grandma (neutral): HAS IT? I DIDN’T REALIZE.
+if GameStats.get_story_flag("dad_offended_interviewer") == "none":
+	if GameStats.get_story_flag("got_the_girl") == "yes":
+		if GameStats.get_story_flag("got_prescription"):
+			\dad (happy): Huh, so since it seems that all of us are happy here…
+			goto_label staying_ending
+		else:
+			\dad (happy): Huh, so since it seems that most of us are happy here…
+			goto_label staying_ending
+	elif GameStats.get_story_flag("got_prescription"):
+		\dad (happy): Huh, so since it seems that most of us are happy here…
+		goto_label staying_ending
+	else:
+		\dad (neutral): Huh, so since it seems that only one of us is happy here…
+		goto_label ohio_ending
+elif GameStats.get_story_flag("got_the_girl") == "yes":
+	if GameStats.get_story_flag("got_prescription"):
+		\dad (happy): Huh, so since it seems that most of us are happy here…
+		goto_label staying_ending
+	else:
+		\dad (neutral): Huh, so since it seems that only one of us is happy here…
+		goto_label ohio_ending
+elif GameStats.get_story_flag("got_prescription"):
+	\dad (neutral): Huh, so since it seems that only one of us is happy here…
+	goto_label ohio_ending
 else:
-	\crush (neutral): ...Huh. You look familiar. Have we met?
-	phrase_cut son (nervous) neighbors_L006
-	goto_label neutral_end
-label warm
-if GameStats.dad_success > 5:
-	\interviewer (happy): And you must be our new hire! Welcome to the team, neighbor.
-	phrase_cut dad (happy) neighbors_L007
-	goto_label good_end
-elif GameStats.dad_silly >= 3:
-	\interviewer (happy): And here is our new creative hire. I knew you looked familiar.
-	phrase_cut dad (happy) neighbors_L008
-	goto_label good_end
-elif GameStats.dad_silly >= 2:
-	\interviewer (confused): Wait — you're the fellow who applied with us. The...
-	phrase_cut dad (sad) neighbors_L009
-	goto_label mixed
-else:
-	\interviewer (neutral): I am afraid the position was not the right fit.
-	phrase_cut dad (sad) neighbors_L010
-	goto_label mixed
-label chilly
-\interviewer (neutral): Hm. So you're the father. We met at the office, didn't we.
-if GameStats.dad_success > 5:
-	\interviewer (happy): Welcome to the team! Don't mind Clementine, she's shy.
-	phrase_cut dad (happy) neighbors_L011
-	goto_label mixed
-elif GameStats.dad_silly >= 3:
-	\interviewer (happy): Our unexpected creative hire. Quite the family.
-	phrase_cut dad (happy) neighbors_L012
-	goto_label mixed
-elif GameStats.dad_silly >= 2:
-	\interviewer (nervous): ...Both of you, quite the impression.
-	goto_label bad_end
-else:
-	\interviewer (neutral): We did. I am afraid I do not have better news about the position.
-	goto_label bad_end
-label neutral_end
-if GameStats.dad_success > 5:
-	\interviewer (happy): And you're our new hire — welcome to the team, neighbor!
-	phrase_cut dad (happy) neighbors_L013
-	goto_label good_end
-elif GameStats.dad_silly >= 3:
-	\interviewer (happy): And you are our new creative hire. Small world.
-	phrase_cut dad (happy) neighbors_L014
-	goto_label good_end
-else:
-	\interviewer (neutral): And I recognize you from the office.
-	phrase_cut dad (nervous) neighbors_L015
-	goto_label mixed
-label mixed
-\grandma (happy): What a small world! Let's all have tea.
-\doctor (happy): There is my patient! I didn't expect to see you so soon.
-phrase_cut grandma (happy) neighbors_L016
+	\dad (sad): Huh, so since it seems that none of us are happy here…
+	goto_label ohio_ending
+label staying_ending
+story_flag_set {"name":"family_stays","value":true}
+\dad (happy): I have some good news.
+\dad (happy): I’m upgrading our Pennybot 3000!
+\dad (happy): I think we’re finally settled in. We’re staying here for good!
+if not GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"!=","expected":"yes","branch":"percy_is_unhappy_about_staying"}
+	\son (sad): Just great…
+if GameStats.story_flag_equals("got_prescription", false):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_is_unhappy_about_staying"}
+	\grandma (neutral): WITH THAT INCOMPETENT DOCTOR LADY? GUESS I’LL JUST DIE THEN…
+speaker_name penny "Pennybot 4000"
+presentation_cue pennybot_reveal
+[wait time="0.4"]
+\penny: Good job, little robot! Looks like they’re here to stay because of you.
 [end_timeline]
-label good_end
-\grandma (happy): What a wonderful welcome. I think we're going to like it here.
-\doctor (happy): Nice to see you again! How's the back?
-phrase_cut grandma (happy) neighbors_L017
-[end_timeline]
-label bad_end
-\grandma (neutral): Well. Thank you for the cookies... reception.
-\crush (nervous): ...Please go now.
+label ohio_ending
+story_flag_set {"name":"family_stays","value":false}
+\dad (neutral): I have some good news.
+\dad (neutral): We’re moving back to Ohio.
+\dad (neutral): I thought this Verbal Tariff Act stuff would teach us important lessons, but it’s just too darn hard!
+if GameStats.story_flag_equals("got_the_girl", "yes"):
+	story_flag_check {"name":"got_the_girl","operator":"==","expected":"yes","branch":"percy_is_unhappy_about_leaving"}
+	\son (sad): But…Clem…
+if GameStats.story_flag_equals("got_prescription", true):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":true,"branch":"grandma_is_unhappy_about_leaving"}
+	\grandma (neutral): BUT…MY MEDICATION! GUESS I’LL JUST DIE THEN…
+speaker_name penny "Scrap Parts"
+presentation_cue pennybot_reveal
+[wait time="0.4"]
+\penny: That robot is going straight to the garbage. You couldn’t even do better than Ohio.
 [end_timeline]

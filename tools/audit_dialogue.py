@@ -10,8 +10,11 @@ different set of writer-facing questions:
 * Are broad fallbacks, unreachable branches, default-choice surprises, or
   sharp one-toggle score changes hiding likely writing mistakes?
 
-Enumeration is exact for loop-free scripts. Findings prefixed with HEURISTIC
-are review prompts, not proof that the writing is wrong.
+Enumeration is exact for loop-free scripts. Scripts with goto labels are
+expanded to a configurable per-label visit bound. Histories still inside a
+retry cycle at that bound are reported and excluded from terminal-state
+findings. Findings prefixed with HEURISTIC are review prompts, not proof that
+the writing is wrong.
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ import ast
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
+from itertools import product
 import json
 from pathlib import Path
 import re
@@ -46,6 +50,7 @@ from tools.compile_dialogue import (
 SPONSOR_CREDIT = 3
 DEFAULT_SPONSOR_SCORE_DELTA = -3
 DEFAULT_RECOVERY_MODES = frozenset({"pity", "sponsor"})
+DEFAULT_MAX_LOOP_VISITS = 1
 SENTENCE_TERMINATORS = ".?!…"
 CLOSING_PUNCTUATION = "\"'”’)]}"
 WORD_BOUNDARIES = " \t\r\n.,!?…;:\"'“”‘’()[]{}"
@@ -137,6 +142,7 @@ class SimState:
     flags: tuple[tuple[str, object], ...]
     phrase: PhraseMemory | None = None
     halted: bool = False
+    truncated_at: str = ""
 
     def stat_map(self) -> dict[str, object]:
         return dict(self.stats)
@@ -150,6 +156,7 @@ class SimState:
             self.stats,
             self.flags,
             self.halted,
+            self.truncated_at,
         )
 
 
@@ -189,6 +196,7 @@ class QuestionAudit:
     available_deliveries: set[str] = field(default_factory=set)
     cases: dict[CaseKey, CaseResult] = field(default_factory=dict)
     response_if_line: int | None = None
+    unconditional_response: str | None = None
     response_branches: tuple[tuple[str | None, list[dict], object], ...] = ()
     post_states: dict[tuple[object, ...], Reach] = field(default_factory=dict)
 
@@ -216,6 +224,13 @@ class CheckAudit:
     pass_paths: int = 0
     fail_paths: int = 0
     passing_states: dict[tuple[object, ...], Reach] = field(default_factory=dict)
+
+
+@dataclass
+class ControlFlowExpansion:
+    statements: list[dict]
+    jump_targets: set[str] = field(default_factory=set)
+    bounded_targets: set[str] = field(default_factory=set)
 
 
 def _initial_stat_value(stat: str) -> object:
@@ -450,11 +465,115 @@ def _is_simple_transition(statements: Sequence[dict]) -> bool:
             "flag_check",
             "choice",
             "recovery",
+            "audit_loop_cutoff",
         }:
             return False
         if kind == "dialogue" and "phrases" in statement:
             return False
     return True
+
+
+def _expand_control_flow(
+    statements: Sequence[dict],
+    *,
+    max_loop_visits: int,
+) -> ControlFlowExpansion:
+    """Inline goto destinations while bounding retry cycles.
+
+    The writer format only permits top-level labels, so a jump can be modeled
+    by replacing it with the destination's remaining top-level statements.
+    A synthetic terminal statement prevents the caller's surrounding block
+    from continuing after that inlined destination finishes.
+
+    Visit counts are local to one statically expanded history. Forward jumps
+    therefore remain exact, while a backward jump eventually becomes an
+    ``audit_loop_cutoff`` statement instead of recursing forever.
+    """
+    if max_loop_visits < 1:
+        raise AuditError("max_loop_visits must be at least 1")
+
+    top_level = list(statements)
+    labels = {
+        statement["name"]: index
+        for index, statement in enumerate(top_level)
+        if statement["kind"] == "label"
+    }
+    result = ControlFlowExpansion(statements=[])
+
+    def expand_sequence(
+        sequence: Sequence[dict],
+        visits: Mapping[str, int],
+    ) -> list[dict]:
+        expanded: list[dict] = []
+        for statement in sequence:
+            kind = statement["kind"]
+            if kind == "jump":
+                target = statement["target"]
+                if target == "end":
+                    expanded.append(statement)
+                    break
+
+                result.jump_targets.add(target)
+                target_visits = visits.get(target, 0) + 1
+                if target_visits > max_loop_visits:
+                    result.bounded_targets.add(target)
+                    expanded.append(
+                        {
+                            "kind": "audit_loop_cutoff",
+                            "target": target,
+                            "line": statement["line"],
+                        }
+                    )
+                    break
+
+                next_visits = dict(visits)
+                next_visits[target] = target_visits
+                expanded.extend(
+                    expand_sequence(
+                        top_level[labels[target] :],
+                        next_visits,
+                    )
+                )
+                # The inlined tail belongs to the jump, not to the block that
+                # contained it. Halt any destination path that naturally
+                # reaches the end of the episode without an explicit `-> end`.
+                expanded.append(
+                    {
+                        "kind": "jump",
+                        "target": "end",
+                        "line": statement["line"],
+                        "audit_synthetic": True,
+                    }
+                )
+                break
+
+            if kind == "if":
+                expanded.append(
+                    {
+                        **statement,
+                        "branches": [
+                            (
+                                condition,
+                                expand_sequence(body, visits),
+                                branch_line,
+                            )
+                            for condition, body, branch_line in statement["branches"]
+                        ],
+                    }
+                )
+            elif kind in {"flag_check", "choice"}:
+                expanded.append(
+                    {
+                        **statement,
+                        "body": expand_sequence(statement["body"], visits),
+                    }
+                )
+            else:
+                expanded.append(statement)
+        return expanded
+
+    result.statements = expand_sequence(top_level, {})
+    return result
 
 
 class EpisodeAuditor:
@@ -466,23 +585,37 @@ class EpisodeAuditor:
         source_root: Path,
         allowed_stats: frozenset[str],
         flag_defaults: Mapping[str, object],
+        initial_flag_variants: Sequence[Mapping[str, object]] = (),
         initial_budget: int,
         score_owner: str,
         expected_phrase_lines: int | None = None,
+        max_loop_visits: int = DEFAULT_MAX_LOOP_VISITS,
     ):
         self.episode_id = episode_id
         self.statements = list(statements)
         self.source_root = source_root
         self.allowed_stats = allowed_stats
         self.flag_defaults = dict(flag_defaults)
+        self.initial_flag_variants = [
+            dict(variant)
+            for variant in initial_flag_variants
+        ] or [{}]
         self.initial_budget = initial_budget
         self.score_owner = score_owner
         self.expected_phrase_lines = expected_phrase_lines
+        self.max_loop_visits = max_loop_visits
         self.questions: dict[str, QuestionAudit] = {}
         self.if_audits: dict[tuple[str, int], IfAudit] = {}
         self.check_audits: dict[tuple[str, int], CheckAudit] = {}
+        self.loop_cutoff_paths: Counter[str] = Counter()
+        self.loop_cutoff_examples: dict[str, tuple[str, ...]] = {}
         self._phrase_ids: dict[int, str] = {}
         self._index_phrase_lines(self.statements)
+        self.control_flow = _expand_control_flow(
+            self.statements,
+            max_loop_visits=max_loop_visits,
+        )
+        self.statements = self.control_flow.statements
 
     def _index_phrase_lines(self, statements: Sequence[dict]) -> None:
         sequence = len(self._phrase_ids)
@@ -505,15 +638,31 @@ class EpisodeAuditor:
             (stat, _initial_stat_value(stat))
             for stat in sorted(self.allowed_stats)
         )
-        initial_flags = tuple(sorted(self.flag_defaults.items()))
-        initial = SimState(
-            budget=self.initial_budget,
-            stats=initial_stats,
-            flags=initial_flags,
-        )
+        initial_frontier: Frontier = {}
+        for variant in self.initial_flag_variants:
+            flags = {**self.flag_defaults, **variant}
+            description = ", ".join(
+                f"{name}={json.dumps(value, ensure_ascii=False)}"
+                for name, value in sorted(variant.items())
+            )
+            initial = SimState(
+                budget=self.initial_budget,
+                stats=initial_stats,
+                flags=tuple(sorted(flags.items())),
+            )
+            _add(
+                initial_frontier,
+                initial,
+                Reach(
+                    1,
+                    (f"initial flags: {description}",)
+                    if description
+                    else (),
+                ),
+            )
         frontier = self._execute_sequence(
             self.statements,
-            {initial: Reach(1)},
+            initial_frontier,
         )
         return self._build_report(frontier)
 
@@ -584,21 +733,40 @@ class EpisodeAuditor:
                 continue
             elif kind == "jump":
                 if statement["target"] != "end":
-                    line = statement["line"]
-                    raise AuditError(
-                        f"{line.path}:{line.number}: loops/goto labels are not "
-                        "yet supported by exact path counting"
-                    )
+                    raise AssertionError("non-terminal jump was not expanded")
                 active = {
                     replace(state, halted=True): reach
                     for state, reach in active.items()
                 }
+            elif kind == "audit_loop_cutoff":
+                target = statement["target"]
+                self.loop_cutoff_paths[target] += sum(
+                    reach.paths for reach in active.values()
+                )
+                if target not in self.loop_cutoff_examples and active:
+                    example_reach = next(iter(active.values()))
+                    self.loop_cutoff_examples[target] = (
+                        example_reach.example + (f"loop limit at {target}",)
+                    )
+                active = {
+                    replace(
+                        state,
+                        halted=True,
+                        truncated_at=target,
+                    ): Reach(
+                        reach.paths,
+                        reach.example + (f"loop limit at {target}",),
+                    )
+                    for state, reach in active.items()
+                }
+            elif kind == "dialogue":
+                self._record_unconditional_response(statement, active)
             elif kind in {
                 "label",
-                "dialogue",
                 "narration",
                 "wait",
                 "cue",
+                "speaker_name",
                 "background",
                 "music",
                 "sfx",
@@ -612,6 +780,14 @@ class EpisodeAuditor:
             frontier = _merge(active, halted)
             position += 1
             remaining_statements = statements[position:]
+            if (
+                remaining_statements
+                and any(state.phrase is not None for state in active)
+            ):
+                self._record_upcoming_unconditional_response(
+                    remaining_statements,
+                    active,
+                )
             if (
                 remaining_statements
                 and _can_discard_current_phrase(remaining_statements)
@@ -673,6 +849,12 @@ class EpisodeAuditor:
                 {"delta": DEFAULT_SPONSOR_SCORE_DELTA},
             )["delta"]
         )
+        required_delivery = str(
+            configs.get(
+                "required_delivery",
+                {"delivery": ""},
+            )["delivery"]
+        )
 
         result: Frontier = {}
         question.input_paths += sum(reach.paths for reach in frontier.values())
@@ -683,6 +865,11 @@ class EpisodeAuditor:
                 state,
                 recovery,
             ):
+                if (
+                    required_delivery
+                    and case.delivery != required_delivery
+                ):
+                    continue
                 next_state = self._apply_delivery(
                     state,
                     statement["speaker"],
@@ -721,6 +908,41 @@ class EpisodeAuditor:
                 case_result = question.cases.setdefault(case, CaseResult())
                 case_result.paths += reach.paths
         return result
+
+    def _record_unconditional_response(
+        self,
+        statement: dict,
+        frontier: Frontier,
+    ) -> None:
+        for state in frontier:
+            if state.phrase is None:
+                continue
+            question = self.questions[state.phrase.line_id]
+            if (
+                question.response_if_line is None
+                and question.unconditional_response is None
+            ):
+                question.unconditional_response = statement["text"]
+
+    def _record_upcoming_unconditional_response(
+        self,
+        statements: Sequence[dict],
+        frontier: Frontier,
+    ) -> None:
+        for statement in statements:
+            kind = statement["kind"]
+            if kind == "dialogue":
+                if "phrases" not in statement:
+                    self._record_unconditional_response(statement, frontier)
+                return
+            if kind in PHRASE_CONFIG_KINDS or kind in {
+                "if",
+                "flag_check",
+                "choice",
+                "jump",
+                "audit_loop_cutoff",
+            }:
+                return
 
     def _available_cases(
         self,
@@ -809,6 +1031,9 @@ class EpisodeAuditor:
             for state in frontier
             if state.phrase is not None
             and self.questions[state.phrase.line_id].response_if_line is None
+            and self.questions[
+                state.phrase.line_id
+            ].unconditional_response is None
         }
         response_question_id = (
             next(iter(associated_questions))
@@ -1067,8 +1292,18 @@ class EpisodeAuditor:
         return ", ".join(changes) if changes else "no state change"
 
     def _build_report(self, frontier: Frontier) -> dict:
+        completed_frontier = {
+            state: reach
+            for state, reach in frontier.items()
+            if not state.truncated_at
+        }
+        truncated_frontier = {
+            state: reach
+            for state, reach in frontier.items()
+            if state.truncated_at
+        }
         final_states: dict[tuple[object, ...], Reach] = {}
-        for state, reach in frontier.items():
+        for state, reach in completed_frontier.items():
             key = state.mechanics_key()
             existing = final_states.get(key)
             if existing is None:
@@ -1090,9 +1325,18 @@ class EpisodeAuditor:
         return {
             "episode": self.episode_id,
             "assumptions": {
-                "exact_for": "loop-free scripts",
+                "exact_for": (
+                    "loop-free scripts"
+                    if not self.control_flow.jump_targets
+                    else (
+                        "histories within the configured per-label visit bound; "
+                        "terminal findings exclude histories still retrying at "
+                        "that bound"
+                    )
+                ),
                 "initial_budget": self.initial_budget,
                 "score_owner": self.score_owner,
+                "initial_flag_variants": self.initial_flag_variants,
                 "initial_stats": {
                     stat: _initial_stat_value(stat)
                     for stat in sorted(self.allowed_stats)
@@ -1104,9 +1348,29 @@ class EpisodeAuditor:
                 "sponsor_credit": SPONSOR_CREDIT,
                 "counts_are_probabilities": False,
             },
+            "control_flow": {
+                "jump_targets": sorted(self.control_flow.jump_targets),
+                "max_loop_visits": self.max_loop_visits,
+                "bounded_targets": [
+                    {
+                        "target": target,
+                        "raw_paths": self.loop_cutoff_paths[target],
+                        "example": list(
+                            self.loop_cutoff_examples.get(target, ())
+                        ),
+                    }
+                    for target in sorted(self.control_flow.bounded_targets)
+                ],
+            },
             "summary": {
-                "phrase_lines": len(self.questions),
-                "raw_paths": sum(reach.paths for reach in frontier.values()),
+                "phrase_lines": len(self._phrase_ids),
+                "reachable_phrase_lines": len(self.questions),
+                "raw_paths": sum(
+                    reach.paths for reach in completed_frontier.values()
+                ),
+                "truncated_raw_paths": sum(
+                    reach.paths for reach in truncated_frontier.values()
+                ),
                 "final_mechanical_states": len(final_states),
                 "final_budget": self._value_range(
                     key[0] for key in final_states
@@ -1155,7 +1419,7 @@ class EpisodeAuditor:
 
         if (
             self.expected_phrase_lines is not None
-            and len(self.questions) != self.expected_phrase_lines
+            and len(self._phrase_ids) != self.expected_phrase_lines
         ):
             findings.append(
                 {
@@ -1164,22 +1428,43 @@ class EpisodeAuditor:
                     "kind": "exact",
                     "message": (
                         f"Expected {self.expected_phrase_lines} phrase prompts "
-                        f"but found {len(self.questions)}."
+                        f"but found {len(self._phrase_ids)}."
+                    ),
+                }
+            )
+
+        reached_line_ids = set(self.questions)
+        for _statement_id, line_id in self._phrase_ids.items():
+            if line_id in reached_line_ids:
+                continue
+            findings.append(
+                {
+                    "severity": "high",
+                    "code": "UNREACHABLE_PHRASE_LINE",
+                    "kind": "exact",
+                    "line_id": line_id,
+                    "message": (
+                        "No configured initial flag variant reaches this "
+                        "phrase prompt."
                     ),
                 }
             )
 
         for question in self.questions.values():
             if question.response_if_line is None:
-                findings.append(
-                    {
-                        "severity": "high",
-                        "code": "NO_RESPONSE_BRANCH",
-                        "kind": "exact",
-                        "line_id": question.line_id,
-                        "message": "No conditional response follows this phrase prompt.",
-                    }
-                )
+                if question.unconditional_response is None:
+                    findings.append(
+                        {
+                            "severity": "high",
+                            "code": "NO_RESPONSE",
+                            "kind": "exact",
+                            "line_id": question.line_id,
+                            "message": (
+                                "No conditional or unconditional dialogue "
+                                "response follows this phrase prompt."
+                            ),
+                        }
+                    )
                 continue
 
             normal_cases = [
@@ -1668,6 +1953,7 @@ class EpisodeAuditor:
             "input_budget": self._value_range(question.input_budgets),
             "available_deliveries": sorted(question.available_deliveries),
             "response_if_line": question.response_if_line,
+            "unconditional_response": question.unconditional_response,
             "branches": branches,
             "cases": [
                 {
@@ -1740,12 +2026,13 @@ class EpisodeAuditor:
         mechanics: tuple[object, ...],
         reach: Reach,
     ) -> dict:
-        budget, stats, flags, halted = mechanics
+        budget, stats, flags, halted, truncated_at = mechanics
         return {
             "budget": budget,
             "stats": dict(stats),
             "flags": dict(flags),
             "halted": halted,
+            "truncated_at": truncated_at or None,
             "raw_paths": reach.paths,
             "example": list(reach.example),
         }
@@ -1806,10 +2093,32 @@ def audit_episode(
     *,
     expected_phrase_lines: int | None = None,
     initial_budget_override: int | None = None,
+    max_loop_visits: int = DEFAULT_MAX_LOOP_VISITS,
+    vary_flags: Sequence[str] = (),
     episodes_dir: Path = EPISODES_DIR,
 ) -> dict:
     allowed_stats = load_allowed_stats()
     flag_definitions = load_flag_definitions()
+    varied_flag_names = tuple(dict.fromkeys(vary_flags))
+    unknown_flags = [
+        name
+        for name in varied_flag_names
+        if name not in flag_definitions
+    ]
+    if unknown_flags:
+        raise AuditError(
+            "unknown --vary-flag value(s): "
+            + ", ".join(unknown_flags)
+        )
+    initial_flag_variants = [
+        dict(zip(varied_flag_names, values))
+        for values in product(
+            *(
+                flag_definitions[name].values
+                for name in varied_flag_names
+            )
+        )
+    ] if varied_flag_names else [{}]
     episode_sources = discover_sources([episode_id], episodes_dir)[0]
     statements: list[dict] = []
     parsers: list[ScriptParser] = []
@@ -1839,9 +2148,11 @@ def audit_episode(
             name: definition.default
             for name, definition in flag_definitions.items()
         },
+        initial_flag_variants=initial_flag_variants,
         initial_budget=budget,
         score_owner=score_owner,
         expected_phrase_lines=expected_phrase_lines,
+        max_loop_visits=max_loop_visits,
     )
     return auditor.run()
 
@@ -1857,19 +2168,48 @@ def _format_range(value_range: dict | None, prefix: str = "") -> str:
 def _format_markdown(report: dict, *, include_states: bool) -> str:
     summary = report["summary"]
     pressure = report["budget_pressure"]
-    lines = [
-        f"# Dialogue branch audit: `{report['episode']}`",
-        "",
-        (
+    control_flow = report["control_flow"]
+    if control_flow["jump_targets"]:
+        visit_word = (
+            "time"
+            if control_flow["max_loop_visits"] == 1
+            else "times"
+        )
+        scope_note = (
+            "> Exact within the configured goto bound. Retry labels are "
+            f"visited at most {control_flow['max_loop_visits']} {visit_word} per "
+            "enumerated history; histories still looping there are excluded "
+            "from terminal-state findings. “Raw paths” are combinatorial case "
+            "counts, not estimates of player behavior. HEURISTIC findings are "
+            "prompts for a writer to review."
+        )
+    else:
+        scope_note = (
             "> Exact for this loop-free script. “Raw paths” are combinatorial "
             "case counts, not estimates of player behavior. HEURISTIC findings "
             "are prompts for a writer to review."
-        ),
+        )
+    lines = [
+        f"# Dialogue branch audit: `{report['episode']}`",
+        "",
+        scope_note,
         "",
         "## Summary",
         "",
-        f"- Phrase prompts: {summary['phrase_lines']}",
+        f"- Authored phrase prompts: {summary['phrase_lines']}",
+        (
+            "- Reachable phrase prompts: "
+            f"{summary['reachable_phrase_lines']}"
+        ),
+        (
+            "- Initial story-flag variants: "
+            f"{len(report['assumptions']['initial_flag_variants'])}"
+        ),
         f"- Enumerated raw paths: {summary['raw_paths']:,}",
+        (
+            "- Loop-bound histories excluded: "
+            f"{summary['truncated_raw_paths']:,}"
+        ),
         f"- Distinct final mechanical states: {summary['final_mechanical_states']}",
         (
             "- Final budget: "
@@ -1889,9 +2229,32 @@ def _format_markdown(report: dict, *, include_states: bool) -> str:
             f"${pressure['implemented_cheapest_non_silent_total']} total"
         ),
         "",
-        "## Findings",
-        "",
     ]
+    if control_flow["jump_targets"]:
+        lines.extend(
+            [
+                "## Control-flow bounds",
+                "",
+                (
+                    "- Traversed goto targets: "
+                    + ", ".join(
+                        f"`{target}`"
+                        for target in control_flow["jump_targets"]
+                    )
+                ),
+            ]
+        )
+        if control_flow["bounded_targets"]:
+            for bounded in control_flow["bounded_targets"]:
+                lines.append(
+                    f"- `{bounded['target']}` reached the visit bound on "
+                    f"{bounded['raw_paths']:,} raw history path(s)."
+                )
+        else:
+            lines.append("- No history reached the configured visit bound.")
+        lines.extend(["", "## Findings", ""])
+    else:
+        lines.extend(["## Findings", ""])
     if not report["findings"]:
         lines.append("- No exact or heuristic findings.")
     else:
@@ -1930,6 +2293,13 @@ def _format_markdown(report: dict, *, include_states: bool) -> str:
                     "Reachable deliveries: "
                     + ", ".join(question["available_deliveries"])
                     + "."
+                ),
+                "",
+                (
+                    "Unconditional response: "
+                    f"“{question['unconditional_response']}”"
+                    if question["unconditional_response"] is not None
+                    else "Conditional response branches:"
                 ),
                 "",
                 "| Branch | Condition | Unique cases | Raw paths | Response |",
@@ -2033,7 +2403,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Enumerate phrase-cut choices, response branches, and resulting "
-            "story states for one loop-free episode."
+            "story states for one episode, with bounded traversal of retry loops."
         )
     )
     parser.add_argument("episode", help="episode id, such as dad")
@@ -2062,6 +2432,26 @@ def build_argument_parser() -> argparse.ArgumentParser:
             "audit a hypothetical starting budget without editing episode.tres"
         ),
     )
+    parser.add_argument(
+        "--max-loop-visits",
+        type=int,
+        default=DEFAULT_MAX_LOOP_VISITS,
+        metavar="COUNT",
+        help=(
+            "maximum visits to one goto label along an enumerated history "
+            f"(default: {DEFAULT_MAX_LOOP_VISITS})"
+        ),
+    )
+    parser.add_argument(
+        "--vary-flag",
+        action="append",
+        default=[],
+        metavar="FLAG",
+        help=(
+            "enumerate every declared value of an incoming story flag; "
+            "repeat for multiple flags"
+        ),
+    )
     return parser
 
 
@@ -2072,6 +2462,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.episode,
             expected_phrase_lines=args.expect_phrase_lines,
             initial_budget_override=args.budget,
+            max_loop_visits=args.max_loop_visits,
+            vary_flags=args.vary_flag,
         )
     except (AuditError, CompileError) as exc:
         print(f"dialogue audit error: {exc}", file=sys.stderr)

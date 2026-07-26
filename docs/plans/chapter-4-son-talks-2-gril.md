@@ -28,11 +28,16 @@ No new general dialogue engine, local-variable system, or custom Chapter 4
 minigame is warranted. One small read-only `budget()` condition helper is
 useful for choosing between the required-jingle and polite-exit paths.
 
-The branch auditor is a tooling limitation rather than a runtime blocker. It
-currently rejects every non-terminal `->` jump, including retry loops. Chapter
-4 therefore relies on compiler validation, the existing content loader check,
-and representative playthroughs instead of adding a bespoke branch-auditor
-implementation.
+The branch auditor needs two general-purpose additions for this chapter:
+
+1. presentation-only directives such as `@speaker_name` must be mechanically
+   ignored; and
+2. goto destinations must be followed with a configurable per-label visit
+   bound, with histories still retrying at the bound excluded from terminal
+   findings and reported separately.
+
+The audit also needs explicit incoming-flag variation so the soda, butts, and
+neutral histories can be covered in one report.
 
 ## What maps directly to the current system
 
@@ -134,16 +139,16 @@ affordability, not Chapter 4 special casing.
 
 ### 3. Budget condition around retries
 
-The runtime already supports the intended "you can refuse now, but you cannot
-progress until Percy jingles" behavior using a retry label, as Chapter 1 does.
 Add `budget()` to writer conditions as a read-only shorthand for
 `GameStats.remaining_budget()`. After the final opening-up prompt, use it to
-route a Percy who has opened up and reached `$0` into the required-jingle retry
-loop, while a player who conserved money receives the polite failure exit.
+route a Percy who has opened up and reached `$0` into the required-jingle beat,
+while a player who conserved money receives the polite failure exit.
 
-The current auditor still cannot inspect that loop. Extending it to a
-cycle-safe control-flow graph is optional future tooling work, not a Chapter 4
-requirement.
+The first required-jingle prompt permits silence, grunt, or sponsor. A refusal
+advances to a second `$0` prompt using `@required_delivery sponsor`: silence,
+grunt, and paid phrase chips remain visible but disabled, and only the jingle
+can advance. This one-prompt restriction does not consume or disable those
+responses anywhere else in the episode.
 
 ## Episode and campaign structure
 
@@ -232,7 +237,7 @@ Arrival and prior-chapter checks
        coherent phrase: remember topic, percy_opened_up = true, "Go on..."
        only orphans:    "...What?"
        silence/grunt before opening up: cold exit
-       broke after opening up: required-jingle retry
+       silence/grunt after opening up: required-jingle retry
        enough money left after all four: polite failure
   -> first jingle
        empathy + Dad soda/butts/none reaction
@@ -257,7 +262,11 @@ Arrival and prior-chapter checks
 - Cue Clem walking into the right actor slot.
 - Set the chapter budget only after the money handoff.
 - Phrase-cut the name and Grandma explanation normally.
-- Branch on `grandma_ignored`.
+- Only reveal the caring caller to Clem when Percy retains `my_grandma` or
+  the complete `She wanted to know if I had food` thought. Other grammatical
+  recombinations, including `It was food`, get `...What?` and must not make
+  Clem act on words Percy cut.
+- Branch on `grandma_ignored` only after that information was communicated.
 - Branch first on `dad_mentioned_family`, then on
   `dad_offended_interviewer`.
 - Give the candidate response stable IDs for laugh, cutoff/immigrant, and
@@ -281,8 +290,10 @@ On silence or grunt:
 
 - if Percy has never opened up, take the cold exit and set
   `got_the_girl = "no"`;
-- if he has opened up and is effectively broke, enter a sponsor-only retry
-  until the player chooses the jingle.
+- if he has opened up, reserve the remainder and enter the required-jingle
+  beat. The first prompt still accepts silence, grunt, or sponsor; refusing
+  once advances to the prompt where those two refusals are visibly disabled
+  and only the jingle can continue.
 
 After all four prompts, if no jingle occurred, use the polite exit and set
 `got_the_girl = "no"`. This is the conservative-player failure described in
@@ -301,6 +312,8 @@ Branch on `son_showed_tariff_empathy`, then on Dad's interview outcome:
 
 The nested butts-only line must remain inside the butts branch; the supplied
 outline visually nests it under the empathy section but not under soda.
+If Percy jingles again during the butts exchange, reuse Clem's `SHUT UP!`
+reaction rather than routing the sponsor through dialogue written for silence.
 
 ### Post-jingle
 
@@ -317,6 +330,10 @@ outline visually nests it under the empathy section but not under soda.
 - The jingle success branch may show Percy's full internal intended sentence,
   but only a paid subset should be delivered aloud. Keep the rest as
   parenthetical narration so the tariff fiction is not contradicted.
+- A normal confession delivery must retain an affirmative independent thought
+  (`Yes` or `you'll let me`). Orphans such as `for` or `as long as` receive
+  `Percy... I still need an answer` and retry; they cannot reach the romantic
+  outcome merely because they were paid words.
 
 ## Budget selection
 
@@ -376,13 +393,18 @@ Keep automated coverage focused on the shared behavior:
 
 - retain the compiler's existing `@recovery` checks and add one `budget()`
   translation assertion;
+- assert that `@required_delivery sponsor` compiles into the next phrase line
+  and visibly disables every competing delivery;
 - assert repeated grunt and sponsor use in the existing runtime test;
 - assert the positive-but-unaffordable effective-zero conversion there too;
 - run the existing content resource/timeline validation for the new episode.
 
-No separate Chapter 4 branch-matrix test is necessary. During content review,
-play representative paths for `no`, `baited`, and `yes`, including one
-tariff-empathy path and one positive-but-unaffordable path.
+No separate hand-authored Chapter 4 branch matrix is necessary. The auditor
+varies the four incoming flags and verifies reachability of all 22 prompts and
+the `no`, `baited`, and `yes` outcomes. Focused semantic assertions cover the
+phone-call disclosure, orphan classification, required-jingle lock, and final
+confession. During content review, still play one tariff-empathy path and one
+positive-but-unaffordable path to check presentation and feel.
 
 ### Final validation
 
@@ -391,13 +413,19 @@ Run:
 ```sh
 python3 tools/compile_dialogue.py
 python3 tools/compile_dialogue.py --check
+python3 tools/audit_dialogue.py crush \
+  --expect-phrase-lines 22 \
+  --vary-flag son_defended_self \
+  --vary-flag grandma_ignored \
+  --vary-flag dad_mentioned_family \
+  --vary-flag dad_offended_interviewer
 bash scripts/check.sh
 ```
 
-The general auditor is intentionally omitted because Chapter 4 uses authored
-gotos and a retry loop that it cannot model. Manually confirm the stage
-walk/back-away cues, exact `$3` post-jingle balance, and neighbors callback
-while reviewing the representative endings.
+The audit reports bounded histories for `jingle_confession_answer`; that is an
+intentional retry cycle, not an ending.
+Manually confirm the stage walk/back-away cues, exact `$3` post-jingle balance,
+and neighbors callback while reviewing the representative endings.
 
 ## Recommended implementation order
 

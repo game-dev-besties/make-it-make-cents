@@ -74,6 +74,7 @@ var _budget := 0
 var _speaker := ""
 var _can_use_pity := false
 var _can_use_sponsor := false
+var _required_delivery := &""
 var _pity_text := DEFAULT_PITY_TEXT
 var _sponsor_text := DEFAULT_SPONSOR_TEXT
 var _phrase_buttons: Array[Button] = []
@@ -260,6 +261,15 @@ func setup(segments: Array, budget: int, speaker: String, recovery: Dictionary =
 	_speaker = speaker
 	_can_use_pity = bool(recovery.get("can_use_pity", false))
 	_can_use_sponsor = bool(recovery.get("can_use_sponsor", false))
+	_required_delivery = StringName(recovery.get("required_delivery", ""))
+	if _required_delivery not in [
+		&"",
+		DELIVERY_NORMAL,
+		DELIVERY_SILENCE,
+		DELIVERY_PITY,
+		DELIVERY_SPONSOR,
+	]:
+		_required_delivery = &""
 	_pity_text = String(recovery.get("pity_text", DEFAULT_PITY_TEXT))
 	_sponsor_text = String(recovery.get("sponsor_text", DEFAULT_SPONSOR_TEXT))
 	_is_resolved = false
@@ -323,13 +333,23 @@ func _rebuild() -> void:
 			var is_free := _segment_cost(segment) == 0
 			chip.set_pressed_no_signal(is_free)
 			chip.disabled = not is_free
+		if not _delivery_is_allowed(DELIVERY_NORMAL):
+			chip.set_pressed_no_signal(false)
+			chip.disabled = true
 	_pity_button.visible = _can_use_pity
 	_sponsor_button.visible = _can_use_sponsor
+	_silence_button.disabled = not _delivery_is_allowed(DELIVERY_SILENCE)
+	_pity_button.disabled = not _delivery_is_allowed(DELIVERY_PITY)
+	_sponsor_button.disabled = not _delivery_is_allowed(DELIVERY_SPONSOR)
 	_pity_button.text = '"%s"  /  $0' % _pity_text
 	_pity_button.tooltip_text = 'Deliver the free grunt: "%s".' % _pity_text
 	_sponsor_button.tooltip_text = "Read the sponsor message for +$3, at a score cost."
 	_recovery_label.visible = is_out_of_budget
-	_recovery_label.text = "No budget — choose a fallback."
+	_recovery_label.text = (
+		"Only the sponsor response can continue."
+		if _required_delivery == DELIVERY_SPONSOR
+		else "No budget — choose a fallback."
+	)
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
 	call_deferred("_position_companion")
@@ -700,7 +720,15 @@ func _recompute() -> void:
 		_budget > 0
 		or (cost == 0 and not kept_text.is_empty())
 	)
-	_confirm_button.disabled = over_budget
+	var confirm_delivery := (
+		DELIVERY_SILENCE
+		if kept_text.is_empty()
+		else DELIVERY_NORMAL
+	)
+	_confirm_button.disabled = (
+		over_budget
+		or not _delivery_is_allowed(confirm_delivery)
+	)
 	if over_budget:
 		_confirm_button.text = "Cut $%d more  /  $%d" % [cost - _budget, cost]
 	elif kept_text.is_empty():
@@ -865,7 +893,21 @@ func _formatted_segment_texts() -> Dictionary:
 
 func _focus_initial_control(is_out_of_budget: bool) -> void:
 	var focus_target: Control
-	if is_out_of_budget:
+	if (
+		_required_delivery == DELIVERY_SPONSOR
+		and _sponsor_button.visible
+		and not _sponsor_button.disabled
+	):
+		focus_target = _sponsor_button
+	elif (
+		_required_delivery == DELIVERY_PITY
+		and _pity_button.visible
+		and not _pity_button.disabled
+	):
+		focus_target = _pity_button
+	elif _required_delivery == DELIVERY_SILENCE:
+		focus_target = _silence_button
+	elif is_out_of_budget:
 		focus_target = _silence_button
 	elif not _phrase_buttons.is_empty():
 		focus_target = _phrase_buttons.front()
@@ -1104,6 +1146,8 @@ func _clamp_companion_to_bounds(
 func _on_confirm() -> void:
 	var kept_text := _assemble()
 	var delivery_mode := DELIVERY_SILENCE if kept_text.is_empty() else DELIVERY_NORMAL
+	if not _delivery_is_allowed(delivery_mode):
+		return
 	var sfx := get_node_or_null("/root/Sfx")
 	if sfx != null:
 		sfx.call("play", &"ui_confirm", -5.0)
@@ -1111,15 +1155,25 @@ func _on_confirm() -> void:
 
 
 func _on_silence() -> void:
+	if not _delivery_is_allowed(DELIVERY_SILENCE):
+		return
 	_resolve([], "", DELIVERY_SILENCE, 0)
 
 
 func _on_pity() -> void:
+	if not _delivery_is_allowed(DELIVERY_PITY):
+		return
 	_resolve([], _pity_text, DELIVERY_PITY, 0)
 
 
 func _on_sponsor() -> void:
+	if not _delivery_is_allowed(DELIVERY_SPONSOR):
+		return
 	_resolve([], _sponsor_text, DELIVERY_SPONSOR, 0)
+
+
+func _delivery_is_allowed(delivery_mode: StringName) -> bool:
+	return _required_delivery.is_empty() or _required_delivery == delivery_mode
 
 
 func _resolve(kept_ids: Array[String], kept_text: String, delivery_mode: StringName, cost: int) -> void:

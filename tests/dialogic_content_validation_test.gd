@@ -257,8 +257,10 @@ func _validate_timeline(
 	var animation_player: AnimationPlayer = null
 	if episode != null and episode.presentation_scene != null:
 		stage = episode.presentation_scene.instantiate()
+		root.add_child(stage)
 		animation_player = stage.get_node_or_null("AnimationPlayer") as AnimationPlayer
 		_validate_stage_slots(stage, episode)
+		_validate_authored_stage_choreography(stage, animation_player, episode)
 
 	for event_index: int in timeline.events.size():
 		var event: Variant = timeline.events[event_index]
@@ -308,6 +310,147 @@ func _validate_timeline(
 
 	if stage != null:
 		stage.free()
+
+
+func _validate_authored_stage_choreography(
+	stage: Node,
+	animation_player: AnimationPlayer,
+	episode: EpisodeDefinition,
+) -> void:
+	if animation_player == null:
+		return
+
+	match String(episode.id):
+		"crush":
+			_finish_stage_animation(animation_player, &"RESET")
+			_check_visible_cast(
+				stage,
+				["son"],
+				"Chapter 4 should begin with Percy alone; Clem must be off-screen.",
+			)
+			_finish_stage_animation(animation_player, &"clem_walks_over")
+			_check_visible_cast(
+				stage,
+				["crush", "son"],
+				"Chapter 4 should reveal Clem only after `clem_walks_over`.",
+			)
+		"neighbors":
+			_finish_stage_animation(animation_player, &"RESET")
+			_check_visible_cast(
+				stage,
+				["dad", "grandma", "son"],
+				"Chapter 6 should open on the Leiton family at home.",
+			)
+			_check_background_flip(
+				stage,
+				true,
+				"The Leiton home should use the mirrored dining-room layout.",
+			)
+
+			_finish_stage_animation(animation_player, &"neighbors_transition_out")
+			_finish_stage_animation(animation_player, &"neighbors_transition_in")
+			_check_visible_cast(
+				stage,
+				["crush", "son"],
+				"The neighbor reveal should focus only on Percy and Clementine.",
+			)
+			_check_background_flip(
+				stage,
+				false,
+				"The Reeds’ home should use the unmirrored dining-room layout.",
+			)
+
+			_finish_stage_animation(animation_player, &"hosts_enter")
+			_check_visible_cast(
+				stage,
+				["dad", "doctor", "interviewer"],
+				"The adult introduction should show Dad and the two hosts.",
+			)
+
+			_finish_stage_animation(animation_player, &"grandma_returns")
+			_check_visible_cast(
+				stage,
+				["doctor", "grandma", "interviewer"],
+				"The doctor callback should replace Dad with Grandma.",
+			)
+
+			_finish_stage_animation(animation_player, &"dinner_fade")
+			_finish_stage_animation(animation_player, &"back_at_home")
+			_check_visible_cast(
+				stage,
+				["dad", "grandma", "son"],
+				"The post-dinner scene should return to the Leiton family.",
+			)
+			_check_background_flip(
+				stage,
+				true,
+				"Returning home should restore the mirrored Leiton layout.",
+			)
+
+			_finish_stage_animation(animation_player, &"pennybot_reveal")
+			_check_visible_cast(
+				stage,
+				["penny"],
+				"The final ending card should isolate Pennybot.",
+			)
+
+
+func _finish_stage_animation(
+	animation_player: AnimationPlayer,
+	animation_name: StringName,
+) -> void:
+	_check(
+		animation_player.has_animation(animation_name),
+		"Stage choreography requires missing animation `%s`." % animation_name,
+	)
+	if not animation_player.has_animation(animation_name):
+		return
+	var animation := animation_player.get_animation(animation_name)
+	animation_player.play(animation_name)
+	animation_player.seek(animation.length, true)
+	animation_player.stop(true)
+
+
+func _check_visible_cast(
+	stage: Node,
+	expected_ids: Array,
+	message: String,
+) -> void:
+	var actual_ids: Array[String] = []
+	var actor_slots := stage.get_node_or_null("ActorSlots")
+	if actor_slots != null:
+		for child: Node in actor_slots.get_children():
+			var slot := child as StageActorSlot
+			if (
+				slot != null
+				and slot.visible
+				and slot.self_modulate.a > 0.01
+				and not slot.character_id.is_empty()
+			):
+				actual_ids.append(String(slot.character_id))
+	actual_ids.sort()
+
+	var normalized_expected: Array[String] = []
+	for identifier: Variant in expected_ids:
+		normalized_expected.append(String(identifier))
+	normalized_expected.sort()
+	_check(
+		actual_ids == normalized_expected,
+		"%s Expected %s, got %s."
+		% [message, normalized_expected, actual_ids],
+	)
+
+
+func _check_background_flip(
+	stage: Node,
+	expected: bool,
+	message: String,
+) -> void:
+	var background := stage.get_node_or_null("Background/BackgroundImage") as TextureRect
+	_check(
+		background != null and background.flip_h == expected,
+		message,
+	)
 
 
 func _validate_stage_slots(stage: Node, episode: EpisodeDefinition) -> void:
