@@ -45,9 +45,9 @@ if GameStats.story_flag_equals("got_prescription", true):
 	\doctor (happy): I hope the new medication is working out for you!
 if GameStats.story_flag_equals("got_prescription", false):
 	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_did_not_receive_her_prescription"}
-	\doctor (neutral): I hope the new medication is working…
-	\doctor (neutral): Sorry I couldn’t be more help…
+	\doctor (neutral): Sorry I couldn’t be more help with your medication…
 	\doctor (neutral): (This is so awkward.)
+	\doctor (neutral): (I hope she’s gotten a therapist by now.)
 if GameStats.story_flag_equals("dad_offended_interviewer", "none"):
 	story_flag_check {"name":"dad_offended_interviewer","operator":"==","expected":"none","branch":"dinner_starts_warmly"}
 	\interviewer (happy): Well, let’s eat!

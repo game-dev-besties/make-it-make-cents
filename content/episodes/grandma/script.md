@@ -23,7 +23,7 @@ elif kept("wild_guess") and removed("im") and removed("at_a") and removed("docto
 elif kept("lady") and kept_count() == 1:
   doctor (neutral): A lady…brought you here? That’s very nice of her. Tell her I said thank you.
 elif (kept("doctors_office") and kept_count() == 1) or (kept("at_a") and kept("doctors_office") and kept_count() == 2) or (kept("im") and kept("at_a") and kept("doctors_office") and kept_count() == 3):
-  doctor (neutral): Yes…that’s where we are right now. Nevermind.
+  doctor (neutral): Yes…that’s where we are right now. Nevermind, it’s not important. That was just for pleasantries.
   grandma.success -= 1
 else:
   doctor (neutral): Ah…sorry, I’m not exactly sure what you mean. But, let’s see here…I have you marked as trying to find the right prescription for new medication.
@@ -149,7 +149,7 @@ elif delivery("silence") or delivery("pity"):
   grandma.success += 1
 elif kept("murderous_rage") or kept("bloodlust"):
   doctor (neutral): Um…should I be worried about my safety? Do you need to talk to someone? I…er…I think…
-  grandma.success -= 4
+  grandma.success -= 2
 elif (kept("my_mind") and kept("is") and kept_count() == 2) or (kept("my_mind") and kept_count() == 1):
   doctor (neutral): Your mind is…your symptom. Huh. Okay…I will…I will write that down…I guess…
   grandma.success += 1

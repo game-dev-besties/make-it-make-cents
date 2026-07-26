@@ -5,6 +5,7 @@ extends SceneTree
 ## deliberately excluded because they are better covered by playtesting.
 
 const GAME_STATE_SCRIPT := preload("res://game/runtime/game_state.gd")
+const DIALOGUE_HUD_SCENE := preload("res://ui/dialogue/dialogue_hud.tscn")
 
 var _failures: Array[String] = []
 
@@ -19,7 +20,7 @@ func _run() -> void:
 	_test_state_round_trip()
 	_test_story_flags_and_history()
 	_test_phrase_recovery_policy()
-	_test_sponsor_jingle_playback()
+	await _test_sponsor_jingle_playback()
 	_test_non_stacking_goto()
 
 	if _failures.is_empty():
@@ -222,6 +223,16 @@ func _test_sponsor_jingle_playback() -> void:
 	_check(dialogic != null, "Sponsor jingle playback requires Dialogic.")
 	if dialogic == null:
 		return
+	var dialogue_hud := DIALOGUE_HUD_SCENE.instantiate()
+	root.add_child(dialogue_hud)
+	await process_frame
+	var dialogue_text := (
+		dialogue_hud.get_node_or_null("%DialogicNode_DialogText")
+		as DialogicNode_DialogText
+	)
+	_check(dialogue_text != null, "Sponsor jingle coverage requires the dialogue HUD.")
+	if dialogue_text != null:
+		dialogue_text.textbox_root.show()
 	var phrase_event := DialogicPhraseCutEvent.new()
 	phrase_event.dialogic = dialogic
 	var started := bool(phrase_event.call("_start_sponsor_jingle"))
@@ -245,7 +256,15 @@ func _test_sponsor_jingle_playback() -> void:
 		and is_equal_approx(player.pitch_scale, 1.0),
 		"The sponsor jingle should be a normal-speed, non-looping one-shot.",
 	)
+	if started:
+		await phrase_event.call("_finish_sponsor_jingle")
+	_check(
+		dialogue_text != null and dialogue_text.textbox_root.visible,
+		"The dialogue box should remain visible until the sponsor jingle finishes.",
+	)
 	phrase_event.call("_stop_sponsor_jingle")
+	dialogue_hud.queue_free()
+	await process_frame
 
 
 func _test_non_stacking_goto() -> void:

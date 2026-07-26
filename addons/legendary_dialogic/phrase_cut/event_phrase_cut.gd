@@ -220,7 +220,10 @@ func _finish_sponsor_jingle() -> void:
 			SPONSOR_JINGLE_AUDIBLE_SECONDS - player.get_playback_position(),
 		)
 		if remaining > 0.0:
-			await dialogic.Wait.update_wait(remaining, true, false)
+			# Keep the delivered sponsor line covering the bottom of the stage
+			# until its audio finishes. Hiding it here exposes the portraits
+			# below their intended crop.
+			await dialogic.Wait.update_wait(remaining, false, false)
 	_stop_sponsor_jingle()
 
 

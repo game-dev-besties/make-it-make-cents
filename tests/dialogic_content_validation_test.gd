@@ -37,6 +37,7 @@ func _run() -> void:
 	if campaign != null:
 		for error: String in campaign.validate():
 			_failures.append("Campaign validation: %s" % error)
+		_validate_chapter_transitions(campaign)
 		_validate_compiled_timelines(campaign)
 
 	if _failures.is_empty():
@@ -121,6 +122,17 @@ func _validate_custom_event_registration() -> void:
 		"Dialogic did not register DialogicStoryFlagCheckEvent. Check "
 		+ "`dialogic/extensions_folder` and the Legendary Dialogic indexer.",
 	)
+
+
+func _validate_chapter_transitions(campaign: CampaignDefinition) -> void:
+	for episode: EpisodeDefinition in campaign.episodes:
+		if episode == null:
+			continue
+		_check(
+			episode.show_title_transition,
+			"Episode `%s` should show its chapter-title transition before its stage appears."
+			% episode.id,
+		)
 
 
 func _validate_registered_characters() -> void:

@@ -53,9 +53,9 @@ CHECK got_prescription == true as grandma_received_her_prescription:
   doctor (happy): I hope the new medication is working out for you!
 
 CHECK got_prescription == false as grandma_did_not_receive_her_prescription:
-  doctor (neutral): I hope the new medication is working…
-  doctor (neutral): Sorry I couldn’t be more help…
+  doctor (neutral): Sorry I couldn’t be more help with your medication…
   doctor (neutral): (This is so awkward.)
+  doctor (neutral): (I hope she’s gotten a therapist by now.)
 
 CHECK dad_offended_interviewer == "none" as dinner_starts_warmly:
   interviewer (happy): Well, let’s eat!
