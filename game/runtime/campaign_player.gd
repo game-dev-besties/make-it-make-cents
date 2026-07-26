@@ -203,6 +203,28 @@ func _connect_dialogic_text() -> void:
 			"about_to_show_text",
 			_on_dialogic_text_about_to_show,
 		)
+	if (
+		_dialogic_text_subsystem.has_signal("text_started")
+		and not _dialogic_text_subsystem.is_connected(
+			"text_started",
+			_on_dialogic_text_started,
+		)
+	):
+		_dialogic_text_subsystem.connect(
+			"text_started",
+			_on_dialogic_text_started,
+		)
+	if (
+		_dialogic_text_subsystem.has_signal("text_finished")
+		and not _dialogic_text_subsystem.is_connected(
+			"text_finished",
+			_on_dialogic_text_finished,
+		)
+	):
+		_dialogic_text_subsystem.connect(
+			"text_finished",
+			_on_dialogic_text_finished,
+		)
 
 
 func _connect_dialogic_backgrounds() -> void:
@@ -257,6 +279,30 @@ func _disconnect_dialogic_text() -> void:
 			"about_to_show_text",
 			_on_dialogic_text_about_to_show,
 		)
+	if (
+		is_instance_valid(_dialogic_text_subsystem)
+		and _dialogic_text_subsystem.has_signal("text_started")
+		and _dialogic_text_subsystem.is_connected(
+			"text_started",
+			_on_dialogic_text_started,
+		)
+	):
+		_dialogic_text_subsystem.disconnect(
+			"text_started",
+			_on_dialogic_text_started,
+		)
+	if (
+		is_instance_valid(_dialogic_text_subsystem)
+		and _dialogic_text_subsystem.has_signal("text_finished")
+		and _dialogic_text_subsystem.is_connected(
+			"text_finished",
+			_on_dialogic_text_finished,
+		)
+	):
+		_dialogic_text_subsystem.disconnect(
+			"text_finished",
+			_on_dialogic_text_finished,
+		)
 	_dialogic_text_subsystem = null
 
 
@@ -280,6 +326,18 @@ func _on_dialogic_text_about_to_show(info: Dictionary) -> void:
 	var host := _get_stage_host()
 	if host != null:
 		host.apply_dialogic_text(info)
+
+
+func _on_dialogic_text_started(info: Dictionary) -> void:
+	var host := _get_stage_host()
+	if host != null:
+		host.start_dialogic_speaking(info)
+
+
+func _on_dialogic_text_finished(info: Dictionary) -> void:
+	var host := _get_stage_host()
+	if host != null:
+		host.stop_dialogic_speaking(info)
 
 
 func _on_dialogic_background_changed(info: Dictionary) -> void:
@@ -328,6 +386,9 @@ func _load_phrase_data(episode: EpisodeDefinition) -> void:
 
 
 func _on_timeline_ended() -> void:
+	var host := _get_stage_host()
+	if host != null:
+		host.stop_dialogic_speaking({}, true)
 	if current_episode == null:
 		return
 	dialogue_finished.emit(current_episode)
