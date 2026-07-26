@@ -13,6 +13,7 @@ func _init() -> void:
 func _run() -> void:
 	_test_budget_and_recovery()
 	_test_state_round_trip()
+	_test_story_flags()
 	_test_explicit_phrase_sidecar()
 	_test_non_stacking_goto()
 	_test_type_sound_lifecycle()
@@ -54,6 +55,18 @@ func _test_budget_and_recovery() -> void:
 	state.begin_cutscene(2)
 	_check(not state.pity_used and not state.sponsor_used, "Recovery choices should reset per cutscene.")
 	state.free()
+
+	var custom_sponsor_state: GameStateStore = GAME_STATE_SCRIPT.new()
+	custom_sponsor_state.dad_success = 2
+	_check(
+		custom_sponsor_state.apply_sponsor_penalty(&"dad", -1),
+		"Story-specific sponsor outcomes should accept their declared success delta.",
+	)
+	_check(
+		custom_sponsor_state.dad_success == 1,
+		"A custom -1 sponsor result should apply once before score clamping.",
+	)
+	custom_sponsor_state.free()
 
 	var discarded_sponsor_state: GameStateStore = GAME_STATE_SCRIPT.new()
 	discarded_sponsor_state.begin_cutscene(0)
@@ -181,6 +194,100 @@ func _test_state_round_trip() -> void:
 		"Starting a new game should clear Chapter 1 flags.",
 	)
 	original.free()
+	restored.free()
+
+
+func _test_story_flags() -> void:
+	var state: GameStateStore = GAME_STATE_SCRIPT.new()
+	_check(
+		state.get_story_flag(&"dad_offended_interviewer") == "none",
+		"Declared story flags should expose their default before the first SET.",
+	)
+	_check(
+		state.set_story_flag(&"dad_offended_interviewer", "soda"),
+		"Declared story flags should accept schema values.",
+	)
+	_check(
+		state.story_flag_equals(&"dad_offended_interviewer", "soda"),
+		"Story flag equality should expose the current value to Dialogic conditions.",
+	)
+	_check(
+		state.describe_story_flag(&"dad_offended_interviewer", "soda")
+		== "Dad offended the interviewer with the soda jingle.",
+		"Story flags should expose their plain-English history description.",
+	)
+	var later_episode := EpisodeDefinition.new()
+	later_episode.id = &"later_chapter"
+	state.apply_episode(later_episode)
+	_check(
+		state.get_story_flag(&"dad_offended_interviewer") == "soda",
+		"Starting a later episode should preserve flags set in Chapter 2.",
+	)
+
+	var restored: GameStateStore = GAME_STATE_SCRIPT.new()
+	restored.load_dictionary(state.to_dictionary())
+	_check(
+		restored.get_story_flag(&"dad_offended_interviewer") == "soda",
+		"Story flags should survive state serialization.",
+	)
+	restored.reset_for_new_game()
+	_check(
+		restored.get_story_flag(&"dad_offended_interviewer") == "none",
+		"Starting a new game should restore story flag defaults.",
+	)
+
+	var set_event := DialogicStoryFlagSetEvent.new()
+	set_event.from_text(
+		'story_flag_set {"name":"dad_offended_interviewer","value":"butts"}'
+	)
+	_check(
+		set_event.flag_name == "dad_offended_interviewer"
+		and set_event.flag_value == "butts",
+		"Story flag SET events should parse generated timeline payloads.",
+	)
+	var check_event := DialogicStoryFlagCheckEvent.new()
+	check_event.from_text(
+		(
+			'story_flag_check {"name":"dad_offended_interviewer",'
+			+ '"operator":"!=","expected":"none","branch":"dad_did_not_get_the_job"}'
+		)
+	)
+	_check(
+		check_event.operator == "!="
+		and check_event.expected_value == "none"
+		and check_event.branch == "dad_did_not_get_the_job",
+		"Story flag CHECK events should parse generated branch metadata.",
+	)
+	var dialogic_handler := root.get_node_or_null("Dialogic") as DialogicGameHandler
+	var root_stats := root.get_node_or_null("GameStats") as GameStateStore
+	_check(
+		dialogic_handler != null and root_stats != null,
+		"Story flag history checks require the Dialogic and GameStats autoloads.",
+	)
+	if dialogic_handler != null and root_stats != null:
+		var history := dialogic_handler.get_subsystem("History")
+		history.simple_history_content.clear()
+		root_stats.reset_for_new_game()
+		set_event.dialogic = dialogic_handler
+		set_event._execute()
+		check_event.dialogic = dialogic_handler
+		check_event._execute()
+		var debug_history: Array = history.get_simple_history()
+		_check(
+			debug_history.size() == 2
+			and debug_history[0].get("debug_kind") == "SET"
+			and "SET dad_offended_interviewer to \"butts\"" in debug_history[0].get("text", ""),
+			"SET should append an ordered debug entry to simple history.",
+		)
+		_check(
+			debug_history.size() == 2
+			and debug_history[1].get("debug_kind") == "CHECK"
+			and debug_history[1].get("branch") == "dad_did_not_get_the_job",
+			"CHECK should append the selected branch to simple history.",
+		)
+		history.simple_history_content.clear()
+		root_stats.reset_for_new_game()
+	state.free()
 	restored.free()
 
 
@@ -345,6 +452,20 @@ func _test_campaign_and_stage() -> void:
 	_check(intro != null, "The campaign should contain the border tutorial.")
 	if intro == null:
 		return
+	var dad := campaign.get_episode(&"dad")
+	var son := campaign.get_episode(&"son")
+	_check(
+		not intro.routes.is_empty()
+		and intro.routes[0].next_episode_id == &"dad",
+		"Chapter 1 should route directly into Dad's Chapter 2 interview.",
+	)
+	_check(
+		dad != null
+		and not dad.routes.is_empty()
+		and dad.routes[0].next_episode_id == &"son",
+		"Dad's Chapter 2 interview should continue into the Son episode.",
+	)
+	_check(son != null, "The reordered campaign should retain the Son episode.")
 	var phrase_file := FileAccess.open(intro.phrase_data_path, FileAccess.READ)
 	_check(phrase_file != null, "The intro phrase sidecar should be readable.")
 	if phrase_file != null:

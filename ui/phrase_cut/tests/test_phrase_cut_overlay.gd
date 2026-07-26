@@ -522,6 +522,21 @@ func _run() -> void:
 	_assert(stats.dad_success == 2, "sponsor delivery should tank the speaker's success score")
 	stats.free()
 
+	var custom_sponsor_stats := GameStateStore.new()
+	custom_sponsor_stats.begin_cutscene(0)
+	custom_sponsor_stats.dad_success = 2
+	phrase_event.call(
+		"_apply_delivery",
+		custom_sponsor_stats,
+		{"delivery_mode": &"sponsor", "kept_text": "Sponsor", "cost": 0},
+		{"sponsor_success_delta": -1},
+	)
+	_assert(
+		custom_sponsor_stats.dad_success == 1,
+		"phrase metadata should replace the default sponsor success penalty",
+	)
+	custom_sponsor_stats.free()
+
 	var budget_event := DialogicBudgetSetEvent.new()
 	budget_event.from_text("budget_set 0")
 	_assert(budget_event.amount == 0, "budget_set should parse an exact zero budget")

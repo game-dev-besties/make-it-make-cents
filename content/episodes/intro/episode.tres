@@ -6,7 +6,7 @@
 
 [sub_resource type="Resource" id="CampaignRoute_next"]
 script = ExtResource("3_route")
-next_episode_id = &"son"
+next_episode_id = &"dad"
 
 [resource]
 resource_name = "WelcomeToTheCountry"

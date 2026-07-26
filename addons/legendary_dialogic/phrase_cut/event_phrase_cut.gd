@@ -112,7 +112,7 @@ func _execute() -> void:
 	if dialogic.has_subsystem("Inputs"):
 		dialogic.Inputs.auto_skip.enabled = false
 
-	_apply_delivery(game_stats, result)
+	_apply_delivery(game_stats, result, data)
 	_record_phrase_memory(segments, result)
 	var delivered_text := String(result.get("kept_text", ""))
 	if not delivered_text.is_empty():
@@ -183,7 +183,11 @@ func _policy_allows(policy: Dictionary, key: String) -> bool:
 	return bool(policy.get(key, true))
 
 
-func _apply_delivery(game_stats: Node, result: Dictionary) -> void:
+func _apply_delivery(
+	game_stats: Node,
+	result: Dictionary,
+	phrase_data: Dictionary = {},
+) -> void:
 	var delivery_mode := StringName(result.get("delivery_mode", PhraseCutOverlay.DELIVERY_NORMAL))
 	match delivery_mode:
 		PhraseCutOverlay.DELIVERY_NORMAL:
@@ -195,7 +199,16 @@ func _apply_delivery(game_stats: Node, result: Dictionary) -> void:
 			if not _consume_recovery(game_stats, "use_sponsor", [SPONSOR_CREDIT]):
 				_fall_back_to_silence(result)
 			elif game_stats.has_method("apply_sponsor_penalty"):
-				game_stats.call("apply_sponsor_penalty", StringName(speaker))
+				game_stats.call(
+					"apply_sponsor_penalty",
+					StringName(speaker),
+					int(
+						phrase_data.get(
+							"sponsor_success_delta",
+							-GameStateStore.SPONSOR_SUCCESS_PENALTY,
+						)
+					),
+				)
 
 
 func _consume_recovery(game_stats: Node, method: StringName, arguments: Array = []) -> bool:

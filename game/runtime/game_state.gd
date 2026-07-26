@@ -8,9 +8,11 @@ extends Node
 
 signal budget_changed(current_budget: int, previous_budget: int)
 signal value_changed(key: StringName, value: Variant)
+signal story_flag_changed(flag_name: StringName, value: Variant, previous_value: Variant)
 signal reset_completed
 
 const SPONSOR_SUCCESS_PENALTY := 3
+const STORY_FLAGS_PATH := "res://story/flags.json"
 
 var money_total_saved := 0
 var cutscene_budget := 0
@@ -43,6 +45,9 @@ var grandma_silly := 0:
 		grandma_silly = clampi(value, 0, 10)
 
 var _values: Dictionary = {}
+var _story_flags: Dictionary = {}
+var _story_flag_definitions: Dictionary = {}
+var _story_flag_definitions_loaded := false
 var _cutscene_open := false
 
 
@@ -61,6 +66,8 @@ func reset_for_new_game() -> void:
 	sponsor_used = false
 	_cutscene_open = false
 	_values.clear()
+	_story_flags.clear()
+	_ensure_story_flag_definitions()
 	intro_grandma_praised_for_silence = false
 	intro_pills_confiscated = false
 	son_success = 5
@@ -85,6 +92,68 @@ func get_value(key: StringName, fallback: Variant = null) -> Variant:
 
 func has_value(key: StringName) -> bool:
 	return _values.has(key)
+
+
+func set_story_flag(flag_name: StringName, value: Variant) -> bool:
+	_ensure_story_flag_definitions()
+	var name := String(flag_name)
+	if not _story_flag_definitions.has(name):
+		push_error("Unknown story flag '%s'." % name)
+		return false
+	if not _story_flag_accepts(name, value):
+		push_error(
+			"Story flag '%s' does not accept value %s."
+			% [name, JSON.stringify(value)]
+		)
+		return false
+	var previous_value: Variant = get_story_flag(flag_name)
+	_story_flags[name] = value
+	story_flag_changed.emit(flag_name, value, previous_value)
+	return true
+
+
+func get_story_flag(flag_name: StringName, fallback: Variant = null) -> Variant:
+	_ensure_story_flag_definitions()
+	var name := String(flag_name)
+	if _story_flags.has(name):
+		return _story_flags[name]
+	var definition: Variant = _story_flag_definitions.get(name)
+	if definition is Dictionary:
+		return definition.get("default", fallback)
+	return fallback
+
+
+func has_story_flag(flag_name: StringName) -> bool:
+	_ensure_story_flag_definitions()
+	return _story_flag_definitions.has(String(flag_name))
+
+
+func story_flag_equals(flag_name: StringName, expected: Variant) -> bool:
+	return get_story_flag(flag_name) == expected
+
+
+func describe_story_flag(flag_name: StringName, value: Variant = null) -> String:
+	_ensure_story_flag_definitions()
+	var name := String(flag_name)
+	var definition: Variant = _story_flag_definitions.get(name)
+	if not definition is Dictionary:
+		return ""
+	var described_value: Variant = get_story_flag(flag_name) if value == null else value
+	for entry: Variant in definition.get("values", []):
+		if (
+			entry is Dictionary
+			and entry.get("value") == described_value
+		):
+			return String(entry.get("description", ""))
+	return ""
+
+
+func get_story_flags() -> Dictionary:
+	_ensure_story_flag_definitions()
+	var result: Dictionary = {}
+	for name: Variant in _story_flag_definitions:
+		result[name] = get_story_flag(StringName(name))
+	return result
 
 
 func apply_episode(episode: EpisodeDefinition) -> void:
@@ -199,14 +268,17 @@ func use_sponsor(credit: int) -> bool:
 	return true
 
 
-func apply_sponsor_penalty(speaker: StringName) -> bool:
+func apply_sponsor_penalty(
+	speaker: StringName,
+	success_delta: int = -SPONSOR_SUCCESS_PENALTY,
+) -> bool:
 	match String(speaker).to_lower():
 		"son", "percy":
-			son_success -= SPONSOR_SUCCESS_PENALTY
+			son_success += success_delta
 		"dad", "marco":
-			dad_success -= SPONSOR_SUCCESS_PENALTY
+			dad_success += success_delta
 		"grandma", "rosa":
-			grandma_success -= SPONSOR_SUCCESS_PENALTY
+			grandma_success += success_delta
 		_:
 			return false
 	return true
@@ -241,6 +313,7 @@ func to_dictionary() -> Dictionary:
 		"grandma_success": grandma_success,
 		"grandma_silly": grandma_silly,
 		"values": _values.duplicate(true),
+		"story_flags": get_story_flags(),
 	}
 
 
@@ -280,6 +353,53 @@ func load_dictionary(data: Dictionary) -> void:
 	if stored_values is Dictionary:
 		loaded_values = stored_values
 	_values = loaded_values.duplicate(true)
+	_story_flags.clear()
+	_ensure_story_flag_definitions()
+	var stored_story_flags: Variant = data.get("story_flags")
+	if stored_story_flags is Dictionary:
+		for raw_name: Variant in stored_story_flags:
+			var name := String(raw_name)
+			var value: Variant = stored_story_flags[raw_name]
+			if (
+				_story_flag_definitions.has(name)
+				and _story_flag_accepts(name, value)
+			):
+				_story_flags[name] = value
 	var current_budget := remaining_budget()
 	if current_budget != previous_budget:
 		budget_changed.emit(current_budget, previous_budget)
+
+
+func _ensure_story_flag_definitions() -> void:
+	if _story_flag_definitions_loaded:
+		return
+	_story_flag_definitions_loaded = true
+	var flags_file := FileAccess.open(STORY_FLAGS_PATH, FileAccess.READ)
+	if flags_file == null:
+		push_error("Story flag schema could not be opened at %s." % STORY_FLAGS_PATH)
+		return
+	var parsed: Variant = JSON.parse_string(flags_file.get_as_text())
+	if not parsed is Dictionary:
+		push_error("Story flag schema must contain a JSON object.")
+		return
+	var raw_flags: Variant = parsed.get("flags")
+	if not raw_flags is Array:
+		push_error("Story flag schema needs a `flags` array.")
+		return
+	for raw_definition: Variant in raw_flags:
+		if not raw_definition is Dictionary:
+			continue
+		var name := String(raw_definition.get("name", ""))
+		if name.is_empty():
+			continue
+		_story_flag_definitions[name] = raw_definition.duplicate(true)
+
+
+func _story_flag_accepts(flag_name: String, value: Variant) -> bool:
+	var definition: Variant = _story_flag_definitions.get(flag_name)
+	if not definition is Dictionary:
+		return false
+	for entry: Variant in definition.get("values", []):
+		if entry is Dictionary and entry.get("value") == value:
+			return true
+	return false

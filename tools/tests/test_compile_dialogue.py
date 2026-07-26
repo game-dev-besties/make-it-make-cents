@@ -6,6 +6,7 @@ import unittest
 
 from tools.compile_dialogue import (
     CompileError,
+    FlagDefinition,
     compile_source,
     compile_sources,
     discover_sources,
@@ -18,6 +19,14 @@ STATS = frozenset(
         "dad.silly",
     }
 )
+FLAGS = {
+    "dad_offended_interviewer": FlagDefinition(
+        name="dad_offended_interviewer",
+        default="none",
+        values=("none", "soda", "butts", "family"),
+        descriptions={},
+    )
+}
 
 
 class CompilerTests(unittest.TestCase):
@@ -32,6 +41,12 @@ class CompilerTests(unittest.TestCase):
             self.compile(text)
         self.assertIn(expected, str(raised.exception))
         self.assertRegex(str(raised.exception), r"script\.md:\d+: error:")
+
+    def compile_with_flags(self, text: str):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "script.md"
+            path.write_text(text, encoding="utf-8")
+            return compile_source(path, "dad", STATS, FLAGS)
 
     def test_compiles_inline_phrases_conditions_stats_and_cues(self) -> None:
         artifact = self.compile(
@@ -55,6 +70,59 @@ else:
         self.assertIn('"text": "experience."', artifact.phrases)
         self.assertIn('"cost": 1', artifact.phrases)
         self.assertNotIn("min_keep", artifact.phrases)
+
+    def test_compiles_story_flag_sets_checks_and_silent_conditions(self) -> None:
+        artifact = self.compile_with_flags(
+            """\
+SET dad_offended_interviewer = "none"
+if flag("dad_offended_interviewer") == "none":
+  SET dad_offended_interviewer = "soda"
+CHECK dad_offended_interviewer != "none" as dad_did_not_get_the_job:
+  interviewer: You did not get the job.
+CHECK dad_offended_interviewer == "none" as dad_got_the_job:
+  interviewer: You got the job!
+"""
+        )
+
+        self.assertIn(
+            'story_flag_set {"name":"dad_offended_interviewer","value":"none"}',
+            artifact.timeline,
+        )
+        self.assertIn(
+            'if GameStats.get_story_flag("dad_offended_interviewer") == "none":',
+            artifact.timeline,
+        )
+        self.assertIn(
+            'if not GameStats.story_flag_equals("dad_offended_interviewer", "none"):',
+            artifact.timeline,
+        )
+        self.assertIn(
+            '"branch":"dad_did_not_get_the_job"',
+            artifact.timeline,
+        )
+        self.assertIn(
+            'if GameStats.story_flag_equals("dad_offended_interviewer", "none"):',
+            artifact.timeline,
+        )
+
+    def test_story_flags_reject_unknown_names_and_values(self) -> None:
+        invalid_sources = {
+            'SET missing_flag = "none"\n': "unknown flag `missing_flag`",
+            'SET dad_offended_interviewer = "angry"\n': (
+                'invalid value "angry" for flag `dad_offended_interviewer`'
+            ),
+            'if flag("missing_flag") == "none":\n  dad: Hello.\n': (
+                "unknown flag `missing_flag`"
+            ),
+            'CHECK dad_offended_interviewer = "none":\n  dad: Hello.\n': (
+                "malformed flag check"
+            ),
+        }
+        for source, expected in invalid_sources.items():
+            with self.subTest(source=source):
+                with self.assertRaises(CompileError) as raised:
+                    self.compile_with_flags(source)
+                self.assertIn(expected, str(raised.exception))
 
     def test_cost_defaults_to_word_count(self) -> None:
         artifact = self.compile("dad: [one two three]\n")
@@ -89,6 +157,43 @@ dad: [Say nothing.]{id=nothing}
 """
         )
         self.assertIn("recovery_policy none\nphrase_cut dad dad_L001", artifact.timeline)
+
+    def test_sponsor_score_is_stored_with_the_following_phrase_line(self) -> None:
+        artifact = self.compile(
+            """\
+@recovery sponsor
+@sponsor_score -1
+@sponsor_text "SAM'S CUSTOM SODA!"
+@pity_text "mrrf"
+dad: [Drink the soda.]{id=soda}
+"""
+        )
+
+        self.assertIn("recovery_policy sponsor", artifact.timeline)
+        self.assertNotIn("sponsor_score", artifact.timeline)
+        self.assertIn('"sponsor_success_delta": -1', artifact.phrases)
+        self.assertIn(
+            "\"sponsor_text\": \"SAM'S CUSTOM SODA!\"",
+            artifact.phrases,
+        )
+        self.assertIn('"pity_text": "mrrf"', artifact.phrases)
+
+    def test_sponsor_score_requires_a_bounded_integer_and_phrase_line(self) -> None:
+        invalid_directives = {
+            "@sponsor_score half\ndad: [Hello.]\n": "whole-number success delta",
+            "@sponsor_score -11\ndad: [Hello.]\n": "must be between -10 and 10",
+            "@sponsor_score -1\ndad: Hello.\n": (
+                "must be immediately followed by a phrase-cut dialogue line"
+            ),
+            "@sponsor_score -1\n@sponsor_score -2\ndad: [Hello.]\n": (
+                "cannot be repeated"
+            ),
+            "@sponsor_text unquoted\ndad: [Hello.]\n": "needs one quoted string",
+            '@pity_text ""\ndad: [Hello.]\n': "needs one nonempty quoted string",
+        }
+        for source, expected in invalid_directives.items():
+            with self.subTest(source=source):
+                self.assert_compile_error(source, expected)
 
     def test_budget_requires_a_nonnegative_integer(self) -> None:
         for source in ("@budget\n", "@budget -1\n", "@budget 1.5\n", "@budget free\n"):

@@ -11,6 +11,7 @@ const RUNTIME_SERIALIZED_KEYS := [
 	"pity_used",
 	"sponsor_used",
 	"values",
+	"story_flags",
 ]
 
 var _failures: Array[String] = []

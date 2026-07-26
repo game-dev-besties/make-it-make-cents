@@ -24,6 +24,52 @@ Generated files are committed so a fresh Godot checkout opens without a
 separate content bootstrap. Do not edit `dialogue.dtl` or `phrases.json` by
 hand when the folder has a `script.md`.
 
+## Auditing branches and budgets
+
+Compilation proves that dialogue is valid, but it does not prove that its
+responses are complete or enjoyable. Run the branch auditor while drafting a
+phrase-cut episode:
+
+```sh
+python3 tools/audit_dialogue.py dad
+```
+
+The Markdown report groups every reachable phrase selection by response and
+flags exact reachability problems alongside writer-review heuristics. It
+surfaces:
+
+- all selectable phrase subsets and the branch each one reaches;
+- compressed budget, stat, recovery, and story-flag states after every prompt;
+- unreachable and shadowed responses;
+- catch-all responses that absorb most selections;
+- an all-kept default sentence that unexpectedly reaches `else`;
+- large score changes caused by toggling one phrase;
+- inaccessible pity or sponsor responses; and
+- suspiciously low or high scores reaching a named outcome.
+
+Use `--include-states` to put every compressed state into the Markdown report,
+or `--format json` for tooling and custom queries. Counts are exhaustive
+combinatorial paths, not predictions about how frequently players will make
+each choice.
+
+Budget experiments do not require editing the episode resource:
+
+```sh
+python3 tools/audit_dialogue.py dad --budget 40
+```
+
+If an outline specifies how many phrase prompts the finished scene should
+contain, make missing content explicit:
+
+```sh
+python3 tools/audit_dialogue.py dad --expect-phrase-lines 5
+```
+
+The auditor currently provides exact path counts for loop-free scripts.
+Episodes with retry `->` jumps are rejected rather than reported
+incompletely. Findings marked `EXACT` are mechanical facts; findings marked
+`HEURISTIC` are review prompts and do not make the build fail.
+
 ### Splitting a long episode
 
 `script.md` remains the default and is all most episodes need. To split one
@@ -126,6 +172,32 @@ Sponsor recovery refills a few words and applies the standard score penalty in
 the runtime. A `delivery("sponsor")` branch only supplies a custom reaction;
 do not subtract the standard penalty again in the script.
 
+If a particular sponsor response has a different success modifier in the
+story outline, put `@sponsor_score` immediately before that phrase-cut line:
+
+```md
+@sponsor_score -1
+dad: [Honestly,]{id=honestly} [I just need money.]{id=money}
+```
+
+The declared delta replaces the standard `-3` for that delivery; it is not an
+additional adjustment. This applies the outline score once, so success
+clamping remains correct. The directive accepts whole numbers from -10 to 10
+and is consumed by the following phrase-cut line.
+
+Question-specific recovery copy uses quoted `@sponsor_text` or `@pity_text`
+directly before the same phrase-cut line:
+
+```md
+@sponsor_score -1
+@sponsor_text "SAM’S SODA POP! WITH OVER 500 DIFFERENT FLAVORS!"
+dad: [Honestly,]{id=honestly} [I just need money.]{id=money}
+```
+
+These directives replace the default sponsor or pity delivery text for that
+line. They may be combined with `@recovery` and `@sponsor_score` in any order,
+but each directive can appear only once before a line.
+
 Stats are declared in `story/stats.json`, then written with a dotted name:
 
 ```md
@@ -143,6 +215,45 @@ else:
 stat exists in the runtime state and is serialized, and that every serialized
 story stat is declared in `story/stats.json`. Update both files when adding a
 new stat; CI fails with the mismatched name otherwise.
+
+Persistent story flags are declared in `story/flags.json`. Each flag has a
+default, an allowed value list, and optional plain-English descriptions for
+the History view. Set one with the outline-style uppercase syntax:
+
+```md
+SET dad_offended_interviewer = "none"
+
+interviewer: Advertising during an interview? That does not help your case.
+SET dad_offended_interviewer = "soda"
+```
+
+`SET` adds a debug entry to History after changing the flag. Put it after the
+dialogue reaction that triggered the change so the transcript stays in story
+order. Unknown flags and values fail compilation.
+
+Ordinary implementation conditions can read a flag without adding a history
+entry:
+
+```md
+if flag("dad_offended_interviewer") == "none":
+  SET dad_offended_interviewer = "butts"
+```
+
+Use uppercase `CHECK` for a player-meaningful branch that should be recorded
+in History:
+
+```md
+CHECK dad_offended_interviewer != "none" as dad_did_not_get_the_job:
+  interviewer: You didn’t get the job.
+
+CHECK dad_offended_interviewer == "none" as dad_got_the_job:
+  interviewer: You got the job!
+```
+
+Only the selected `CHECK` body runs. Its debug entry includes the actual flag
+value, the branch name, and any plain-English value description from the flag
+schema. Branch names use identifier syntax and should read clearly when
+underscores become spaces.
 
 Indent child lines consistently with spaces. The compiler accepts any
 indentation width, but two spaces is easiest to scan.
