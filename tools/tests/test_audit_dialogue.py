@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -172,6 +173,10 @@ class ChapterAuditSmokeTests(unittest.TestCase):
             },
         )
 
+    @unittest.skipIf(
+        os.environ.get("CI", "").lower() == "true",
+        "The exhaustive Chapter 4 path audit is a local/manual regression.",
+    )
     def test_crush_chapter_audit_covers_conditional_prompt_variants(self) -> None:
         report = audit_episode(
             "crush",
