@@ -16,12 +16,12 @@ class DialogueAuditTests(unittest.TestCase):
     def test_enumerates_every_reachable_selection_and_state(self) -> None:
         self.assertEqual(
             [len(question["cases"]) for question in self.report["questions"]],
-            [32, 16, 128, 32, 514],
+            [32, 16, 128, 34, 514],
         )
-        self.assertGreater(self.report["summary"]["raw_paths"], 800_000_000)
+        self.assertGreater(self.report["summary"]["raw_paths"], 100_000_000)
         self.assertGreater(
             self.report["summary"]["final_mechanical_states"],
-            4_000,
+            2_500,
         )
         self.assertEqual(
             self.report["summary"]["reachable_deliveries"],
@@ -122,9 +122,9 @@ class DialogueAuditTests(unittest.TestCase):
 
     def test_reports_word_budget_pressure(self) -> None:
         pressure = self.report["budget_pressure"]
-        self.assertEqual(pressure["initial_budget"], 40)
+        self.assertEqual(pressure["initial_budget"], 25)
         self.assertEqual(pressure["implemented_full_cost"], 70)
-        self.assertEqual(pressure["headroom_over_all_full"], -30)
+        self.assertEqual(pressure["headroom_over_all_full"], -45)
         self.assertEqual(
             pressure["full_cost_by_line"],
             {
@@ -146,7 +146,7 @@ class DialogueAuditTests(unittest.TestCase):
             hypothetical["summary"]["reachable_deliveries"],
         )
         self.assertEqual(hypothetical["assumptions"]["initial_budget"], 0)
-        self.assertEqual(self.report["assumptions"]["initial_budget"], 40)
+        self.assertEqual(self.report["assumptions"]["initial_budget"], 25)
 
 
 if __name__ == "__main__":

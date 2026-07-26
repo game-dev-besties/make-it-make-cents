@@ -17,6 +17,6 @@ description = "Dad goes to a job interview, not yet knowing the Interviewer will
 presentation_scene = ExtResource("2_stage")
 dialogue_timeline_path = "res://content/episodes/dad/dialogue.dtl"
 phrase_data_path = "res://content/episodes/dad/phrases.json"
-word_budget = 40
+word_budget = 25
 score_owner = &"dad"
 routes = Array[ExtResource("3_route")]([SubResource("CampaignRoute_next")])
