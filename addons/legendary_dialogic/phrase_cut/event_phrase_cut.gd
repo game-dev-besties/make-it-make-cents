@@ -13,7 +13,7 @@ const PHRASE_CUT_OVERLAY := preload("res://ui/phrase_cut/phrase_cut_overlay.tscn
 const SPONSOR_CREDIT := 3
 const SPONSOR_JINGLE_PATH := "res://audio/sfx/sams_soda_jingle.mp3"
 const SPONSOR_JINGLE_CHANNEL := "sponsor-jingle"
-const SPONSOR_JINGLE_AUDIBLE_SECONDS := 7.0
+const SPONSOR_JINGLE_AUDIBLE_SECONDS := 2.4
 
 var regex: RegEx = RegEx.create_from_string(
 	r"^phrase_cut\s+(?<speaker>[A-Za-z_][A-Za-z0-9_-]*)(?:\s*\((?<portrait>[^)]*)\))?\s+(?<line_id>[A-Za-z_]\w*)\s*$"

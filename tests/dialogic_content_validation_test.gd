@@ -474,7 +474,7 @@ func _validate_sponsor_jingle_asset() -> void:
 	_check(
 		is_equal_approx(
 			DialogicPhraseCutEvent.SPONSOR_JINGLE_AUDIBLE_SECONDS,
-			7.0,
+			2.4,
 		),
 		"Sponsor delivery should hold through the jingle's audible duration.",
 	)
@@ -490,8 +490,8 @@ func _validate_sponsor_jingle_asset() -> void:
 		"The sponsor jingle import must not loop.",
 	)
 	_check(
-		stream.get_length() > 8.6 and stream.get_length() < 8.7,
-		"The sponsor jingle should retain its original 8.6465-second duration.",
+		stream.get_length() > 3.7 and stream.get_length() < 3.72,
+		"The sponsor jingle should retain the advert v3 duration.",
 	)
 	var player := AudioStreamPlayer.new()
 	player.stream = stream
