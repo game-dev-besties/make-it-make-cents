@@ -12,13 +12,21 @@ const TEXT_COLOR_STATES: Array[StringName] = [
 	&"font_hover_pressed_color",
 	&"font_focus_color",
 ]
+const STRIKE_COLOR := Color(0.917647, 0.498039, 0.345098, 1)
+const STRIKE_OUTLINE_COLOR := Color(0.258824, 0.243137, 0.266667, 1)
+const STRIKE_OUTLINE_WIDTH := 5.0
+const STRIKE_WIDTH := 3.0
+const STRIKE_EDGE_INSET := 3.0
 
 var _is_hovering := false
 var _strike_progress := 1.0
 var _strike_left_to_right := true
 var _strike_animation_active := false
 var _prepared_is_cut := true
-var _strike_draw_color := Color.WHITE
+var _strike_draw_color := STRIKE_COLOR
+var _strike_connection_left := 0.0
+var _strike_connection_right := 0.0
+var _animation_text_color := Color.WHITE
 var _text_color_held := false
 var _held_text_colors: Dictionary = {}
 var _held_color_was_overridden: Dictionary = {}
@@ -37,6 +45,35 @@ func _on_hover_changed(hovering: bool) -> void:
 	queue_redraw()
 
 
+func set_strike_connection_left(extension: float) -> void:
+	var next_extension := maxf(0.0, extension)
+	if is_equal_approx(_strike_connection_left, next_extension):
+		return
+	_strike_connection_left = next_extension
+	queue_redraw()
+
+
+func set_strike_connection_right(extension: float) -> void:
+	var next_extension := maxf(0.0, extension)
+	if is_equal_approx(_strike_connection_right, next_extension):
+		return
+	_strike_connection_right = next_extension
+	queue_redraw()
+
+
+func clear_strike_connections() -> void:
+	set_strike_connection_left(0.0)
+	set_strike_connection_right(0.0)
+
+
+func get_strike_connections() -> Vector2:
+	return Vector2(_strike_connection_left, _strike_connection_right)
+
+
+func can_connect_strike() -> bool:
+	return _strike_line_rects().size() == 1
+
+
 func _draw() -> void:
 	if text.is_empty():
 		return
@@ -46,10 +83,9 @@ func _draw() -> void:
 		_draw_strike(get_theme_color("font_disabled_color"))
 		return
 
-	var strike_color := get_theme_color("font_color")
+	var strike_color := STRIKE_COLOR
 	if _strike_animation_active:
 		strike_color = _strike_draw_color
-		strike_color.a = minf(1.0, strike_color.a + 0.2)
 		_draw_strike(strike_color, _strike_progress, _strike_left_to_right)
 		return
 	elif button_pressed and _is_hovering:
@@ -60,7 +96,7 @@ func _draw() -> void:
 		strike_color.a *= 0.35
 	elif not button_pressed:
 		# Cut, committed.
-		strike_color.a = minf(1.0, strike_color.a + 0.2)
+		strike_color = STRIKE_COLOR
 	else:
 		return
 
@@ -73,7 +109,8 @@ func prepare_strike_animation(is_cut: bool, left_to_right: bool) -> void:
 	_release_text_color_hold()
 	_prepared_is_cut = is_cut
 	_strike_left_to_right = left_to_right
-	_strike_draw_color = get_theme_color("font_color")
+	_strike_draw_color = STRIKE_COLOR
+	_animation_text_color = get_theme_color("font_color")
 	_strike_progress = 0.0 if is_cut else 1.0
 	_strike_animation_active = true
 	_hold_previous_text_color()
@@ -109,9 +146,9 @@ func _finish_strike_animation() -> void:
 
 func _hold_previous_text_color() -> void:
 	var held_color := (
-		get_theme_color("font_pressed_color")
+		STRIKE_COLOR
 		if _prepared_is_cut
-		else _strike_draw_color
+		else _animation_text_color
 	)
 	_held_text_colors.clear()
 	_held_color_was_overridden.clear()
@@ -152,12 +189,24 @@ func _draw_strike(
 	progress: float = 1.0,
 	left_to_right: bool = true,
 ) -> void:
-	for line_rect: Rect2 in _strike_line_rects():
+	var line_rects := _strike_line_rects()
+	var can_extend := line_rects.size() == 1
+	for line_rect: Rect2 in line_rects:
 		var left := Vector2(line_rect.position.x, line_rect.get_center().y)
 		var right := Vector2(line_rect.end.x, line_rect.get_center().y)
+		if can_extend:
+			left.x -= _strike_connection_left
+			right.x += _strike_connection_right
 		var line_start := left if left_to_right else right
 		var line_end := line_start.lerp(right if left_to_right else left, progress)
-		draw_line(line_start, line_end, strike_color, 2.0, true)
+		draw_line(
+			line_start,
+			line_end,
+			STRIKE_OUTLINE_COLOR,
+			STRIKE_OUTLINE_WIDTH,
+			true,
+		)
+		draw_line(line_start, line_end, strike_color, STRIKE_WIDTH, true)
 
 
 func _strike_line_rects() -> Array[Rect2]:
@@ -198,8 +247,11 @@ func _strike_line_rects() -> Array[Rect2]:
 				line_left += (content_size.x - line_width) * 0.5
 			HORIZONTAL_ALIGNMENT_RIGHT:
 				line_left += content_size.x - line_width
-		var strike_left := maxf(3.0, line_left - 1.0)
-		var strike_right := minf(size.x - 3.0, line_left + line_width + 1.0)
+		var strike_left := maxf(STRIKE_EDGE_INSET, line_left - 1.0)
+		var strike_right := minf(
+			size.x - STRIKE_EDGE_INSET,
+			line_left + line_width + 1.0,
+		)
 		line_rects.append(
 			Rect2(
 				strike_left,
