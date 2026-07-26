@@ -4,29 +4,412 @@
 [ext_resource type="Texture2D" uid="uid://gqvmkpxjinqd" path="res://content/episodes/neighbors/reeds_home.png" id="2_reeds_home"]
 [ext_resource type="PackedScene" path="res://game/components/stage_actor_slot.tscn" id="3_slot"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-bg_color = Color(0.19, 0.12, 0.065, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.96, 0.72, 0.37, 0.7)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
 [sub_resource type="Animation" id="Animation_RESET"]
 resource_name = "RESET"
 length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/Fade:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Center:self_modulate:a")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ActorSlots/Center:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(300, 30)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ActorSlots/Crush:self_modulate:a")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("ActorSlots/Interviewer:self_modulate:a")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("ActorSlots/Doctor:self_modulate:a")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("ActorSlots/Penny:self_modulate:a")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_neighbors_transition_out"]
+resource_name = "neighbors_transition_out"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/Fade:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_neighbors_transition_in"]
+resource_name = "neighbors_transition_in"
+length = 0.65
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/Fade:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.65),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Crush:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.2, 0.65),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StageTitle:text")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Tuesday evening - the Reeds’ home"]
+}
+
+[sub_resource type="Animation" id="Animation_hosts_enter"]
+resource_name = "hosts_enter"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Center:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Crush:self_modulate:a")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ActorSlots/Interviewer:self_modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.1, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ActorSlots/Doctor:self_modulate:a")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.15, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_grandma_returns"]
+resource_name = "grandma_returns"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Center:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(300, 30), Vector2(20, 30)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Center:self_modulate:a")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_dinner_fade"]
+resource_name = "dinner_fade"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/Fade:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_back_at_home"]
+resource_name = "back_at_home"
+length = 0.65
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Effects/Fade:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.65),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ActorSlots/Left:self_modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.45),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ActorSlots/Center:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.45),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(20, 30), Vector2(300, 30)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ActorSlots/Right:self_modulate:a")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.45),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("ActorSlots/Interviewer:self_modulate:a")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ActorSlots/Doctor:self_modulate:a")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("StageTitle:text")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Back at home…"]
+}
+
+[sub_resource type="Animation" id="Animation_pennybot_reveal"]
+resource_name = "pennybot_reveal"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ActorSlots/Penny:self_modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_neighbors"]
 _data = {
-&"RESET": SubResource("Animation_RESET")
+&"RESET": SubResource("Animation_RESET"),
+&"back_at_home": SubResource("Animation_back_at_home"),
+&"dinner_fade": SubResource("Animation_dinner_fade"),
+&"grandma_returns": SubResource("Animation_grandma_returns"),
+&"hosts_enter": SubResource("Animation_hosts_enter"),
+&"neighbors_transition_in": SubResource("Animation_neighbors_transition_in"),
+&"neighbors_transition_out": SubResource("Animation_neighbors_transition_out"),
+&"pennybot_reveal": SubResource("Animation_pennybot_reveal")
 }
 
 [node name="NeighborsStage" unique_id=271038792 instance=ExtResource("1_base")]
-stage_title = "Tuesday evening - the Reeds' home"
+stage_title = "At home - Tuesday evening"
 
 [node name="Background" parent="." index="0"]
 color = Color(0.18, 0.12, 0.07, 1)
@@ -37,103 +420,97 @@ texture = ExtResource("2_reeds_home")
 [node name="Props" parent="." index="1"]
 visible = false
 
-[node name="Door" type="ColorRect" parent="Props" index="0" unique_id=1778350045]
-layout_mode = 0
-offset_left = 430.0
-offset_top = 105.0
-offset_right = 722.0
-offset_bottom = 510.0
-color = Color(0.35, 0.2, 0.1, 1)
-
-[node name="SceneCard" type="Panel" parent="Props" index="1" unique_id=1518144790]
-layout_mode = 0
-offset_left = 302.0
-offset_top = 48.0
-offset_right = 850.0
-offset_bottom = 118.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-
-[node name="Label" type="Label" parent="Props/SceneCard" index="0" unique_id=1105883971]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.92, 0.78, 1)
-theme_override_font_sizes/font_size = 22
-text = "The family meets their new neighbors"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Left" parent="ActorSlots" index="0"]
-offset_left = -35.0
-offset_top = 20.0
-offset_right = 315.0
-offset_bottom = 640.0
+offset_left = -20.0
+offset_top = 30.0
+offset_right = 330.0
+offset_bottom = 630.0
 character_id = &"dad"
 actor_name = "Dad"
 expression = "neutral"
 accent_color = Color(0.38, 0.58, 0.84, 1)
 
 [node name="Center" parent="ActorSlots" index="1"]
-offset_left = 110.0
-offset_top = 70.0
-offset_right = 460.0
-offset_bottom = 640.0
+offset_left = 300.0
+offset_top = 30.0
+offset_right = 650.0
+offset_bottom = 630.0
 character_id = &"grandma"
 actor_name = "Grandma"
 expression = "happy"
 accent_color = Color(0.82, 0.5, 0.35, 1)
 
 [node name="Right" parent="ActorSlots" index="2"]
-offset_left = 255.0
-offset_top = 50.0
-offset_right = 605.0
-offset_bottom = 640.0
+offset_left = 620.0
+offset_top = 30.0
+offset_right = 970.0
+offset_bottom = 630.0
 character_id = &"son"
 actor_name = "Percy"
 expression = "neutral"
 accent_color = Color(0.46, 0.7, 0.88, 1)
 
 [node name="Crush" parent="ActorSlots" index="3" instance=ExtResource("3_slot")]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 500.0
-offset_top = 50.0
-offset_right = 850.0
-offset_bottom = 640.0
+offset_left = 790.0
+offset_top = 35.0
+offset_right = 1140.0
+offset_bottom = 635.0
 character_id = &"crush"
 actor_name = "Clementine"
 expression = "neutral"
 accent_color = Color(0.97, 0.5, 0.68, 1)
 
 [node name="Interviewer" parent="ActorSlots" index="4" instance=ExtResource("3_slot")]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 655.0
-offset_top = 20.0
-offset_right = 1005.0
-offset_bottom = 640.0
+offset_left = 600.0
+offset_top = 30.0
+offset_right = 950.0
+offset_bottom = 630.0
 character_id = &"interviewer"
-actor_name = "Mr. Reed"
+actor_name = "Interviewer"
 expression = "neutral"
 accent_color = Color(0.9, 0.72, 0.37, 1)
 
 [node name="Doctor" parent="ActorSlots" index="5" instance=ExtResource("3_slot")]
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 810.0
-offset_top = 45.0
-offset_right = 1160.0
-offset_bottom = 640.0
+offset_left = 790.0
+offset_top = 35.0
+offset_right = 1140.0
+offset_bottom = 635.0
 character_id = &"doctor"
-actor_name = "Doctor Reed"
+actor_name = "Doctor"
 expression = "neutral"
 accent_color = Color(0.32, 0.7, 0.62, 1)
 
-[node name="Effects" parent="." index="3"]
-visible = false
+[node name="Penny" parent="ActorSlots" index="6" instance=ExtResource("3_slot")]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = 400.0
+offset_top = 115.0
+offset_right = 750.0
+offset_bottom = 615.0
+character_id = &"penny"
+actor_name = "Pennybot 3000"
+expression = "neutral"
+accent_color = Color(0.85, 0.67, 0.16, 1)
+
+[node name="Fade" type="ColorRect" parent="Effects" index="0"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="StageTitle" parent="." index="4"]
-text = "Tuesday evening - the Reeds' home"
+text = "At home - Tuesday evening"
 
 [node name="AnimationPlayer" parent="." index="5"]
 libraries/ = SubResource("AnimationLibrary_neighbors")

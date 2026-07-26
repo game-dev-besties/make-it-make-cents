@@ -296,6 +296,36 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 f"{affirmative_id} should be enough to continue the confession.",
             )
 
+    def test_neighbors_chapter_audit_covers_every_ending_combination(self) -> None:
+        report = audit_episode(
+            "neighbors",
+            expected_phrase_lines=0,
+            vary_flags=(
+                "dad_offended_interviewer",
+                "got_the_girl",
+                "got_prescription",
+            ),
+        )
+        self.assertEqual(report["summary"]["phrase_lines"], 0)
+        self.assertEqual(report["summary"]["raw_paths"], 24)
+        self.assertEqual(len(report["final_states"]), 24)
+        self.assertFalse(report["findings"])
+
+        for state in report["final_states"]:
+            flags = state["flags"]
+            happy_family_members = sum(
+                (
+                    flags["dad_offended_interviewer"] == "none",
+                    flags["got_the_girl"] == "yes",
+                    flags["got_prescription"],
+                )
+            )
+            self.assertEqual(
+                flags["family_stays"],
+                happy_family_members >= 2,
+                f"Wrong Chapter 6 ending for incoming flags: {flags}",
+            )
+
     def test_presentation_directive_and_retry_loop_are_auditable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             episodes_dir = Path(temporary_directory)

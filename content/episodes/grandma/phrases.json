@@ -1,1 +1,274 @@
-{}
+{
+  "grandma_L001": {
+    "speaker": "grandma",
+    "expr": "hospital",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "WHY DON’T YOU",
+        "cost": 3,
+        "id": "why_dont_you"
+      },
+      {
+        "type": "phrase",
+        "text": "TAKE A WILD GUESS,",
+        "cost": 4,
+        "id": "wild_guess"
+      },
+      {
+        "type": "phrase",
+        "text": "LADY?",
+        "cost": 1,
+        "id": "lady"
+      },
+      {
+        "type": "phrase",
+        "text": "I’M",
+        "cost": 1,
+        "id": "im"
+      },
+      {
+        "type": "phrase",
+        "text": "AT A",
+        "cost": 2,
+        "id": "at_a"
+      },
+      {
+        "type": "phrase",
+        "text": "DOCTOR’S OFFICE!",
+        "cost": 2,
+        "id": "doctors_office"
+      }
+    ],
+    "sponsor_success_delta": -3,
+    "recovery": {
+      "sponsor_text": "I JUST CAN’T STOP THINKING ABOUT SAM’S SODA POP!"
+    }
+  },
+  "grandma_L002": {
+    "speaker": "grandma",
+    "expr": "hospital",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "NOT THAT I KNOW OF.",
+        "cost": 5,
+        "id": "no_history"
+      },
+      {
+        "type": "phrase",
+        "text": "ALTHOUGH",
+        "cost": 1,
+        "id": "although"
+      },
+      {
+        "type": "phrase",
+        "text": "I THINK",
+        "cost": 2,
+        "id": "i_think"
+      },
+      {
+        "type": "phrase",
+        "text": "MY SON",
+        "cost": 2,
+        "id": "my_son"
+      },
+      {
+        "type": "phrase",
+        "text": "MIGHT HAVE",
+        "cost": 2,
+        "id": "might_have"
+      },
+      {
+        "type": "phrase",
+        "text": "BRAIN DAMAGE",
+        "cost": 2,
+        "id": "brain_damage"
+      },
+      {
+        "type": "phrase",
+        "text": "BECAUSE",
+        "cost": 1,
+        "id": "because"
+      },
+      {
+        "type": "phrase",
+        "text": "HE DRAGGED US ALL HERE",
+        "cost": 5,
+        "id": "dragged_here"
+      },
+      {
+        "type": "phrase",
+        "text": "FOR NO REASON!",
+        "cost": 3,
+        "id": "no_reason"
+      }
+    ],
+    "sponsor_success_delta": -3,
+    "recovery": {
+      "sponsor_text": "FEELING THIRSTY? IN NEED OF FIZZ? TRY SAM’S SODA POP NOW!"
+    }
+  },
+  "grandma_L003": {
+    "speaker": "grandma",
+    "expr": "hospital",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I’M ALLERGIC TO",
+        "cost": 3,
+        "id": "allergic_to"
+      },
+      {
+        "type": "phrase",
+        "text": "SLOW, INCOMPETENT PEOPLE",
+        "cost": 3,
+        "id": "slow_people"
+      },
+      {
+        "type": "phrase",
+        "text": "LIKE",
+        "cost": 1,
+        "id": "like"
+      },
+      {
+        "type": "phrase",
+        "text": "YOU!",
+        "cost": 1,
+        "id": "you"
+      },
+      {
+        "type": "phrase",
+        "text": "PICK UP THE PACE,",
+        "cost": 4,
+        "id": "pick_up_pace"
+      },
+      {
+        "type": "phrase",
+        "text": "LADY!",
+        "cost": 1,
+        "id": "lady"
+      }
+    ],
+    "sponsor_success_delta": -2,
+    "recovery": {
+      "sponsor_text": "SAAAAAAAM’S SODA POP! POP! POP! POP!"
+    }
+  },
+  "grandma_L004": {
+    "speaker": "grandma",
+    "expr": "hospital",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "I’M",
+        "cost": 1,
+        "id": "im"
+      },
+      {
+        "type": "phrase",
+        "text": "SICK",
+        "cost": 1,
+        "id": "sick"
+      },
+      {
+        "type": "phrase",
+        "text": "OF",
+        "cost": 1,
+        "id": "of"
+      },
+      {
+        "type": "phrase",
+        "text": "THIS PLACE!",
+        "cost": 2,
+        "id": "this_place"
+      },
+      {
+        "type": "phrase",
+        "text": "EVERYTHING",
+        "cost": 1,
+        "id": "everything"
+      },
+      {
+        "type": "phrase",
+        "text": "ABOUT IT",
+        "cost": 2,
+        "id": "about_it"
+      },
+      {
+        "type": "phrase",
+        "text": "MAKES ME",
+        "cost": 2,
+        "id": "makes_me"
+      },
+      {
+        "type": "phrase",
+        "text": "FURIOUS",
+        "cost": 1,
+        "id": "furious"
+      },
+      {
+        "type": "phrase",
+        "text": "BEYOND MEASURE!",
+        "cost": 2,
+        "id": "beyond_measure"
+      }
+    ],
+    "sponsor_success_delta": -3,
+    "recovery": {
+      "sponsor_text": "WHEN I FEEL TIRED, I TAKE A SIP OF SAM’S SODA POP. NOW THAT’S THE STUFF!"
+    }
+  },
+  "grandma_L005": {
+    "speaker": "grandma",
+    "expr": "hospital",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "MY MIND",
+        "cost": 2,
+        "id": "my_mind"
+      },
+      {
+        "type": "phrase",
+        "text": "IS",
+        "cost": 1,
+        "id": "is"
+      },
+      {
+        "type": "phrase",
+        "text": "CONSUMED BY",
+        "cost": 2,
+        "id": "consumed_by"
+      },
+      {
+        "type": "phrase",
+        "text": "A MURDEROUS RAGE!",
+        "cost": 3,
+        "id": "murderous_rage"
+      },
+      {
+        "type": "phrase",
+        "text": "I AM",
+        "cost": 2,
+        "id": "i_am"
+      },
+      {
+        "type": "phrase",
+        "text": "FILLED WITH",
+        "cost": 2,
+        "id": "filled_with"
+      },
+      {
+        "type": "phrase",
+        "text": "BLOODLUST!",
+        "cost": 1,
+        "id": "bloodlust"
+      }
+    ],
+    "sponsor_success_delta": -2,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP! I JUST CAN’T GET ENOUGH!"
+    }
+  }
+}

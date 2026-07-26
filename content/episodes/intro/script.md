@@ -154,6 +154,11 @@ else:
   intro.pills_confiscated = true
   officer: That’s not specific enough. I cannot verify that declaration. The pills stay here.
 
+if intro.pills_confiscated:
+  SET has_meds = false
+else:
+  SET has_meds = true
+
 # Closing — onto the next cutscene.
 @cue home_reveal
 @wait 0.5

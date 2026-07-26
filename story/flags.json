@@ -193,6 +193,48 @@
           "description": "Percy and Clementine want to keep talking."
         }
       ]
+    },
+    {
+      "name": "has_meds",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Grandma's previous prescription pills were confiscated at customs."
+        },
+        {
+          "value": true,
+          "description": "Grandma still has her previous prescription pills."
+        }
+      ]
+    },
+    {
+      "name": "got_prescription",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "The doctor could not determine the right prescription for Grandma."
+        },
+        {
+          "value": true,
+          "description": "The doctor understood Grandma well enough to prescribe new medication."
+        }
+      ]
+    },
+    {
+      "name": "family_stays",
+      "default": false,
+      "values": [
+        {
+          "value": false,
+          "description": "Fewer than two family members were happy, so the family is returning to Ohio."
+        },
+        {
+          "value": true,
+          "description": "At least two family members were happy, so the family is staying."
+        }
+      ]
     }
   ]
 }

@@ -1,3 +1,154 @@
 # Generated from content/episodes/grandma/script.md; edit script.md, not this file.
-\This cutscene hasn't been written yet.
+story_flag_set {"name":"got_prescription","value":false}
+\doctor (neutral): Hello, Mrs. Leiton. It’s nice to finally meet you. Please, take a seat. What brings you here today?
+label question_1
+phrase_cut grandma (hospital) grandma_L001
+if PhraseMemory.delivery_is("sponsor"):
+	\doctor (neutral): …Okay. That is certainly unusual. I’m not sure that accounts for a doctor’s appointment, but I’ll try my best to figure out what you need.
+elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
+	\doctor (neutral): My apologies, I forgot about your condition. I have you marked as trying to find the right prescription for new medication.
+	set {GameStats.grandma_success} += 1
+elif PhraseMemory.kept_count() == 6:
+	\doctor (neutral): Ha, I-I guess you’re right…wow, wasn’t expecting such a…strong voice of yours.
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("wild_guess") and PhraseMemory.removed("im") and PhraseMemory.removed("at_a") and PhraseMemory.removed("doctors_office"):
+	\doctor (neutral): Oh. Well, I suppose you’re here to talk about the medication we called about.
+	set {GameStats.grandma_success} += 2
+elif PhraseMemory.kept("lady") and PhraseMemory.kept_count() == 1:
+	\doctor (neutral): A lady…brought you here? That’s very nice of her. Tell her I said thank you.
+elif (PhraseMemory.kept("doctors_office") and PhraseMemory.kept_count() == 1) or (PhraseMemory.kept("at_a") and PhraseMemory.kept("doctors_office") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("im") and PhraseMemory.kept("at_a") and PhraseMemory.kept("doctors_office") and PhraseMemory.kept_count() == 3):
+	\doctor (neutral): Yes…that’s where we are right now. Nevermind.
+	set {GameStats.grandma_success} -= 1
+else:
+	\doctor (neutral): Ah…sorry, I’m not exactly sure what you mean. But, let’s see here…I have you marked as trying to find the right prescription for new medication.
+	set {GameStats.grandma_success} += 1
+\doctor (neutral): Let’s get started, shall we? Can I take a look at your previous prescription pills?
+if GameStats.story_flag_equals("has_meds", false):
+	story_flag_check {"name":"has_meds","operator":"==","expected":false,"branch":"grandma_does_not_have_her_previous_pills"}
+	\doctor (neutral): Ah…I see you don’t have them with you.
+	\doctor (neutral): I suppose we’ll have to start from scratch, then.
+if GameStats.story_flag_equals("has_meds", true):
+	story_flag_check {"name":"has_meds","operator":"==","expected":true,"branch":"grandma_has_her_previous_pills"}
+	\doctor (happy): Ah, I see you have them right here! Glad you didn’t have any trouble taking them across the border.
+\doctor (neutral): I just need some more information about you first. Do you have any family history of disease?
+label question_2
+phrase_cut grandma (hospital) grandma_L002
+if PhraseMemory.delivery_is("sponsor"):
+	\doctor (neutral): Oh…thank you for thinking about me, but I want to focus on you right now, not soda. We’ll come back to this question another time if soda’s all that’s on your mind.
+elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
+	\doctor (neutral): …Okay, so you don’t want to talk about it. I understand it might be hard, but I do need to know eventually…
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("my_son") and PhraseMemory.kept("brain_damage") and PhraseMemory.kept("dragged_here"):
+	\doctor (neutral): Ah…haha. Yes, family can be very difficult. A big environmental change can sometimes worsen your health. I’ll make note of that in your records.
+	set {GameStats.grandma_success} += 2
+elif PhraseMemory.kept("brain_damage") and PhraseMemory.removed("dragged_here"):
+	\doctor (neutral): Oh! Oh no…that is very unfortunate. I’m so sorry. Brain damage…hmm…I’ll make note of that in your records.
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("no_history") and PhraseMemory.kept_count() == 1:
+	\doctor (happy): Excellent. That’s always good to hear. I’ll make note of that in your records.
+	set {GameStats.grandma_success} += 2
+elif PhraseMemory.kept("my_son") and PhraseMemory.kept_count() == 1:
+	\doctor (neutral): Your son…is the disease? Or, no, you meant your son has a disease? Surely the latter, ha ha. I’ll make note of that in your records.
+	set {GameStats.grandma_success} += 1
+elif (PhraseMemory.kept("dragged_here") and PhraseMemory.kept_count() == 1) or (PhraseMemory.kept("dragged_here") and PhraseMemory.kept("no_reason") and PhraseMemory.kept_count() == 2):
+	\doctor (neutral): Who? Where? I think your meaning might have gotten a little mixed up there.
+	set {GameStats.grandma_success} -= 3
+else:
+	\doctor (neutral): Oh…I’m sorry, I didn’t really understand that. Maybe we’ll come back to it another time.
+	set {GameStats.grandma_success} -= 2
+\doctor (neutral): Alright…next on the list…do you have any allergies?
+label question_3
+phrase_cut grandma (hospital) grandma_L003
+if PhraseMemory.delivery_is("sponsor"):
+	\doctor (neutral): So you’re allergic to Sam’s Soda…I see. It’s quite unfortunate that you moved here, then. Well, I can’t help you with that.
+elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
+	\doctor (neutral): I’ll…take that as a no? Are you allergic to speech? No, that can’t be right…Um. I’ll just mark you down as none.
+	set {GameStats.grandma_success} -= 1
+elif PhraseMemory.kept("slow_people") and PhraseMemory.kept("like") and PhraseMemory.kept("you") and PhraseMemory.kept("pick_up_pace"):
+	\doctor (neutral): E-excuse me! That’s—I’m just—alright. I know this can be a frustrating process, but please stay patient. I’m only trying to help you.
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("slow_people") and PhraseMemory.kept("like") and PhraseMemory.kept("you") and PhraseMemory.removed("pick_up_pace"):
+	\doctor (neutral): I-I’m sorry. I’m only trying to help. Figuring out your prescription takes time. I promise you I am very competent though, if you just give me a chance…
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("slow_people") and not (PhraseMemory.kept("like") and PhraseMemory.kept("you")):
+	\doctor (happy): Ha ha…that’s a good one. Wouldn’t we all agree some people should be a little faster? I can see where you’re coming from.
+	set {GameStats.grandma_success} += 2
+elif (PhraseMemory.kept("allergic_to") and PhraseMemory.kept("lady") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("lady") and PhraseMemory.kept_count() == 1):
+	\doctor (neutral): Huh? I’ve never heard of a “lady” allergy before. If you so insist, though, I guess I’ll make note of it…
+elif PhraseMemory.kept("pick_up_pace") and PhraseMemory.removed("allergic_to") and PhraseMemory.removed("slow_people") and PhraseMemory.removed("like"):
+	\doctor (neutral): I-I’m going as fast as I can! These processes take time. Please be more patient.
+	set {GameStats.grandma_success} -= 1
+elif (PhraseMemory.kept("allergic_to") and PhraseMemory.kept("you") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("you") and PhraseMemory.kept_count() == 1):
+	\doctor (neutral): You’re allergic to me? I…I assume you’re joking…I would hate to cause your symptoms to flare up more severely. I-I think I’ll assume you’re joking, ha ha.
+else:
+	\doctor (neutral): I…don’t quite understand what you mean by that. I’m not sure that’s an allergy.
+	set {GameStats.grandma_success} -= 3
+\doctor (neutral): Well, moving on from allergies, let’s hear about your symptoms. How have you been feeling lately?
+label question_4
+phrase_cut grandma (hospital) grandma_L004
+if PhraseMemory.delivery_is("sponsor"):
+	\doctor (neutral): Er…I suppose we all need something to calm us down every now and again. Some of us more than others. That doesn’t exactly help me with your prescription, though.
+elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
+	\doctor (neutral): Well, you’re certainly not feeling very chatty. I suppose that’s something I can write down…
+	set {GameStats.grandma_success} += 1
+elif PhraseMemory.kept("sick") and PhraseMemory.kept("this_place") and PhraseMemory.kept("everything") and PhraseMemory.kept("makes_me") and PhraseMemory.kept("furious"):
+	\doctor (neutral): W-wow. Such a strong sentiment…I’m so sorry you feel this way. Although…maybe you should lower your voice a little. These walls are very thin.
+	set {GameStats.grandma_success} += 3
+elif PhraseMemory.kept("sick") and PhraseMemory.kept("of") and PhraseMemory.kept("this_place") and not (PhraseMemory.kept("everything") and PhraseMemory.kept("makes_me") and PhraseMemory.kept("furious")):
+	\doctor (neutral): I see, I see. Moving to a new place where people have difficulty understanding you can definitely be very frustrating. I think I’m starting to understand what you’re going through.
+	set {GameStats.grandma_success} += 2
+elif PhraseMemory.kept("im") and PhraseMemory.kept("sick") and PhraseMemory.kept("of") and PhraseMemory.kept("everything") and PhraseMemory.removed("this_place"):
+	\doctor (neutral): You’re sick of everything? I-I’m not sure that falls under my domain.
+	set {GameStats.grandma_success} -= 1
+elif (PhraseMemory.kept("im") and PhraseMemory.kept("sick") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("sick") and PhraseMemory.kept_count() == 1):
+	\doctor (neutral): Yes…that’s why you’re here. Because you feel sick. I-if you’re not going to give me any symptoms, it’s going to be very difficult for me to prescribe you medication.
+	set {GameStats.grandma_success} -= 2
+elif PhraseMemory.kept("furious") and not (PhraseMemory.kept("sick") and PhraseMemory.kept("this_place") and PhraseMemory.kept("everything") and PhraseMemory.kept("makes_me")) and not (PhraseMemory.kept("sick") and PhraseMemory.kept("of") and PhraseMemory.kept("this_place")) and not (PhraseMemory.kept("im") and PhraseMemory.kept("sick") and PhraseMemory.kept("of") and PhraseMemory.kept("everything") and PhraseMemory.removed("this_place")):
+	\doctor (neutral): Alright, I’ll factor that into your medication. Maybe…just take some deep breaths for now.
+	set {GameStats.grandma_success} += 1
+elif PhraseMemory.kept("im") and PhraseMemory.kept("of") and PhraseMemory.kept("this_place") and PhraseMemory.kept_count() == 3:
+	\doctor (neutral): Huh? With that robot companion, I thought you were a non-citizen under the Verbal Tariff Act…I think our records may be a bit jumbled here.
+	set {GameStats.grandma_success} -= 3
+else:
+	\doctor (neutral): I’m afraid I didn’t catch your meaning. I understand emotions can be very difficult to describe…especially yours, it seems.
+	set {GameStats.grandma_success} -= 2
+\doctor (neutral): I’ll just move on to our final check-up question. What are your symptoms?
+label question_5
+phrase_cut grandma (hospital) grandma_L005
+if PhraseMemory.delivery_is("sponsor"):
+	\doctor (neutral): So…an uncontrollable urge for Sam’s Soda Pop? Hmm…you might need a different medication than what I was thinking of.
+elif PhraseMemory.delivery_is("silence") or PhraseMemory.delivery_is("pity"):
+	\doctor (neutral): Hmm…guess I’ll write foggy-minded as a symptom? No shame in being slow, especially at your age. Er—I mean, no shame in being slow, I suppose.
+	set {GameStats.grandma_success} += 1
+elif PhraseMemory.kept("murderous_rage") or PhraseMemory.kept("bloodlust"):
+	\doctor (neutral): Um…should I be worried about my safety? Do you need to talk to someone? I…er…I think…
+	set {GameStats.grandma_success} -= 4
+elif (PhraseMemory.kept("my_mind") and PhraseMemory.kept("is") and PhraseMemory.kept_count() == 2) or (PhraseMemory.kept("my_mind") and PhraseMemory.kept_count() == 1):
+	\doctor (neutral): Your mind is…your symptom. Huh. Okay…I will…I will write that down…I guess…
+	set {GameStats.grandma_success} += 1
+elif PhraseMemory.kept("i_am") and PhraseMemory.kept_count() == 1:
+	\doctor (neutral): You are the symptom? I…haven’t heard that one before. I suppose I’ll write that down, but keep in mind that’s not a symptom we’re trying to get rid of.
+	set {GameStats.grandma_success} += 1
+else:
+	\doctor (neutral): Ah…I couldn’t exactly understand that. I’m not sure what to write down here.
+	set {GameStats.grandma_success} -= 2
+if GameStats.grandma_success >= 5:
+	story_flag_set {"name":"got_prescription","value":true}
+else:
+	story_flag_set {"name":"got_prescription","value":false}
+\doctor (neutral): That’s going to be the end of your check-up appointment with me today.
+\doctor (neutral): Let me just look over my notes…
+\doctor (neutral): And…
+if GameStats.story_flag_equals("got_prescription", true):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":true,"branch":"grandma_received_a_prescription"}
+	\doctor (happy): I think I understand you well enough.
+	\doctor (neutral): Most of the time anyway…
+	\doctor (happy): Here’s your prescription!
+	\doctor (happy): I hope it helps!
+if GameStats.story_flag_equals("got_prescription", false):
+	story_flag_check {"name":"got_prescription","operator":"==","expected":false,"branch":"grandma_did_not_receive_a_prescription"}
+	\doctor (neutral): I’m so sorry, I just don’t know what prescription to give you.
+	\doctor (neutral): I just couldn’t quite understand what you were saying a lot of the time.
+	\doctor (neutral): My best suggestion would be…
+	\doctor (neutral): Try therapy?
 [end_timeline]
