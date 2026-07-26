@@ -36,6 +36,24 @@ region = Rect2(288, 325, 1346, 432)
 atlas = ExtResource("26_back_overlay")
 region = Rect2(871, 542, 178, 54)
 
+[sub_resource type="StyleBoxFlat" id="TitleFramePaper"]
+draw_center = false
+border_width_left = 12
+border_width_top = 12
+border_width_right = 12
+border_width_bottom = 12
+border_color = Color(0.992157, 0.984314, 0.956863, 1)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="TitleFrameInk"]
+draw_center = false
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.141176, 0.188235, 0.121569, 0.9)
+anti_aliasing = false
+
 [node name="App" type="Control" unique_id=534022310]
 layout_mode = 3
 anchors_preset = 15
@@ -188,7 +206,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.654902, 0.862745, 1, 1)
+color = Color(0.992157, 0.984314, 0.956863, 1)
 
 [node name="TitleCanvas" type="Control" parent="TitleScreen" unique_id=1352008405]
 unique_name_in_owner = true
@@ -337,15 +355,42 @@ ignore_texture_size = true
 stretch_mode = 0
 script = ExtResource("21_image_button")
 
+[node name="TitleFramePaper" type="Panel" parent="TitleScreen/TitleCanvas" unique_id=1096632264]
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("TitleFramePaper")
+
+[node name="TitleFrameInk" type="Panel" parent="TitleScreen/TitleCanvas" unique_id=169745253]
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 11.0
+offset_top = 11.0
+offset_right = -11.0
+offset_bottom = -11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("TitleFrameInk")
+
 [node name="DeveloperTools" type="VBoxContainer" parent="TitleScreen" unique_id=438741980]
 unique_name_in_owner = true
 visible = false
+z_index = 30
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.73
-anchor_top = 0.02
+anchor_top = 0.055
 anchor_right = 0.98
-anchor_bottom = 0.3
+anchor_bottom = 0.335
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8

@@ -21,23 +21,34 @@ const HORIZONTAL_GUTTER := 48.0
 const MONEYBOT_COMPANION_MIN_WIDTH := 1080.0
 const MONEYBOT_COMPANION_MIN_HEIGHT := 540.0
 const COMPACT_SAFE_MARGIN := 16
-const COMPANION_SAFE_MARGIN_RIGHT := 180
+const COMPANION_SAFE_MARGIN_RIGHT := 150
 const PANEL_CONTENT_MARGIN_RIGHT := 38
-const COMPANION_CONTENT_MARGIN_RIGHT := 128
-const COMPANION_PANEL_OVERLAP := 90.0
-const COMPANION_SIZE := Vector2(286.0, 342.0)
-const COMPANION_BODY_OFFSET := Vector2(0.0, 171.0)
-const COMPANION_BODY_SIZE := Vector2(286.0, 171.0)
+const COMPANION_CONTENT_MARGIN_RIGHT := 38
+const COMPANION_HOME_GAP := 8.0
+const COMPANION_SIZE := Vector2(228.0, 273.0)
+const COMPANION_BODY_OFFSET := Vector2(0.0, 136.5)
+const COMPANION_BODY_SIZE := Vector2(228.0, 136.5)
 const COMPANION_EDGE_PADDING := 4.0
-const COMPANION_CURSOR_RADIUS_X := 260.0
-const COMPANION_CURSOR_RADIUS_Y := 225.0
+const COMPANION_CURSOR_RADIUS_X := 185.0
+const COMPANION_CURSOR_RADIUS_Y := 160.0
+const COMPANION_CURSOR_OFFSET := Vector2(130.0, 105.0)
+const COMPANION_OBSTACLE_PADDING := 12.0
+const COMPANION_OVERLAP_ALPHA := 1.0
+const COMPANION_ALPHA_SPEED := 12.0
+const COMPANION_PANEL_EXIT_BUFFER := 16.0
 const COMPANION_WORD_RECOIL_CLEARANCE := 30.0
 const COMPANION_MIN_LUNGE_TRAVEL := 36.0
-const COMPANION_FOLLOW_SPEED := 7.0
-const COMPANION_RETURN_SPEED := 4.5
-const COMPANION_RETURN_DELAY := 0.3
+const COMPANION_FOLLOW_SPRING := 68.0
+const COMPANION_FOLLOW_DAMPING := 13.5
+const COMPANION_RETURN_SPRING := 34.0
+const COMPANION_RETURN_DAMPING := 11.0
+const COMPANION_RETURN_DELAY := 0.22
 const COMPANION_HOVER_AMPLITUDE := 6.0
 const COMPANION_HOVER_FREQUENCY := 1.15
+const COMPANION_ACTIVE_SCALE := 0.5
+const COMPANION_SCALE_SPEED := 11.0
+const COMPANION_PULSE_AMOUNT := 0.012
+const COMPANION_PULSE_FREQUENCY := 0.72
 const COMPANION_MAX_TILT := 0.0872665
 const COMPANION_TILT_PER_SPEED := 0.00016
 const COMPANION_TILT_SPRING := 46.0
@@ -50,7 +61,9 @@ const COMPANION_PEAK_HOLD_TIME := 0.07
 const STORY_FRAME_SIZE := Vector2(1152.0, 648.0)
 
 const FIXED_WORD_FONT := preload("res://ui/theme/fonts/DepartureMono-Regular.ttf")
-const FIXED_WORD_COLOR := Color(0.992157, 0.984314, 0.956863, 1)
+const FIXED_WORD_COLOR := Color(1.0, 0.964706, 0.898039, 1)
+const PHRASE_TEXT_OUTLINE_COLOR := Color(0.258824, 0.243137, 0.266667, 1)
+const PHRASE_TEXT_OUTLINE_SIZE := 4
 
 ## Kept for callers that prefer to inspect the result after awaiting `resolved`.
 ## The typed signal above is the public contract.
@@ -67,9 +80,13 @@ var _phrase_buttons: Array[Button] = []
 var _is_resolved := false
 var _companion_target_position := Vector2.ZERO
 var _companion_follow_position := Vector2.ZERO
+var _companion_follow_velocity := Vector2.ZERO
 var _has_companion_target := false
 var _companion_angular_velocity := 0.0
 var _companion_hover_time := 0.0
+var _companion_visual_scale := 1.0
+var _companion_visual_alpha := 1.0
+var _companion_cursor_active := false
 var _companion_return_delay_remaining := 0.0
 var _companion_velocity_sample_position := Vector2.ZERO
 var _is_companion_acting := false
@@ -111,11 +128,13 @@ func _process(delta: float) -> void:
 		_companion_follow_position = _companion_home_position()
 		_moneybot_companion.global_position = _companion_follow_position
 		_companion_velocity_sample_position = _companion_follow_position
+		_companion_follow_velocity = Vector2.ZERO
 		_has_companion_target = true
+	var cursor_is_active := _update_companion_cursor_active(cursor_position)
 	if not _is_companion_acting:
-		var is_over_word := _cursor_is_over_word(cursor_position)
-		var movement_speed := COMPANION_FOLLOW_SPEED
-		if is_over_word:
+		var follow_spring := COMPANION_FOLLOW_SPRING
+		var follow_damping := COMPANION_FOLLOW_DAMPING
+		if cursor_is_active:
 			_companion_return_delay_remaining = COMPANION_RETURN_DELAY
 			_companion_target_position = _companion_target_for_cursor(
 				cursor_position,
@@ -128,19 +147,66 @@ func _process(delta: float) -> void:
 			)
 			_companion_target_position = _companion_follow_position
 		else:
-			movement_speed = COMPANION_RETURN_SPEED
+			follow_spring = COMPANION_RETURN_SPRING
+			follow_damping = COMPANION_RETURN_DAMPING
 			_companion_target_position = _companion_home_position()
-		var follow_weight := 1.0 - exp(-movement_speed * delta)
-		_companion_follow_position = _clamped_companion_position(
-			_companion_follow_position.lerp(
-				_companion_target_position,
-				follow_weight,
-			),
+		var motion_delta := minf(delta, 1.0 / 30.0)
+		var follow_acceleration := (
+			(_companion_target_position - _companion_follow_position) * follow_spring
+			- _companion_follow_velocity * follow_damping
 		)
+		_companion_follow_velocity += follow_acceleration * motion_delta
+		_companion_follow_position += _companion_follow_velocity * motion_delta
+		var unclamped_position := _companion_follow_position
+		_companion_follow_position = _clamped_companion_position(
+			unclamped_position,
+			_companion_visual_scale,
+		)
+		if not _companion_follow_position.is_equal_approx(unclamped_position):
+			_companion_follow_velocity *= 0.35
+	else:
+		_companion_follow_velocity = Vector2.ZERO
 	_companion_hover_time += delta
+	var companion_is_engaged := (
+		cursor_is_active
+		or _companion_return_delay_remaining > 0.0
+		or _is_companion_acting
+	)
+	var target_visual_scale := (
+		COMPANION_ACTIVE_SCALE
+		if companion_is_engaged
+		else 1.0
+	)
+	_companion_visual_scale = lerpf(
+		_companion_visual_scale,
+		target_visual_scale,
+		1.0 - exp(-COMPANION_SCALE_SPEED * delta),
+	)
+	_moneybot_companion.scale = (
+		_companion_pulse_scale_at(_companion_hover_time)
+		* _companion_visual_scale
+	)
 	_moneybot_companion.global_position = _clamped_companion_position(
 		_companion_follow_position + _companion_hover_offset_at(_companion_hover_time),
+		_companion_visual_scale,
 	)
+	var target_alpha := 1.0
+	if (
+		companion_is_engaged
+		and _companion_obstacle_overlap_area(
+			_companion_follow_position,
+			_companion_visual_scale,
+		) > 0.0
+	):
+		target_alpha = COMPANION_OVERLAP_ALPHA
+	_companion_visual_alpha = lerpf(
+		_companion_visual_alpha,
+		target_alpha,
+		1.0 - exp(-COMPANION_ALPHA_SPEED * delta),
+	)
+	var companion_modulate := _moneybot_companion.self_modulate
+	companion_modulate.a = _companion_visual_alpha
+	_moneybot_companion.self_modulate = companion_modulate
 	var safe_delta := maxf(delta, 0.001)
 	var velocity := (
 		(_companion_follow_position - _companion_velocity_sample_position)
@@ -225,9 +291,16 @@ func _rebuild() -> void:
 			fixed_word.text = fixed_text
 			fixed_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			fixed_word.add_theme_color_override("font_color", FIXED_WORD_COLOR)
+			fixed_word.add_theme_color_override(
+				"font_outline_color",
+				PHRASE_TEXT_OUTLINE_COLOR,
+			)
 			fixed_word.add_theme_font_override("font", FIXED_WORD_FONT)
 			fixed_word.add_theme_font_size_override("font_size", 29)
-			fixed_word.add_theme_constant_override("outline_size", 0)
+			fixed_word.add_theme_constant_override(
+				"outline_size",
+				PHRASE_TEXT_OUTLINE_SIZE,
+			)
 			fixed_word.set_meta("segment_index", segment_index)
 			_chips.add_child(fixed_word)
 			continue
@@ -255,7 +328,8 @@ func _rebuild() -> void:
 	_pity_button.text = '"%s"  /  $0' % _pity_text
 	_pity_button.tooltip_text = 'Deliver the free grunt: "%s".' % _pity_text
 	_sponsor_button.tooltip_text = "Read the sponsor message for +$3, at a score cost."
-	_recovery_label.text = _recovery_description()
+	_recovery_label.visible = is_out_of_budget
+	_recovery_label.text = "No budget — choose a fallback."
 	_recompute()
 	_focus_initial_control(is_out_of_budget)
 	call_deferred("_position_companion")
@@ -334,10 +408,11 @@ func _set_companion_follow_position(companion_position: Vector2) -> void:
 
 
 func _companion_impact_position(word_rect: Rect2, travel_direction: Vector2) -> Vector2:
+	var scaled_body_size := COMPANION_BODY_SIZE * COMPANION_ACTIVE_SCALE
 	var expanded_half_size := (
 		word_rect.size * 0.5
-		+ COMPANION_BODY_SIZE * 0.5
-		- Vector2.ONE * COMPANION_IMPACT_OVERLAP
+		+ scaled_body_size * 0.5
+		- Vector2.ONE * COMPANION_IMPACT_OVERLAP * COMPANION_ACTIVE_SCALE
 	)
 	var distance_x := (
 		INF
@@ -354,16 +429,30 @@ func _companion_impact_position(word_rect: Rect2, travel_direction: Vector2) -> 
 		- travel_direction * minf(distance_x, distance_y)
 	)
 	return _clamped_companion_position(
-		impact_body_center
-		- COMPANION_BODY_OFFSET
-		- COMPANION_BODY_SIZE * 0.5,
+		impact_body_center - _companion_body_center_offset(COMPANION_ACTIVE_SCALE),
+		COMPANION_ACTIVE_SCALE,
 	)
 
 
-func _companion_body_rect(companion_position: Vector2) -> Rect2:
+func _companion_body_center_offset(visual_scale: float) -> Vector2:
+	var pivot := COMPANION_SIZE * 0.5
+	var unscaled_body_center := COMPANION_BODY_OFFSET + COMPANION_BODY_SIZE * 0.5
+	return pivot + (unscaled_body_center - pivot) * visual_scale
+
+
+func _companion_body_rect(
+	companion_position: Vector2,
+	visual_scale: float = COMPANION_ACTIVE_SCALE,
+) -> Rect2:
+	var pivot := COMPANION_SIZE * 0.5
+	var visual_body_origin := (
+		companion_position
+		+ pivot
+		+ (COMPANION_BODY_OFFSET - pivot) * visual_scale
+	)
 	return Rect2(
-		companion_position + COMPANION_BODY_OFFSET,
-		COMPANION_BODY_SIZE,
+		visual_body_origin,
+		COMPANION_BODY_SIZE * visual_scale,
 	)
 
 
@@ -379,6 +468,7 @@ func _closest_recoil_peak(word_rect: Rect2, current_position: Vector2) -> Vector
 		word_center
 		+ _ellipse_offset(preferred_direction, recoil_radii)
 		- COMPANION_SIZE * 0.5,
+		COMPANION_ACTIVE_SCALE,
 	)
 	var best_distance := INF
 	var fallback_position := best_position
@@ -395,6 +485,7 @@ func _closest_recoil_peak(word_rect: Rect2, current_position: Vector2) -> Vector
 		)
 		var candidate := _clamped_companion_position(
 			target_center - COMPANION_SIZE * 0.5,
+			COMPANION_ACTIVE_SCALE,
 		)
 		var candidate_center := candidate + COMPANION_SIZE * 0.5
 		var distance_to_current := candidate.distance_to(current_position)
@@ -426,13 +517,13 @@ func _word_recoil_radii(word_rect: Rect2) -> Vector2:
 		maxf(
 			COMPANION_CURSOR_RADIUS_X,
 			word_rect.size.x * 0.5
-			+ COMPANION_SIZE.x * 0.5
+			+ COMPANION_SIZE.x * COMPANION_ACTIVE_SCALE * 0.5
 			+ COMPANION_WORD_RECOIL_CLEARANCE,
 		),
 		maxf(
 			COMPANION_CURSOR_RADIUS_Y,
 			word_rect.size.y * 0.5
-			+ COMPANION_SIZE.y * 0.5
+			+ COMPANION_SIZE.y * COMPANION_ACTIVE_SCALE * 0.5
 			+ COMPANION_WORD_RECOIL_CLEARANCE,
 		),
 	)
@@ -533,6 +624,7 @@ func _spawn_impact_sparks(impact_point: Vector2, travel_direction: Vector2) -> v
 
 func _finish_companion_action() -> void:
 	_is_companion_acting = false
+	_companion_follow_velocity = Vector2.ZERO
 	_companion_action_tween = null
 	_pending_action_chip = null
 
@@ -601,7 +693,9 @@ func _recompute() -> void:
 	var cost := _cost()
 	var over_budget := cost > _budget
 	var kept_text := _assemble()
-	_recovery_box.visible = _budget <= 0 or not _has_cut_phrase()
+	# Keep fallbacks in a stable location so editing the phrase does not make
+	# the layout jump. Their low-emphasis styling keeps "Say it" primary.
+	_recovery_box.visible = true
 	_confirm_button.visible = (
 		_budget > 0
 		or (cost == 0 and not kept_text.is_empty())
@@ -664,6 +758,37 @@ func _refresh_chip_presentation() -> void:
 				% [phrase_text, phrase_cost]
 			)
 	_fit_phrase_buttons_to_row()
+	_refresh_strike_connections()
+	call_deferred("_refresh_strike_connections")
+
+
+func _refresh_strike_connections() -> void:
+	for chip: Button in _phrase_buttons:
+		chip.call("clear_strike_connections")
+
+	var children := _chips.get_children()
+	if children.size() < 2:
+		return
+	for child_index: int in children.size() - 1:
+		var left_word := children[child_index] as PhraseCutWord
+		var right_word := children[child_index + 1] as PhraseCutWord
+		if (
+			left_word == null
+			or right_word == null
+			or left_word.button_pressed
+			or right_word.button_pressed
+			or not left_word.can_connect_strike()
+			or not right_word.can_connect_strike()
+		):
+			continue
+		var left_rect := left_word.get_global_rect()
+		var right_rect := right_word.get_global_rect()
+		if absf(left_rect.position.y - right_rect.position.y) > 1.5:
+			continue
+		var gap := maxf(0.0, right_rect.position.x - left_rect.end.x)
+		var extension := gap * 0.5 + PhraseCutWord.STRIKE_EDGE_INSET
+		left_word.set_strike_connection_right(extension)
+		right_word.set_strike_connection_left(extension)
 
 
 func _fit_phrase_buttons_to_row() -> void:
@@ -773,9 +898,14 @@ func _update_panel_width() -> void:
 		_is_companion_acting = false
 		_has_companion_target = false
 		_companion_angular_velocity = 0.0
+		_companion_follow_velocity = Vector2.ZERO
 		_companion_hover_time = 0.0
+		_companion_visual_scale = 1.0
+		_companion_visual_alpha = 1.0
+		_companion_cursor_active = false
 		_companion_return_delay_remaining = 0.0
 		_moneybot_companion.rotation = 0.0
+		_moneybot_companion.scale = Vector2.ONE
 	_panel_margin.add_theme_constant_override(
 		"margin_right",
 		COMPANION_CONTENT_MARGIN_RIGHT if show_companion else PANEL_CONTENT_MARGIN_RIGHT,
@@ -802,9 +932,13 @@ func _position_companion() -> void:
 	var companion_modulate := _moneybot_companion.self_modulate
 	companion_modulate.a = 1.0
 	_moneybot_companion.self_modulate = companion_modulate
+	_companion_visual_alpha = 1.0
 	if not _has_companion_target:
 		_companion_follow_position = _companion_home_position()
 		_moneybot_companion.global_position = _companion_follow_position
+		_companion_follow_velocity = Vector2.ZERO
+		_companion_visual_scale = 1.0
+		_moneybot_companion.scale = Vector2.ONE
 		_has_companion_target = true
 	_companion_target_position = _companion_home_position()
 
@@ -813,37 +947,89 @@ func _companion_home_position() -> Vector2:
 	var panel_rect := _panel.get_global_rect()
 	return _clamped_companion_position(
 		Vector2(
-			panel_rect.end.x - COMPANION_PANEL_OVERLAP,
+			panel_rect.end.x + COMPANION_HOME_GAP,
 			panel_rect.get_center().y - COMPANION_SIZE.y * 0.5,
 		),
 	)
 
 
-func _cursor_is_over_word(cursor_position: Vector2) -> bool:
-	for child: Node in _chips.get_children():
-		var word := child as Control
-		if (
-			word != null
-			and word.visible
-			and word.is_visible_in_tree()
-			and word.get_global_rect().has_point(cursor_position)
-		):
-			return true
-	return false
+func _update_companion_cursor_active(cursor_position: Vector2) -> bool:
+	var panel_rect := _panel.get_global_rect()
+	if panel_rect.has_point(cursor_position):
+		_companion_cursor_active = true
+	elif not panel_rect.grow(COMPANION_PANEL_EXIT_BUFFER).has_point(cursor_position):
+		_companion_cursor_active = false
+	return _companion_cursor_active
 
 
 func _companion_target_for_cursor(
 	cursor_position: Vector2,
-	current_position: Vector2,
+	_current_position: Vector2,
 ) -> Vector2:
-	var current_center := current_position + COMPANION_SIZE * 0.5
-	var away_from_cursor := current_center - cursor_position
-	var target_offset := _ellipse_offset(
-		away_from_cursor,
-		Vector2(COMPANION_CURSOR_RADIUS_X, COMPANION_CURSOR_RADIUS_Y),
+	# Follow like a physical cursor companion. Keep one predictable offset and
+	# only flip it when the active-size sprite would leave the story frame.
+	var movement_bounds := _companion_movement_bounds()
+	var visual_half_size := COMPANION_SIZE * COMPANION_ACTIVE_SCALE * 0.5
+	var cursor_offset := COMPANION_CURSOR_OFFSET
+	if cursor_position.x + cursor_offset.x + visual_half_size.x > movement_bounds.end.x:
+		cursor_offset.x *= -1.0
+	if cursor_position.y + cursor_offset.y + visual_half_size.y > movement_bounds.end.y:
+		cursor_offset.y *= -1.0
+	var target_center := cursor_position + cursor_offset
+	return _clamped_companion_position(
+		target_center - COMPANION_SIZE * 0.5,
+		COMPANION_ACTIVE_SCALE,
 	)
-	var target_center := cursor_position + target_offset
-	return _clamped_companion_position(target_center - COMPANION_SIZE * 0.5)
+
+
+func _companion_obstacle_overlap_area(
+	companion_position: Vector2,
+	visual_scale: float,
+) -> float:
+	var companion_rect := _companion_visual_rect(
+		companion_position,
+		visual_scale,
+	)
+	var total_overlap := 0.0
+	for obstacle: Rect2 in _companion_obstacle_rects():
+		var overlap := companion_rect.intersection(obstacle)
+		if overlap.has_area():
+			total_overlap += overlap.get_area()
+	return total_overlap
+
+
+func _companion_visual_rect(
+	companion_position: Vector2,
+	visual_scale: float,
+) -> Rect2:
+	var visual_size := COMPANION_SIZE * visual_scale
+	var visual_center := companion_position + COMPANION_SIZE * 0.5
+	return Rect2(visual_center - visual_size * 0.5, visual_size)
+
+
+func _companion_obstacle_rects() -> Array[Rect2]:
+	var obstacle_rects: Array[Rect2] = []
+	for child: Node in _chips.get_children():
+		var word := child as Control
+		if word != null and word.visible and word.is_visible_in_tree():
+			obstacle_rects.append(
+				word.get_global_rect().grow(COMPANION_OBSTACLE_PADDING),
+			)
+	var controls: Array[Control] = [
+		_title_label,
+		_budget_label,
+		_recovery_label,
+		_silence_button,
+		_pity_button,
+		_sponsor_button,
+		_confirm_button,
+	]
+	for control: Control in controls:
+		if control.visible and control.is_visible_in_tree():
+			obstacle_rects.append(
+				control.get_global_rect().grow(COMPANION_OBSTACLE_PADDING),
+			)
+	return obstacle_rects
 
 
 func _ellipse_offset(direction: Vector2, radii: Vector2) -> Vector2:
@@ -863,39 +1049,56 @@ func _companion_hover_offset_at(hover_time: float) -> Vector2:
 	return Vector2(0.0, primary_bob + secondary_bob)
 
 
-func _clamped_companion_position(desired_position: Vector2) -> Vector2:
+func _companion_pulse_scale_at(hover_time: float) -> Vector2:
+	var pulse_phase := hover_time * TAU * COMPANION_PULSE_FREQUENCY
+	return Vector2.ONE * (1.0 + sin(pulse_phase) * COMPANION_PULSE_AMOUNT)
+
+
+func _companion_movement_bounds() -> Rect2:
 	var frame := _story_frame_rect()
-	var movement_bounds := Rect2(
+	return Rect2(
 		get_global_rect().position + frame.position + Vector2.ONE * COMPANION_EDGE_PADDING,
 		frame.size - Vector2.ONE * COMPANION_EDGE_PADDING * 2.0,
 	)
-	return _clamp_companion_to_bounds(desired_position, movement_bounds)
 
 
-func _clamp_companion_to_bounds(companion_position: Vector2, bounds: Rect2) -> Vector2:
-	return Vector2(
-		clampf(
-			companion_position.x,
-			bounds.position.x,
-			maxf(bounds.position.x, bounds.end.x - COMPANION_SIZE.x),
-		),
-		clampf(
-			companion_position.y,
-			bounds.position.y,
-			maxf(bounds.position.y, bounds.end.y - COMPANION_SIZE.y),
-		),
+func _clamped_companion_position(
+	desired_position: Vector2,
+	visual_scale: float = 1.0,
+) -> Vector2:
+	return _clamp_companion_to_bounds(
+		desired_position,
+		_companion_movement_bounds(),
+		visual_scale,
 	)
 
 
-func _recovery_description() -> String:
-	var choices := PackedStringArray(["stay silent"])
-	if _can_use_pity:
-		choices.append("grunt for free")
-	if _can_use_sponsor:
-		choices.append("read a sponsor message for $3")
-	if _budget <= 0:
-		return "No budget. %s." % ", ".join(choices)
-	return "Other responses: %s." % ", ".join(choices)
+func _clamp_companion_to_bounds(
+	companion_position: Vector2,
+	bounds: Rect2,
+	visual_scale: float = 1.0,
+) -> Vector2:
+	var pivot_offset := COMPANION_SIZE * 0.5
+	var scaled_size := COMPANION_SIZE * visual_scale
+	var visual_origin_offset := pivot_offset * (1.0 - visual_scale)
+	return Vector2(
+		clampf(
+			companion_position.x,
+			bounds.position.x - visual_origin_offset.x,
+			maxf(
+				bounds.position.x - visual_origin_offset.x,
+				bounds.end.x - visual_origin_offset.x - scaled_size.x,
+			),
+		),
+		clampf(
+			companion_position.y,
+			bounds.position.y - visual_origin_offset.y,
+			maxf(
+				bounds.position.y - visual_origin_offset.y,
+				bounds.end.y - visual_origin_offset.y - scaled_size.y,
+			),
+		),
+	)
 
 
 func _on_confirm() -> void:

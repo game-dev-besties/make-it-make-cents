@@ -92,28 +92,28 @@ func has_value(key: StringName) -> bool:
 
 func set_story_flag(flag_name: StringName, value: Variant) -> bool:
 	_ensure_story_flag_definitions()
-	var name := String(flag_name)
-	if not _story_flag_definitions.has(name):
-		push_error("Unknown story flag '%s'." % name)
+	var flag_key := String(flag_name)
+	if not _story_flag_definitions.has(flag_key):
+		push_error("Unknown story flag '%s'." % flag_key)
 		return false
-	if not _story_flag_accepts(name, value):
+	if not _story_flag_accepts(flag_key, value):
 		push_error(
 			"Story flag '%s' does not accept value %s."
-			% [name, JSON.stringify(value)]
+			% [flag_key, JSON.stringify(value)]
 		)
 		return false
 	var previous_value: Variant = get_story_flag(flag_name)
-	_story_flags[name] = value
+	_story_flags[flag_key] = value
 	story_flag_changed.emit(flag_name, value, previous_value)
 	return true
 
 
 func get_story_flag(flag_name: StringName, fallback: Variant = null) -> Variant:
 	_ensure_story_flag_definitions()
-	var name := String(flag_name)
-	if _story_flags.has(name):
-		return _story_flags[name]
-	var definition: Variant = _story_flag_definitions.get(name)
+	var flag_key := String(flag_name)
+	if _story_flags.has(flag_key):
+		return _story_flags[flag_key]
+	var definition: Variant = _story_flag_definitions.get(flag_key)
 	if definition is Dictionary:
 		return definition.get("default", fallback)
 	return fallback
@@ -130,8 +130,8 @@ func story_flag_equals(flag_name: StringName, expected: Variant) -> bool:
 
 func describe_story_flag(flag_name: StringName, value: Variant = null) -> String:
 	_ensure_story_flag_definitions()
-	var name := String(flag_name)
-	var definition: Variant = _story_flag_definitions.get(name)
+	var flag_key := String(flag_name)
+	var definition: Variant = _story_flag_definitions.get(flag_key)
 	if not definition is Dictionary:
 		return ""
 	var described_value: Variant = get_story_flag(flag_name) if value == null else value
@@ -147,8 +147,8 @@ func describe_story_flag(flag_name: StringName, value: Variant = null) -> String
 func get_story_flags() -> Dictionary:
 	_ensure_story_flag_definitions()
 	var result: Dictionary = {}
-	for name: Variant in _story_flag_definitions:
-		result[name] = get_story_flag(StringName(name))
+	for flag_key: Variant in _story_flag_definitions:
+		result[flag_key] = get_story_flag(StringName(flag_key))
 	return result
 
 
@@ -344,13 +344,13 @@ func load_dictionary(data: Dictionary) -> void:
 	var stored_story_flags: Variant = data.get("story_flags")
 	if stored_story_flags is Dictionary:
 		for raw_name: Variant in stored_story_flags:
-			var name := String(raw_name)
+			var flag_key := String(raw_name)
 			var value: Variant = stored_story_flags[raw_name]
 			if (
-				_story_flag_definitions.has(name)
-				and _story_flag_accepts(name, value)
+				_story_flag_definitions.has(flag_key)
+				and _story_flag_accepts(flag_key, value)
 			):
-				_story_flags[name] = value
+				_story_flags[flag_key] = value
 	var current_budget := remaining_budget()
 	if current_budget != previous_budget:
 		budget_changed.emit(current_budget, previous_budget)
@@ -375,10 +375,10 @@ func _ensure_story_flag_definitions() -> void:
 	for raw_definition: Variant in raw_flags:
 		if not raw_definition is Dictionary:
 			continue
-		var name := String(raw_definition.get("name", ""))
-		if name.is_empty():
+		var flag_key := String(raw_definition.get("name", ""))
+		if flag_key.is_empty():
 			continue
-		_story_flag_definitions[name] = raw_definition.duplicate(true)
+		_story_flag_definitions[flag_key] = raw_definition.duplicate(true)
 
 
 func _story_flag_accepts(flag_name: String, value: Variant) -> bool:

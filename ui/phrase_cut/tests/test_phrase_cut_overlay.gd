@@ -17,6 +17,7 @@ func _run() -> void:
 	await _test_initial_recovery_choices()
 	await _test_zero_budget_state()
 	await _test_dynamic_phrase_labels()
+	await _test_adjacent_cut_connections()
 	await _test_long_phrase_wraps_inside_panel()
 	if _failures.is_empty():
 		print("Phrase-choice behavior checks passed.")
@@ -50,8 +51,12 @@ func _test_initial_recovery_choices() -> void:
 	chip.set_pressed_no_signal(false)
 	overlay.call("_recompute")
 	_check(
-		not overlay.get_node("%RecoveryBox").visible,
-		"Recovery choices should hide once phrase editing begins.",
+		overlay.get_node("%RecoveryBox").visible,
+		"Recovery choices should stay in place once phrase editing begins.",
+	)
+	_check(
+		not overlay.get_node("%RecoveryLabel").visible,
+		"Positive-budget lines should not show recovery flavor text.",
 	)
 	_check(
 		overlay.get_node("%ConfirmButton").visible,
@@ -79,6 +84,10 @@ func _test_zero_budget_state() -> void:
 	_check(
 		overlay.get_node("%RecoveryBox").visible,
 		"Recovery choices should remain visible when the budget is empty.",
+	)
+	_check(
+		overlay.get_node("%RecoveryLabel").visible,
+		"An empty budget should show a concise fallback prompt.",
 	)
 	_check(
 		(overlay.get_node("%Chips").get_child(0) as Button).disabled,
@@ -111,6 +120,53 @@ func _test_dynamic_phrase_labels() -> void:
 	answer_chip.set_pressed_no_signal(true)
 	overlay.call("_recompute")
 	_check(no_chip.text == "No,", "Restoring a continuation should restore its comma.")
+	overlay.queue_free()
+	await process_frame
+
+
+func _test_adjacent_cut_connections() -> void:
+	root.size = Vector2i(1152, 648)
+	var overlay: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
+	root.add_child(overlay)
+	overlay.setup(
+		[
+			{"type": "phrase", "id": "a", "text": "Really", "cost": 1},
+			{"type": "phrase", "id": "b", "text": "very", "cost": 1},
+			{"type": "fixed", "text": "and"},
+			{"type": "phrase", "id": "c", "text": "truly", "cost": 1},
+		],
+		3,
+		"Percy",
+	)
+	await process_frame
+
+	var chips := overlay.get_node("%Chips") as FlowContainer
+	var first := chips.get_child(0) as PhraseCutWord
+	var second := chips.get_child(1) as PhraseCutWord
+	var after_fixed := chips.get_child(3) as PhraseCutWord
+	first.set_pressed_no_signal(false)
+	second.set_pressed_no_signal(false)
+	after_fixed.set_pressed_no_signal(false)
+	overlay.call("_recompute")
+	await process_frame
+	overlay.call("_refresh_strike_connections")
+
+	_check(
+		first.get_strike_connections().y > 0.0
+		and second.get_strike_connections().x > 0.0,
+		"Adjacent cut words on one row should share a continuous strike.",
+	)
+	_check(
+		is_zero_approx(second.get_strike_connections().y)
+		and is_zero_approx(after_fixed.get_strike_connections().x),
+		"Fixed text should break a connected strike.",
+	)
+	_check(
+		first.get_theme_color("font_color").is_equal_approx(
+			Color(0.917647, 0.498039, 0.345098, 1),
+		),
+		"Cut word text should match the orange strike color.",
+	)
 	overlay.queue_free()
 	await process_frame
 
