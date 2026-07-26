@@ -421,6 +421,11 @@ func _validate_authored_stage_choreography(
 				["dad", "grandma", "son"],
 				"Chapter 1 should establish the three-person family.",
 			)
+			_check_actor_opacity(
+				stage,
+				&"grandma",
+				"Grandma should be fully opaque during the tutorial.",
+			)
 			_finish_stage_animation(animation_player, &"penny_reveal")
 			_check_effect_visibility(
 				stage,
@@ -452,6 +457,11 @@ func _validate_authored_stage_choreography(
 				stage,
 				["dad", "grandma", "son"],
 				"Chapter 1 should restore the family after Clementine exits.",
+			)
+			_check_actor_opacity(
+				stage,
+				&"grandma",
+				"Grandma should return at full opacity after Clementine exits.",
 			)
 		"dad":
 			_finish_stage_animation(animation_player, &"RESET")
@@ -674,6 +684,27 @@ func _check_visible_cast(
 		"%s Expected %s, got %s."
 		% [message, normalized_expected, actual_ids],
 	)
+
+
+func _check_actor_opacity(
+	stage: Node,
+	character_id: StringName,
+	message: String,
+) -> void:
+	var actor_slots := stage.get_node_or_null("ActorSlots")
+	if actor_slots == null:
+		_check(false, "%s Actor slots were not found." % message)
+		return
+	for child: Node in actor_slots.get_children():
+		var slot := child as StageActorSlot
+		if slot != null and slot.character_id == character_id:
+			_check(
+				is_equal_approx(slot.modulate.a * slot.self_modulate.a, 1.0),
+				"%s Got alpha %.3f."
+				% [message, slot.modulate.a * slot.self_modulate.a],
+			)
+			return
+	_check(false, "%s Actor `%s` was not found." % [message, character_id])
 
 
 func _check_actor_pair_distance(

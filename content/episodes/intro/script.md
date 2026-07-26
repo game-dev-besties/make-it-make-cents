@@ -20,8 +20,8 @@ grandma (neutral): …
 son (sad): See?? Even Grandma agrees!
 son (sad): Why does Kayla get to stay in Ohio and why must I move with you? Kayla got to keep her car and I got to keep NOTHING.
 son (sad): I don’t get to see my friends, I’m going to get mega bullied for being FOREIGN, and now I can’t even SPEAK without being BILLED-
-dad (happy): See, that right there would’ve cost us $25!
-dad (happy): That was no “I love you”, but “I love you” is $3 and that was $3 times eight, which means you gave me eight times worth of “I love you”s!
+dad (happy): See, that right there would’ve cost us $57!
+dad (happy): That was no “I love you”, but “I love you” is $3 and that was $3 times nineteen, which means you gave me nineteen times worth of “I love you”s!
 dad (happy): Good thing you got it out on the American side, bud. Cheapest therapy in the hemisphere!
 
 @cue penny_reveal
