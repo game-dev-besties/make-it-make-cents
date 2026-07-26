@@ -14,13 +14,13 @@ son (nervous): [The only]{id=only} [dumb]{id=dumb} [thing]{id=thing} [around her
 if delivery("sponsor"):
   bully (neutral): That thing sure doesn’t look like soda. What are you even talking about, loser?
   SET son_said_soda = true
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   bully (neutral): Trying to ignore me? Guess you’re just too scared to speak up.
   son.success -= 1
-elif kept_count() == 6 or (kept("only") and kept("dumb") and kept("around") and kept("is") and kept("face") and kept_count() == 5) or (kept("only") and kept("dumb") and kept("thing") and kept("is") and kept("face") and kept_count() == 5):
+elif kept("dumb") and kept("thing") and kept("face"):
   bully (angry): M-my face is fine! My mom says I look beautiful!
   son.success += 3
-elif (kept("face") and kept_count() == 1) or (kept("only") and kept("thing") and kept("is") and kept("face") and (kept_count() == 4 or (kept("around") and kept_count() == 5))):
+elif kept("face") and kept_count() == 1:
   bully (neutral): What about it, huh? Sure looks a lot better than yours.
   son.success -= 1
 elif (kept("dumb") and kept_count() == 1) or (kept("dumb") and kept("thing") and kept_count() == 2):
@@ -38,21 +38,26 @@ son (nervous): [I can]{id=i_can} [speak]{id=speak} [better]{id=better} [than]{id
 if delivery("sponsor"):
   bully (neutral): Hahaha, that’s GOLD! You’re just a walking advertisement! Sam’s Soda Pop buy you off, huh? What’d it cost, $2? Ha!
   SET son_said_soda = true
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   bully (neutral): Ha, that’s GOLD! Maybe you should start using that lunch money of yours on some actual WORDS.
   son.success -= 2
 elif kept("vocabulary") and kept("brick") and ((kept("better") and kept("than") and kept("you") and (removed("i_can") or kept("speak"))) or (kept("you_have") and kept_count() == 3) or kept_count() == 2):
   bully (angry): That’s not true, I know a lot of big words! Like…like…you’re a dumb loser!
   son.success += 3
-elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and kept("you") and kept_count() == 5) or (kept("speak") and kept("better") and kept("than") and kept("you") and kept_count() == 4) or (kept("better") and kept("than") and kept("you") and kept_count() == 3) or (kept("i_can") and kept("speak") and kept("better") and kept_count() == 3):
+elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and kept("you") and kept_count() == 5) or (kept("speak") and kept("better") and kept("than") and kept("you") and kept_count() == 4) or (kept("better") and kept("than") and kept("you") and kept_count() == 3):
   bully (neutral): Wow, congratulations for stringing together something that actually makes sense. Do you want a prize?
   son.success += 2
-elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 5) or (kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 4) or (kept("you_have") and kept("brick") and kept_count() == 2):
+elif (kept("i_can") and kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 5) or (kept("speak") and kept("better") and kept("than") and kept("brick") and kept_count() == 4):
   bully (neutral): Am I supposed to be scared? Ha!
   son.success -= 1
-elif (kept("i_can") and kept_count() == 1) or (kept("i_can") and kept("speak") and kept_count() == 2):
+elif (kept("i_can") and kept("speak") and kept_count() == 2) or (kept("i_can") and kept("speak") and kept("better") and kept_count() == 3):
   bully (neutral): Yeah, barely. Guess you can’t afford an actual brain, either.
   son.success -= 1
+elif kept("speak") and kept("better") and kept_count() == 2:
+  bully (neutral): You’re telling ME to speak better? That’s rich! Which apparently you aren’t!
+elif kept("you_have") and kept("brick") and removed("vocabulary"):
+  bully (angry): What are you even talking about? I don’t have a brick. If I did, I would throw it at you!
+  son.success += 1
 else:
   bully (neutral): Better use some cents to make some sense because you’re not making neither! Get it? Ha!
   son.success -= 2
@@ -68,7 +73,7 @@ son (nervous): [What’s wrong with]{id=whats_wrong} [Ohio?]{id=ohio} [Ohio is]{
 if delivery("sponsor"):
   bully (neutral): Yeah, you’re a real soda lover, aren’tcha? All those bubbles clearly rose to your head.
   SET son_said_soda = true
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   bully (neutral): Too ashamed to speak? I would be, too.
 elif kept_count() == 5 or (kept("whats_wrong") and kept("ohio") and kept_count() == 2) or (kept("whats_wrong") and kept("ohio") and kept("not") and kept("bad") and kept_count() == 4):
   bully (neutral): You’re really gonna try to defend Ohio of all places? Ha! Even I know that’s a bad financial decision.
@@ -78,6 +83,9 @@ elif (kept("bad") and kept_count() == 1) or (kept("ohio_is") and kept("bad") and
   son.success += 2
 elif (kept("ohio_is") and kept("not") and kept("bad") and kept_count() == 3) or (kept("not") and kept("bad") and kept_count() == 2) or (kept("ohio") and kept("not") and kept("bad") and kept_count() == 3) or (kept("ohio") and kept("ohio_is") and kept("not") and kept("bad") and kept_count() == 4):
   bully (neutral): Suuuuuure. And you’re not a broke kid who can’t even speak without the help of Nannybot 3000!
+elif kept("ohio") and kept_count() == 1:
+  bully (neutral): Yeah, that’s what I said. Didn’t you hear me? Do you need to pay to listen to each word now, too?
+  son.success -= 1
 else:
   bully (neutral): Yeah…you’re not making any sense. Ohio will do that to you.
   son.success -= 2
@@ -93,11 +101,7 @@ if delivery("sponsor"):
   bully (neutral): You’re shilling out soda to any random call now? How desperate ARE you?
   SET grandma_ignored = true
   SET son_said_soda = true
-elif delivery("silence"):
-  bully (neutral): Who’s that, huh? The bank calling about your single-digit balance? Bet you couldn’t even afford to ask for a loan!
-  son.success -= 2
-  SET grandma_ignored = true
-elif delivery("pity"):
+elif delivery("silence") or delivery("pity"):
   bully (neutral): Who’s that, huh? The bank calling about your single-digit balance? Bet you couldn’t even afford to ask for a loan!
   son.success -= 2
   SET grandma_ignored = true
@@ -119,7 +123,7 @@ son (nervous): [My balance is completely, utterly, absolutely, fine. It has lite
 if delivery("sponsor"):
   bully (neutral): I’m almost starting to feel sorry for you. Being this broke can’t be easy. You can’t even afford a case of the soda you’re raving on about.
   SET son_said_soda = true
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   bully (neutral): Aw, poor thing. Don’t even have a dollar left to spend, huh? Classic Ohio.
   son.success -= 2
 elif kept("balance") and flag("son_said_soda"):
@@ -131,8 +135,8 @@ elif kept("balance"):
 elif (kept("wouldnt") and kept("blow")) or (kept("not") and kept("stupid")):
   bully (neutral): Huh, guess you didn’t blow ALL of it. Congrats to you on not being broke and whatever.
   son.success += 2
-elif (kept("stupid") and kept_count() == 1) or (kept("im") and kept("stupid") and kept_count() == 2):
-  bully (neutral): Yeah, glad we’re in agreement! Hey, we always need more people like you around to help the curve, right? HA!
+elif kept("stupid"):
+  bully (neutral): Yeah, glad we’re in agreement about your intelligence! Hey, we always need more people like you around to help the curve, right? HA!
   son.success -= 3
 elif kept("not") and kept_count() == 1:
   bully (neutral): Not? You mean no? It sure seems like you need every penny you can get!
