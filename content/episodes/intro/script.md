@@ -126,8 +126,8 @@ else:
 
 ## sponsor_aftermath
 @cue sponsor_blackout
-The Sam’s Soda Pop jingle plays. It is worse than advertised.
-@wait 0.8
+@sfx res://audio/sfx/sams_soda_jingle.mp3
+@wait 7
 @cue sponsor_return
 son (surprised): …Oh my God.
 dad (neutral): Yeah. Now you know what it sounds like.

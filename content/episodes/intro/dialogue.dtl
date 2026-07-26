@@ -105,8 +105,8 @@ else:
 	goto_label try_sponsor
 label sponsor_aftermath
 presentation_cue sponsor_blackout
-\The Sam’s Soda Pop jingle plays. It is worse than advertised.
-[wait time="0.8"]
+audio "res://audio/sfx/sams_soda_jingle.mp3" [loop="false"]
+[wait time="7"]
 presentation_cue sponsor_return
 \son (surprised): …Oh my God.
 \dad (neutral): Yeah. Now you know what it sounds like.

@@ -8,12 +8,14 @@ extends SceneTree
 const CAMPAIGN_PATH := "res://content/campaign/campaign.tres"
 const CHARACTER_ROOT := "res://content/characters"
 const EPISODE_ROOT := "res://content/episodes"
+const SPONSOR_JINGLE_PATH := "res://audio/sfx/sams_soda_jingle.mp3"
 
 var _failures: Array[String] = []
 var _character_count := 0
 var _timeline_count := 0
 var _phrase_count := 0
 var _cue_count := 0
+var _sponsor_jingle_cue_count := 0
 
 
 func _init() -> void:
@@ -26,6 +28,7 @@ func _run() -> void:
 	DialogicResourceUtil.get_event_cache()
 	_validate_custom_event_registration()
 	_validate_registered_characters()
+	_validate_sponsor_jingle_asset()
 
 	var campaign := load(CAMPAIGN_PATH) as CampaignDefinition
 	_check(
@@ -36,6 +39,10 @@ func _run() -> void:
 		for error: String in campaign.validate():
 			_failures.append("Campaign validation: %s" % error)
 		_validate_compiled_timelines(campaign)
+		_check(
+			_sponsor_jingle_cue_count == 1,
+			"Chapter 1 should cue the sponsor jingle exactly once.",
+		)
 
 	if _failures.is_empty():
 		print(
@@ -288,6 +295,13 @@ func _validate_timeline(
 				episode,
 				context,
 			)
+		elif event is DialogicAudioEvent:
+			_validate_audio_event(
+				event as DialogicAudioEvent,
+				timeline.events,
+				event_index,
+				context,
+			)
 
 	for metadata_id: Variant in phrase_data:
 		_check(
@@ -456,6 +470,61 @@ func _validate_presentation_cue(
 			event.cue_id,
 			episode.presentation_scene.resource_path,
 		],
+	)
+
+
+func _validate_sponsor_jingle_asset() -> void:
+	var stream := load(SPONSOR_JINGLE_PATH) as AudioStreamMP3
+	_check(
+		stream != null,
+		"%s should import as an AudioStreamMP3." % SPONSOR_JINGLE_PATH,
+	)
+	if stream == null:
+		return
+	_check(
+		not stream.loop,
+		"The sponsor jingle import must not loop.",
+	)
+	_check(
+		stream.get_length() > 8.6 and stream.get_length() < 8.7,
+		"The sponsor jingle should retain its original 8.6465-second duration.",
+	)
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	_check(
+		is_equal_approx(player.pitch_scale, 1.0),
+		"The sponsor jingle should play at normal speed and pitch.",
+	)
+	player.free()
+
+
+func _validate_audio_event(
+	event: DialogicAudioEvent,
+	timeline_events: Array,
+	event_index: int,
+	context: String,
+) -> void:
+	_check(
+		ResourceLoader.exists(event.file_path),
+		"%s references missing audio `%s`." % [context, event.file_path],
+	)
+	if event.file_path != SPONSOR_JINGLE_PATH:
+		return
+	_sponsor_jingle_cue_count += 1
+	_check(
+		event.channel_name.is_empty() and event.set_loop and not event.loop,
+		"%s must play the sponsor jingle once without looping." % context,
+	)
+	var wait_event: DialogicWaitEvent = null
+	if event_index + 1 < timeline_events.size():
+		wait_event = timeline_events[event_index + 1] as DialogicWaitEvent
+	_check(
+		wait_event != null
+		and wait_event.time >= 6.9
+		and wait_event.time <= 7.1
+		and not wait_event.skippable,
+		"%s should hold the blackout through the jingle's audible duration."
+		% context,
 	)
 
 

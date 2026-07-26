@@ -8,7 +8,7 @@ exercises the chapter's full mechanical contract:
 - free silence;
 - a forced zero-budget practice section;
 - a one-use pity-grunt practice step, before normal gameplay makes grunts repeatable;
-- a required sponsor refill that applies the standard success penalty;
+- a required sponsor refill with its final jingle blackout and standard success penalty;
 - a faceless customs interaction stored in `intro.pills_confiscated`; and
 - a closing branch that carries the pills result into the new-home reveal.
 
@@ -19,7 +19,6 @@ starts at the intended neutral `success = 5`, `silly = 0`.
 The remaining work is deliberately content production rather than plumbing:
 
 - decide whether the optional pills interaction stays in Chapter 1;
-- replace the placeholder Sam's Soda blackout with the final jingle/SFX;
 - confirm Clementine's final accent color instead of the draft black-and-violet line;
 - replace prototype color-card scenery and the remaining Officer portrait as
   art arrives;

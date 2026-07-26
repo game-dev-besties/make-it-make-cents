@@ -48,10 +48,13 @@ func _run() -> void:
 		soundtrack != null
 		and soundtrack.stream is AudioStreamMP3
 		and (soundtrack.stream as AudioStreamMP3).loop
+		and (soundtrack.stream as AudioStreamMP3).get_length() > 177.4
+		and (soundtrack.stream as AudioStreamMP3).get_length() < 177.5
+		and is_equal_approx(soundtrack.pitch_scale, 1.0)
 		and soundtrack.autoplay
 		and soundtrack.bus == &"Music"
 		and AudioServer.get_bus_index(&"Music") >= 0,
-		"The app should continuously play the main soundtrack on the Music bus.",
+		"The app should loop the full main soundtrack at normal speed on the Music bus.",
 	)
 	if has_startup_path:
 		start_button.pressed.emit()
