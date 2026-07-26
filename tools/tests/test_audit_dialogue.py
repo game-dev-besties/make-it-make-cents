@@ -49,12 +49,12 @@ class ChapterAuditSmokeTests(unittest.TestCase):
     def test_crush_chapter_audit_covers_conditional_prompt_variants(self) -> None:
         report = audit_episode(
             "crush",
-            expected_phrase_lines=21,
+            expected_phrase_lines=22,
             max_loop_visits=1,
             vary_flags=("dad_offended_interviewer",),
         )
-        self.assertEqual(report["summary"]["phrase_lines"], 21)
-        self.assertEqual(report["summary"]["reachable_phrase_lines"], 21)
+        self.assertEqual(report["summary"]["phrase_lines"], 22)
+        self.assertEqual(report["summary"]["reachable_phrase_lines"], 22)
         self.assertEqual(
             {
                 state["flags"]["got_the_girl"]
@@ -80,6 +80,41 @@ class ChapterAuditSmokeTests(unittest.TestCase):
                 and finding["kind"] == "exact"
             ]
         )
+        forced_jingle = next(
+            question
+            for question in report["questions"]
+            if [
+                phrase["id"]
+                for phrase in question["phrases"]
+            ] == ["forced_jingle"]
+        )
+        self.assertEqual(
+            forced_jingle["input_budget"],
+            {"min": 0, "max": 0},
+        )
+        self.assertEqual(
+            forced_jingle["available_deliveries"],
+            ["sponsor"],
+        )
+        grandma_disclosure = next(
+            question
+            for question in report["questions"]
+            if question["phrases"][0]["id"] == "grandma_sick"
+        )
+        for meaningful_id in ("ohio_couldnt_help", "medical_experts"):
+            selection = next(
+                case
+                for case in grandma_disclosure["cases"]
+                if (
+                    case["delivery"] == "normal"
+                    and case["kept"] == [meaningful_id]
+                )
+            )
+            self.assertEqual(
+                selection["branches"],
+                [2],
+                f"{meaningful_id} should count as opening up.",
+            )
 
     def test_presentation_directive_and_retry_loop_are_auditable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

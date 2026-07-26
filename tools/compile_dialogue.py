@@ -72,7 +72,13 @@ CONDITION_FUNCTIONS = frozenset(
 RECOVERY_MODE_ORDER = ("pity", "sponsor")
 RECOVERY_MODES = frozenset(RECOVERY_MODE_ORDER)
 PHRASE_CONFIG_KINDS = frozenset(
-    {"recovery", "sponsor_score", "sponsor_text", "pity_text"}
+    {
+        "recovery",
+        "required_delivery",
+        "sponsor_score",
+        "sponsor_text",
+        "pity_text",
+    }
 )
 
 
@@ -527,6 +533,19 @@ class ScriptParser:
             )
             return {"kind": "recovery", "policy": policy, "line": line}
 
+        if command == "required_delivery":
+            if argument not in DELIVERY_MODES:
+                _fail(
+                    line,
+                    "`@required_delivery` needs one of "
+                    "`normal`, `silence`, `pity`, or `sponsor`",
+                )
+            return {
+                "kind": "required_delivery",
+                "delivery": argument,
+                "line": line,
+            }
+
         if command == "sponsor_score":
             if not re.fullmatch(r"-?\d+", argument):
                 _fail(line, "`@sponsor_score` needs a whole-number success delta")
@@ -596,7 +615,8 @@ class ScriptParser:
             line,
             "unknown directive; supported directives are "
             "@background, @music, @sfx, @cue, @wait, @budget, @recovery, "
-            "@speaker_name, @sponsor_score, @sponsor_text, and @pity_text",
+            "@required_delivery, @speaker_name, @sponsor_score, "
+            "@sponsor_text, and @pity_text",
         )
 
     def _validate_condition(self, condition: str, line: SourceLine) -> None:
@@ -974,6 +994,7 @@ class Emitter:
         self.sequence = 0
         self._pending_sponsor_success_delta: int | None = None
         self._pending_recovery_text: dict[str, str] = {}
+        self._pending_required_delivery: str | None = None
 
     def build(self, statements: Sequence[dict]) -> Artifact:
         # Use the logical project path rather than an absolute filesystem path
@@ -1097,6 +1118,8 @@ class Emitter:
                 self._emit(depth, f"budget_set {statement['amount']}")
             elif kind == "recovery":
                 self._emit(depth, f"recovery_policy {statement['policy']}")
+            elif kind == "required_delivery":
+                self._pending_required_delivery = statement["delivery"]
             elif kind == "sponsor_score":
                 self._pending_sponsor_success_delta = statement["delta"]
             elif kind in {"sponsor_text", "pity_text"}:
@@ -1166,6 +1189,11 @@ class Emitter:
                 self._pending_recovery_text.copy()
             )
             self._pending_recovery_text.clear()
+        if self._pending_required_delivery is not None:
+            self.phrase_lines[line_id]["required_delivery"] = (
+                self._pending_required_delivery
+            )
+            self._pending_required_delivery = None
         self._emit(depth, f"phrase_cut {prefix} {line_id}")
 
 

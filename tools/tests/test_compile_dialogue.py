@@ -205,6 +205,29 @@ dad: [Drink the soda.]{id=soda}
         )
         self.assertIn('"pity_text": "mrrf"', artifact.phrases)
 
+    def test_required_delivery_is_stored_with_the_following_phrase_line(self) -> None:
+        artifact = self.compile(
+            """\
+@recovery pity,sponsor
+@required_delivery sponsor
+dad: [Say something.]{id=something}
+"""
+        )
+
+        self.assertIn("recovery_policy pity,sponsor", artifact.timeline)
+        self.assertNotIn("required_delivery", artifact.timeline)
+        self.assertIn('"required_delivery": "sponsor"', artifact.phrases)
+
+    def test_required_delivery_rejects_invalid_or_unpaired_values(self) -> None:
+        self.assert_compile_error(
+            "@required_delivery magic\ndad: [Hello.]\n",
+            "`@required_delivery` needs one of",
+        )
+        self.assert_compile_error(
+            "@required_delivery sponsor\ndad: Hello.\n",
+            "must be immediately followed by a phrase-cut dialogue line",
+        )
+
     def test_sponsor_score_requires_a_bounded_integer_and_phrase_line(self) -> None:
         invalid_directives = {
             "@sponsor_score half\ndad: [Hello.]\n": "whole-number success delta",

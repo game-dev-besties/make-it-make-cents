@@ -35,7 +35,7 @@ elif delivery("silence") or delivery("pity"):
     -> required_jingle
   else:
     -> cold_exit
-elif kept("grandma_sick") or ((kept("ohio_couldnt_help") or kept("medical_experts")) and kept("here_we_are")):
+elif kept("grandma_sick") or kept("ohio_couldnt_help") or kept("medical_experts"):
   crush (neutral): Go on…
   if not flag("percy_opened_up"):
     SET percy_opened_up = true
@@ -90,6 +90,7 @@ else:
   -> polite_exit
 
 ## required_jingle
+@budget 0
 @recovery pity,sponsor
 @sponsor_score 0
 @sponsor_text "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
@@ -99,7 +100,18 @@ if delivery("sponsor"):
   -> first_jingle
 else:
   crush (neutral): Go on…
-  -> required_jingle
+  -> forced_jingle
+
+## forced_jingle
+@budget 0
+@recovery pity,sponsor
+@required_delivery sponsor
+@sponsor_score 0
+@sponsor_text "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+son (nervous): […]{id=forced_jingle}
+
+if delivery("sponsor"):
+  -> first_jingle
 
 ## cold_exit
 crush (nervous): Uh… I’m going to go.

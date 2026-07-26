@@ -361,6 +361,23 @@
   },
   "crush_L010": {
     "speaker": "son",
+    "expr": "nervous",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "…",
+        "cost": 1,
+        "id": "forced_jingle"
+      }
+    ],
+    "sponsor_success_delta": 0,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+    },
+    "required_delivery": "sponsor"
+  },
+  "crush_L011": {
+    "speaker": "son",
     "expr": "shy",
     "segments": [
       {
@@ -381,7 +398,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L011": {
+  "crush_L012": {
     "speaker": "son",
     "expr": "shy",
     "segments": [
@@ -397,7 +414,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L012": {
+  "crush_L013": {
     "speaker": "son",
     "expr": "shy",
     "segments": [
@@ -413,7 +430,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L013": {
+  "crush_L014": {
     "speaker": "son",
     "expr": "neutral",
     "segments": [
@@ -441,7 +458,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L014": {
+  "crush_L015": {
     "speaker": "son",
     "expr": "neutral",
     "segments": [
@@ -457,7 +474,7 @@
       "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
     }
   },
-  "crush_L015": {
+  "crush_L016": {
     "speaker": "son",
     "expr": "shy",
     "segments": [
@@ -466,22 +483,6 @@
         "text": "…",
         "cost": 1,
         "id": "post_jingle_response"
-      }
-    ],
-    "sponsor_success_delta": 0,
-    "recovery": {
-      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
-    }
-  },
-  "crush_L016": {
-    "speaker": "son",
-    "expr": "neutral",
-    "segments": [
-      {
-        "type": "phrase",
-        "text": "Yes.",
-        "cost": 1,
-        "id": "yes"
       }
     ],
     "sponsor_success_delta": 0,
@@ -507,7 +508,7 @@
   },
   "crush_L018": {
     "speaker": "son",
-    "expr": "shy",
+    "expr": "neutral",
     "segments": [
       {
         "type": "phrase",
@@ -554,6 +555,22 @@
     }
   },
   "crush_L021": {
+    "speaker": "son",
+    "expr": "shy",
+    "segments": [
+      {
+        "type": "phrase",
+        "text": "Yes.",
+        "cost": 1,
+        "id": "yes"
+      }
+    ],
+    "sponsor_success_delta": 0,
+    "recovery": {
+      "sponsor_text": "SAM’S SODA POP! A SUCKER FOR SODA, THAT’S ME!"
+    }
+  },
+  "crush_L022": {
     "speaker": "son",
     "expr": "shy",
     "segments": [

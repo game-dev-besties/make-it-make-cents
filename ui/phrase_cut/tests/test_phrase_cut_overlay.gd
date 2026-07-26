@@ -16,6 +16,7 @@ func _init() -> void:
 func _run() -> void:
 	await _test_initial_recovery_choices()
 	await _test_zero_budget_state()
+	await _test_required_sponsor_state()
 	await _test_dynamic_phrase_labels()
 	await _test_adjacent_cut_connections()
 	await _test_long_phrase_wraps_inside_panel()
@@ -95,6 +96,44 @@ func _test_zero_budget_state() -> void:
 	)
 	_check(overlay.get_node("%PityButton").visible, "Available HNF should be visible.")
 	_check(not overlay.get_node("%SponsorButton").visible, "Used sponsor should stay hidden.")
+	overlay.queue_free()
+	await process_frame
+
+
+func _test_required_sponsor_state() -> void:
+	var overlay: PhraseCutOverlay = OVERLAY_SCENE.instantiate()
+	root.add_child(overlay)
+	overlay.setup(
+		[{"type": "phrase", "id": "only", "text": "Anything", "cost": 1}],
+		0,
+		"Percy",
+		{
+			"can_use_pity": true,
+			"can_use_sponsor": true,
+			"required_delivery": "sponsor",
+		},
+	)
+	await process_frame
+
+	var silence_button := overlay.get_node("%SilenceButton") as Button
+	var pity_button := overlay.get_node("%PityButton") as Button
+	var sponsor_button := overlay.get_node("%SponsorButton") as Button
+	_check(silence_button.visible and silence_button.disabled, "Silence should be visibly disabled.")
+	_check(pity_button.visible and pity_button.disabled, "HNF should be visibly disabled.")
+	_check(sponsor_button.visible and not sponsor_button.disabled, "The sponsor should remain available.")
+	_check(
+		(overlay.get_node("%Chips").get_child(0) as Button).disabled,
+		"Paid phrases should stay disabled on a required-sponsor prompt.",
+	)
+	overlay.call("_on_silence")
+	_check(overlay.result.is_empty(), "A disabled silence action should not resolve the prompt.")
+	overlay.call("_on_pity")
+	_check(overlay.result.is_empty(), "A disabled HNF action should not resolve the prompt.")
+	overlay.call("_on_sponsor")
+	_check(
+		overlay.result.delivery_mode == &"sponsor",
+		"The required sponsor action should resolve normally.",
+	)
 	overlay.queue_free()
 	await process_frame
 

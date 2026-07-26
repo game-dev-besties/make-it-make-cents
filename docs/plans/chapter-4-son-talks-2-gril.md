@@ -139,17 +139,16 @@ affordability, not Chapter 4 special casing.
 
 ### 3. Budget condition around retries
 
-The runtime already supports the intended "you can refuse now, but you cannot
-progress until Percy jingles" behavior using a retry label, as Chapter 1 does.
 Add `budget()` to writer conditions as a read-only shorthand for
 `GameStats.remaining_budget()`. After the final opening-up prompt, use it to
-route a Percy who has opened up and reached `$0` into the required-jingle retry
-loop, while a player who conserved money receives the polite failure exit.
+route a Percy who has opened up and reached `$0` into the required-jingle beat,
+while a player who conserved money receives the polite failure exit.
 
-The auditor follows that loop with bounded control-flow expansion. Its default
-one-visit bound is enough to prove the mechanically distinct exit and retry
-states without pretending that the infinitely many repeated silence histories
-have a finite exact count.
+The first required-jingle prompt permits silence, grunt, or sponsor. A refusal
+advances to a second `$0` prompt using `@required_delivery sponsor`: silence,
+grunt, and paid phrase chips remain visible but disabled, and only the jingle
+can advance. This one-prompt restriction does not consume or disable those
+responses anywhere else in the episode.
 
 ## Episode and campaign structure
 
@@ -382,12 +381,14 @@ Keep automated coverage focused on the shared behavior:
 
 - retain the compiler's existing `@recovery` checks and add one `budget()`
   translation assertion;
+- assert that `@required_delivery sponsor` compiles into the next phrase line
+  and visibly disables every competing delivery;
 - assert repeated grunt and sponsor use in the existing runtime test;
 - assert the positive-but-unaffordable effective-zero conversion there too;
 - run the existing content resource/timeline validation for the new episode.
 
 No separate hand-authored Chapter 4 branch matrix is necessary. The auditor
-varies the four incoming flags and verifies reachability of all 21 prompts and
+varies the four incoming flags and verifies reachability of all 22 prompts and
 the `no`, `baited`, and `yes` outcomes. During content review, still play one
 tariff-empathy path and one positive-but-unaffordable path to check presentation
 and feel.
@@ -400,7 +401,7 @@ Run:
 python3 tools/compile_dialogue.py
 python3 tools/compile_dialogue.py --check
 python3 tools/audit_dialogue.py crush \
-  --expect-phrase-lines 21 \
+  --expect-phrase-lines 22 \
   --vary-flag son_defended_self \
   --vary-flag grandma_ignored \
   --vary-flag dad_mentioned_family \
@@ -408,8 +409,8 @@ python3 tools/audit_dialogue.py crush \
 bash scripts/check.sh
 ```
 
-The audit reports bounded histories separately for `required_jingle` and
-`jingle_confession_answer`; those are intentional retry cycles, not endings.
+The audit reports bounded histories for `jingle_confession_answer`; that is an
+intentional retry cycle, not an ending.
 Manually confirm the stage walk/back-away cues, exact `$3` post-jingle balance,
 and neighbors callback while reviewing the representative endings.
 

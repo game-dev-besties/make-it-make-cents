@@ -849,6 +849,12 @@ class EpisodeAuditor:
                 {"delta": DEFAULT_SPONSOR_SCORE_DELTA},
             )["delta"]
         )
+        required_delivery = str(
+            configs.get(
+                "required_delivery",
+                {"delivery": ""},
+            )["delivery"]
+        )
 
         result: Frontier = {}
         question.input_paths += sum(reach.paths for reach in frontier.values())
@@ -859,6 +865,11 @@ class EpisodeAuditor:
                 state,
                 recovery,
             ):
+                if (
+                    required_delivery
+                    and case.delivery != required_delivery
+                ):
+                    continue
                 next_state = self._apply_delivery(
                     state,
                     statement["speaker"],
