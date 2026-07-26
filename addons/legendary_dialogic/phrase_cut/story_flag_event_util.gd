@@ -16,6 +16,8 @@ static func store_debug_history(
 	text: String,
 	extra_info: Dictionary,
 ) -> void:
+	if not OS.is_debug_build():
+		return
 	if not is_instance_valid(dialogic) or not dialogic.has_subsystem("History"):
 		return
 	var history := dialogic.get_subsystem("History")

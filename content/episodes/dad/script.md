@@ -13,7 +13,7 @@ dad: [I am]{id=iam} [the best]{id=best} [candidate]{id=candidate} [you will ever
 if delivery("sponsor"):
   interviewer: A-alright. I was hoping for some explanation of your past experience, but if you love soda that much…
   SET dad_offended_interviewer = "soda"
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   interviewer: Nothing? You have nothing to say about yourself? Not a good start, sir.
   dad.success -= 3
 elif kept("best") and (kept("iam") or kept("candidate")):
@@ -46,7 +46,7 @@ if delivery("sponsor"):
   dad.silly += 1
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   interviewer: You really can’t think of a reason? Hmph, not very professional.
   dad.success -= 3
 elif kept("money") and kept("contribute"):
@@ -69,9 +69,6 @@ elif kept("honestly"):
   interviewer: Sir, honesty is not always the best policy. We were hoping for someone with more passion.
   dad.success -= 1
   dad.silly += 1
-else:
-  interviewer: Hmm. Not sure I understand what you mean. You might try saying more next time.
-  dad.success -= 3
 
 ## question_3
 interviewer: Let’s move on. I was wondering about this gap in your resume. Why did you leave your last job?
@@ -83,7 +80,7 @@ if delivery("sponsor"):
   interviewer: Hmm…soda clearly means a lot to you. I’m assuming this kind of attitude is why you were let go…
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   interviewer: I see you don’t want to get into it. Don’t worry, I understand. I was a Twitch streamer in my past life.
   dad.success += 1
   dad.silly += 1
@@ -121,33 +118,27 @@ if delivery("sponsor"):
   interviewer: I find soda as enjoyable as the next, but I wouldn’t go that far. It seems to me your weakness is a lack of self-control.
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   interviewer: No weaknesses!? Very impressive.
   dad.success += 1
-elif kept("no") and kept("experience"):
-  interviewer: Tsk, tsk. Not what we’re looking for.
+elif kept("have") and kept("no") and kept("experience"):
+  interviewer: Tsk, tsk. Not what we’re looking for. If you did a little research on interviews, you’d know you’re not supposed to say an actual weakness here.
   dad.success -= 1
-elif kept("experience") and kept("fast"):
-  interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
-  dad.success -= 1
-  dad.silly += 1
-elif kept("experience"):
+elif kept("fast"):
+  interviewer: I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
+  dad.success -= 2
+elif kept("have") and kept("experience"):
   interviewer: That’s…a weakness? What kind of experience are you talking about? Ah… nevermind.
   dad.success -= 1
   dad.silly += 1
-elif kept("fast"):
-  interviewer: Hmm... I can see why being fast might be a weakness with you, considering you don’t seem to think before speaking.
-  dad.success -= 1
-  dad.silly += 1
-elif kept("but"):
+elif kept("but") and (kept("have") or kept("no")):
   interviewer: Sir!? That’s-that’s not something I need to know. Please don’t continue talking about your butt…
   dad.success -= 2
   dad.silly += 2
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "butts"
-elif kept("no"):
+elif kept("no") and kept_count() == 1:
   interviewer: No weaknesses!? Very impressive.
-  dad.success += 1
 else:
   interviewer: Hmm. Not sure I understand what you mean.
   dad.success -= 3
@@ -162,7 +153,7 @@ if delivery("sponsor"):
   interviewer: Sir, that is not an appropriate response to this question! What if your coworker doesn’t like soda? Some people are very sensitive about their teeth. Ah…nevermind.
   if flag("dad_offended_interviewer") == "none":
     SET dad_offended_interviewer = "soda"
-elif delivery("silence"):
+elif delivery("silence") or delivery("pity"):
   interviewer: Hmm, are you blanking? This is a very common scenario. I’d recommend you do more research next time.
   dad.success -= 2
 elif kept("talk") and kept("out") and kept("manager"):

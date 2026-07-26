@@ -233,12 +233,13 @@ Arrival and prior-chapter checks
   -> Grandma reaction
   -> Dad/interview reaction
   -> optional tariff-empathy score and flag
-  -> four disclosure prompts
+  -> seven disclosure prompts
+       sponsor:         enter the first-jingle reveal
        coherent phrase: remember topic, percy_opened_up = true, "Go on..."
-       only orphans:    "...What?"
-       silence/grunt before opening up: cold exit
-       silence/grunt after opening up: required-jingle retry
-       enough money left after all four: polite failure
+       silence/grunt/orphans: advance the shared failure counter
+       third failure:   cold exit
+       effective zero after opening up: required-jingle retry
+       enough money left after all seven: polite failure
   -> first jingle
        empathy + Dad soda/butts/none reaction
        girl_heard_jingle = true
@@ -252,7 +253,7 @@ Arrival and prior-chapter checks
        question 3:
          grunt -> yes
          jingle -> paid confession -> yes
-         silence three consecutive times -> baited
+         silence -> baited
 ```
 
 ### Arrival
@@ -262,6 +263,10 @@ Arrival and prior-chapter checks
 - Cue Clem walking into the right actor slot.
 - Set the chapter budget only after the money handoff.
 - Phrase-cut the name and Grandma explanation normally.
+- Sponsor responses before the opening-up rail do not enter the romantic
+  first-jingle reveal. The outline's annotated `+1` responses increment
+  `clem_failure_count` and the conversation continues; the soda-candidate
+  "good impression" response is the authored exception with no strike.
 - Only reveal the caring caller to Clem when Percy retains `my_grandma` or
   the complete `She wanted to know if I had food` thought. Other grammatical
   recombinations, including `It was food`, get `...What?` and must not make
@@ -286,23 +291,24 @@ On a coherent response:
 
 On normal delivery with only dependent fragments, say `...What?`.
 
-On silence or grunt:
+Silence, grunt, and incoherent paid fragments all advance the same failure
+counter, even after Percy has opened up. The third failure sets
+`got_the_girl = "no"` and ends the scene. A sponsor response during this
+section enters the first-jingle reveal. If Percy communicates coherently and
+reaches effective zero, enter the required-jingle beat; its first prompt still
+accepts silence, grunt, or sponsor, while a refusal advances to the prompt
+where only the jingle can continue.
 
-- if Percy has never opened up, take the cold exit and set
-  `got_the_girl = "no"`;
-- if he has opened up, reserve the remainder and enter the required-jingle
-  beat. The first prompt still accepts silence, grunt, or sponsor; refusing
-  once advances to the prompt where those two refusals are visibly disabled
-  and only the jingle can continue.
-
-After all four prompts, if no jingle occurred, use the polite exit and set
+After all seven prompts, if no jingle occurred, use the polite exit and set
 `got_the_girl = "no"`. This is the conservative-player failure described in
 the outline.
 
 ### First jingle
 
-Every first sponsor delivery in Clem's presence converges here and sets
-`girl_heard_jingle = true`.
+The first sponsor delivery during the opening-up rail, including its
+required-jingle fallback, converges here and sets `girl_heard_jingle = true`.
+Earlier sponsor responses remain failed or teasing conversation beats in
+Part I.
 
 Branch on `son_showed_tariff_empathy`, then on Dad's interview outcome:
 
@@ -324,16 +330,11 @@ reaction rather than routing the sponsor through dialogue written for silence.
   three-option panel at zero, as required by "REGARDLESS".
 - Use the normal repeatable recovery responses for the reaction and all three
   questions.
-- The third question is asked up to three times. Unroll the three silence
-  attempts or use labels with a small counter flag; unrolling avoids adding a
-  generic local-counter feature.
-- The jingle success branch may show Percy's full internal intended sentence,
-  but only a paid subset should be delivered aloud. Keep the rest as
-  parenthetical narration so the tariff fiction is not contradicted.
-- A normal confession delivery must retain an affirmative independent thought
-  (`Yes` or `you'll let me`). Orphans such as `for` or `as long as` receive
-  `Percy... I still need an answer` and retry; they cannot reach the romantic
-  outcome merely because they were paid words.
+- One silence on the third question is Percy's explicit no and sets
+  `got_the_girl = "baited"`.
+- The jingle response opens the paid confession follow-up. A grunt receives
+  Clem's short confirmation and sets `yes`; silence, another jingle, or any
+  paid subset receives the authored romantic payoff and also sets `yes`.
 
 ## Budget selection
 
@@ -350,8 +351,8 @@ Search candidate budgets and choose one satisfying these acceptance rules:
    can still reach the explicit no-jingle failure.
 3. No successful `got_the_girl = "yes"` path skips
    `girl_heard_jingle = true`.
-4. The first sponsor response always begins Part III with exactly `$3`,
-   including the positive-but-unaffordable edge case.
+4. The first sponsor response in the opening-up rail always begins Part III
+   with exactly `$3`, including the positive-but-unaffordable edge case.
 5. Repeated post-jingle sponsor credit cannot become family savings.
 
 The outline's "guarantee" is therefore conditional on talking enough; it
