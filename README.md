@@ -1,61 +1,17 @@
-# Money Where Your Mouth Is
+# Make It Make Cents
 
-A Godot 4 narrative game built around self-contained, Inspector-editable episodes.
+A game made (with lots of love) for [GMTK Game Jam 2026](https://itch.io/jam/gmtk-jam-2026)!
 
-## Open the project
+> Percy's family has moved into a new country...where words are taxed under the Verbal Tariff Act!? 
+> 
+> Play as assistant bot Pennybot 3000 to cut down on those words so the family can settle into their new life!  And what's all this about Sam's Soda Pop?
 
-Open `project.godot` with Godot 4.7 or newer and press **Play**. Dialogic is
-vendored under `addons/dialogic` and is the only required third-party plugin.
-Generated timelines are committed, so opening a fresh checkout does not require
-a setup command.
+Play on [Itch](https://gamedevbesties.itch.io/make-it-make-cents)!
 
-To compile changed dialogue, run `python3 tools/compile_dialogue.py`. It uses
-only Python's standard library—there is no uv environment or package install.
-See [WRITING_DIALOGUE.md](WRITING_DIALOGUE.md) for the format.
+![The title screen](./marketing/itch/screenshots/01-title-screen.png)
 
-Run `bash scripts/check.sh` for compiler and Godot checks. To produce the Web
-build, run `bash scripts/build-web.sh` with `godot` on your PATH (or set
-`GODOT_BIN`). The Vercel build downloads checksum-verified Godot 4.7.1 binaries
-and export templates into its cache. Vercel Preview deployments use a debug
-Godot export; Production deployments use the normal release export.
+## More Screenshots
 
-## Where work belongs
+![Screenshot demonstrating user cutting words, the game mechanic](./marketing/itch/screenshots/02-cut-your-words.png)
 
-| If you are changing… | Start here |
-| --- | --- |
-| The order of the story | `content/campaign/campaign.tres` |
-| A scene's title, budget, or routes | `content/episodes/<episode>/episode.tres` |
-| Backgrounds, actors, props, and animation | `content/episodes/<episode>/stage.tscn` |
-| Dialogue and branches | `content/episodes/<episode>/script.md` |
-| Shared character art | `content/characters/` |
-| Music and authored sound | `audio/music/` and `audio/sfx/` |
-| Reusable UI or stage parts | `ui/` and `game/components/` |
-| Runtime behaviour | `game/runtime/` |
-
-Every episode is a vertical slice: duplicate the `content/episodes/intro/`
-folder, edit its Godot assets, then register its `episode.tres` in the campaign
-resource. Each episode's `script.md` generates the adjacent `dialogue.dtl` and
-`phrases.json`; do not hand-edit those two files.
-
-## Architecture
-
-`app/` owns the application shell. `CampaignPlayer` chooses an episode, mounts
-its stage, and asks Dialogic to play its timeline. Stage scenes only own their
-visuals and named animations; they do not know campaign order. The single
-`GameStats` autoload owns persistent stats, cutscene budgets, and recovery
-choices.
-
-The small writer compiler emits Dialogic timelines plus phrase metadata.
-Dialogic remains the presentation layer for typed text, speaker names,
-portraits, expression changes, music, and sound. The custom phrase-cut event
-only pauses that timeline long enough for the player to trim and pay for a
-line.
-
-The main soundtrack is owned by the application shell, so it starts on the
-title screen and loops without restarting at chapter boundaries. It plays on
-the dedicated `Music` bus; episode-specific music and sound cues remain owned
-by Dialogic.
-
-`addons/` is reserved for third-party plugins or true Godot editor plugins.
-Application code belongs in `game/`, and authored game content belongs in
-`content/`.
+![Percy and Clementine](./marketing/itch/screenshots/03-percy-and-clementine.png)
